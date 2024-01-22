@@ -26,6 +26,7 @@ export class Search extends Component {
 
     let url = `https://www.omdbapi.com/?t=${this.state.searchTerm}&apiKey=${Search.omdbApiKey}`;
 
+    let searchState = this.state.search;
     await fetch(url)
       .then((resp) => resp.json())
       .then((data) => {
@@ -59,15 +60,16 @@ export class Search extends Component {
           `;
         } else {
           result.innerHTML = `<h3 class="msg">${data.Error}</h3>`;
-          this.setState({ search: { error: data.Error } });
+          searchState.error = data.Error;
         }
       })
       .catch((error) => {
         result.innerHTML = `<h3 class="msg">Error Occured</h3>`;
-        this.setState({ search: { error: error } });
+        searchState.error = error;
       })
       .finally(() => {
-        this.setState({ search: { loading: false } });
+        searchState.loading = false;
+        this.setState({ search: searchState });
       });
   };
 
@@ -76,18 +78,19 @@ export class Search extends Component {
 
     let url = `https://media.palacpl.us/radarr/api/v3/movie/lookup/imdb?imdbId=${this.state.searchResult.imdbID}&apikey=${Search.radarrApiKey}`;
     let titleId = null;
-    // await fetch(url)
-    //   .then((resp) => resp.json())
-    //   .then((data) => {
-    //     titleId = data.tmdbId;
-    //   })
-    //   .catch((error) => {
-    //     this.setState({ request: { error: error } });
-    //     console.log(this.state.request.error);
-    //   })
-    //   .finally(() => {
-    //     this.setState({ request: { loading: false } });
-    //   });
+    let requestState = this.state.request;
+    await fetch(url)
+      .then((resp) => resp.json())
+      .then((data) => {
+        titleId = data.tmdbId;
+      })
+      .catch((error) => {
+        requestState.error = error;
+      })
+      .finally(() => {
+        requestState.loading = false;
+        this.setState({ request: requestState });
+      });
     return titleId;
   };
 
@@ -113,23 +116,26 @@ export class Search extends Component {
         },
       }),
     };
-    // await fetch(url, requestOptions)
-    //   .then((resp) => {
-    //     if (resp.status === 201) {
-    //       return resp.json();
-    //     }
-    //     throw new Error(resp.statusText);
-    //   })
-    //   .then((data) => {
-    //     this.setState({ request: { success: true } });
-    //   })
-    //   .catch((error) => {
-    //     this.setState({ request: { error: error } });
-    //   })
-    //   .finally(() => {
-    //     this.setState({ request: { loading: false } });
-    //   });
-    this.setState({ request: { loading: false, success: true } });
+
+    let requestState = this.state.request;
+    await fetch(url, requestOptions)
+      .then((resp) => {
+        if (resp.status === 201) {
+          return resp.json();
+        }
+        throw new Error(resp.statusText);
+      })
+      .then((data) => {
+        requestState.success = true;
+      })
+      .catch((error) => {
+        requestState.error = error;
+      })
+      .finally(() => {
+        requestState.loading = false;
+        this.setState({ request: requestState });
+      });
+    // this.setState({ request: { loading: false, success: true } });
   };
 
   handleSearch = async (event) => {
@@ -164,7 +170,7 @@ export class Search extends Component {
               if (e.key === "Enter") this.handleSearch(e);
             }}
           ></input>
-          <button id="search-btn" onClick={this.handleSubmit}>
+          <button id="search-btn" onClick={this.handleSearch}>
             {!this.state.search.loading ? (
               "Search"
             ) : (
@@ -179,15 +185,15 @@ export class Search extends Component {
         </div>
         <div id="result"></div>
         <div className="request-container">
-          <div id="request">
-            {this.state.request.success && (
-              <Checkmark id="checkmark" size="medium" />
-            )}
-          </div>
+          <span>{this.state.request.success && "Added!"}</span>
           {this.state.searchResult && [
             <button id="request-btn" onClick={this.handleRequest}>
               {!this.state.request.loading ? (
-                "Add this title"
+                !this.state.request.success ? (
+                  "Add this title"
+                ) : (
+                  <Checkmark id="checkmark" size="medium" color="#4ea345" />
+                )
               ) : (
                 <ClipLoader
                   className="btn-spinner"

@@ -44,39 +44,17 @@
   font-weight: 600;
 }
 
-.request-container {
-  position: relative;
-  display: grid;
-  grid-template-columns: 9fr 3fr;
-  gap: 1.2em;
-}
-
 .search-container button {
   font-size: 0.9em;
   outline: none;
   border-radius: 0.3em;
 }
 
-.request-container button {
-  background-color: #ffb92a;
-  border: none;
-  cursor: pointer;
-  font-weight: 600;
-}
-
-#request-btn {
-  padding: 0.2em;
-}
-
-#result {
-  color: #fff;
-}
-
 .info {
   position: relative;
   display: grid;
   grid-template-columns: 4fr 8fr;
-  margin-top: 1.2em;
+  margin-top: 1.3em;
 }
 
 .poster {
@@ -102,6 +80,8 @@ h2 {
 
 .rating img {
   width: 1.2em;
+  position: relative;
+  bottom: 15%;
 }
 
 .rating h4 {
@@ -163,4 +143,31 @@ p {
   .info {
     grid-template-columns: 1fr;
   }
+}
+
+.request-container {
+  position: relative;
+  display: grid;
+  grid-template-columns: 9fr 3fr;
+  gap: 1.2em;
+}
+
+.request-container button {
+  background-color: #ffb92a;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+#request-btn {
+  padding: 0.2em;
+}
+
+#result {
+  color: #fff;
+}
+
+.request-container span {
+  color: white;
+  text-align: right;
 }
