@@ -1,0 +1,35 @@
+﻿a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.box-shadow {
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Paytone+One&family=Rubik+Glitch&display=swap");
+.nav-title {
+  font-family: "Paytone One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 40px;
+  color: white;
+}
+
+#brand-x {
+  font-family: "Paytone One", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  font-size: 35px;
+  color: #ffb92a;
+}
