@@ -1,7 +1,14 @@
 import React, { Component } from "react";
 import { ClipLoader } from "react-spinners";
 import { Checkmark } from "react-checkmark";
+import Request from "./Request";
 import "./Search.css";
+
+const Status = {
+  ADDED: "Added!",
+  PREVIOUSLYADDED: "Already available!",
+  PENDING: "",
+};
 
 export class Search extends Component {
   static displayName = Search.name;
@@ -15,7 +22,7 @@ export class Search extends Component {
     this.state = {
       searchTerm: "",
       search: { loading: false, error: null },
-      request: { loading: false, error: null, success: false },
+      request: new Request(Status.PENDING),
       searchResult: null,
     };
   }
@@ -64,6 +71,7 @@ export class Search extends Component {
         }
       })
       .catch((error) => {
+        console.error(error.message);
         result.innerHTML = `<h3 class="msg">Error Occured</h3>`;
         searchState.error = error;
       })
@@ -74,28 +82,57 @@ export class Search extends Component {
   };
 
   fetchTitleId = async () => {
-    this.setState({ request: { loading: true, error: null } });
+    this.setState({ request: this.state.request.startLoading() });
 
     let url = `https://media.palacpl.us/radarr/api/v3/movie/lookup/imdb?imdbId=${this.state.searchResult.imdbID}&apikey=${Search.radarrApiKey}`;
     let titleId = null;
-    let requestState = this.state.request;
+
     await fetch(url)
-      .then((resp) => resp.json())
+      .then((resp) => {
+        if (!resp.ok) {
+          throw new Error("Not Found");
+        }
+        return resp.json();
+      })
       .then((data) => {
         titleId = data.tmdbId;
       })
       .catch((error) => {
-        requestState.error = error;
+        console.error(error);
+        this.state.request.setError(error.message);
       })
       .finally(() => {
-        requestState.loading = false;
-        this.setState({ request: requestState });
+        this.setState({ request: this.state.request.stopLoading() });
       });
     return titleId;
   };
 
+  checkForTitle = async (titleId) => {
+    this.setState({ request: this.state.request.startLoading() });
+
+    let url = `https://media.palacpl.us/radarr/api/v3/movie?tmdbId=${titleId}&apikey=${Search.radarrApiKey}`;
+
+    await fetch(url)
+      .then((resp) => resp.json())
+      .then((data) => {
+        if (data.length === 0) {
+          return;
+        }
+        if (data[0].monitored && data[0].hasFile) {
+          this.state.request.setCompleted(Status.PREVIOUSLYADDED);
+        }
+      })
+      .catch((error) => {
+        console.error(error);
+        this.state.request.setError();
+      })
+      .finally(() => {
+        this.setState({ request: this.state.request.stopLoading() });
+      });
+  };
+
   submitRequest = async (titleId) => {
-    this.setState({ request: { loading: true, error: null } });
+    this.setState({ request: this.state.request.startLoading() });
 
     let url = `https://media.palacpl.us/radarr/api/v3/movie?apikey=${Search.radarrApiKey}`;
     const requestOptions = {
@@ -106,9 +143,6 @@ export class Search extends Component {
         title: this.state.searchResult.Title,
         imdbId: this.state.searchResult.imdbID,
         rootFolderPath: "/movies",
-        path: `/${
-          this.state.searchResult.Year
-        }.${this.state.searchResult.Title.toUpperCase()}`,
         qualityProfileId: 1,
         monitored: true,
         addOptions: {
@@ -117,7 +151,6 @@ export class Search extends Component {
       }),
     };
 
-    let requestState = this.state.request;
     await fetch(url, requestOptions)
       .then((resp) => {
         if (resp.status === 201) {
@@ -126,21 +159,24 @@ export class Search extends Component {
         throw new Error(resp.statusText);
       })
       .then((data) => {
-        requestState.success = true;
+        console.log(data);
+        this.state.request.setCompleted(Status.ADDED);
       })
       .catch((error) => {
-        requestState.error = error;
+        console.error(error.message);
+        this.state.request.setError(error.message);
       })
       .finally(() => {
-        requestState.loading = false;
-        this.setState({ request: requestState });
+        this.setState({ request: this.state.request.stopLoading() });
       });
-    // this.setState({ request: { loading: false, success: true } });
+    this.setState({ request: { loading: false, success: true } });
   };
 
   handleSearch = async (event) => {
     event.preventDefault();
+    this.setState({ request: new Request(Status.PENDING) });
     await this.fetchResults();
+    this.setState({ searchTerm: "" });
   };
 
   handleChange = (event) => {
@@ -150,15 +186,22 @@ export class Search extends Component {
   handleRequest = async (event) => {
     event.preventDefault();
     let titleId = await this.fetchTitleId();
-    // Check local DB to see if title has already been added
-    await this.submitRequest(titleId);
+    if (titleId) {
+      console.log(`Found title with ID ${titleId}`);
+      await this.checkForTitle(titleId);
+
+      if (this.state.request.status === Status.PENDING) {
+        await this.submitRequest(titleId);
+      }
+    }
+
+    console.log(this.state.request);
     // spin off task to add title to DB
   };
 
   render() {
     return (
       <div className="component-container" id="container">
-        <h1>{this.displayName}</h1>
         <div className="search-container">
           <input
             type="text"
@@ -185,20 +228,24 @@ export class Search extends Component {
         </div>
         <div id="result"></div>
         <div className="request-container">
-          <span>{this.state.request.success && "Added!"}</span>
+          <span>{this.state.request.status}</span>
           {this.state.searchResult && [
-            <button id="request-btn" onClick={this.handleRequest}>
+            <button
+              id="request-btn"
+              onClick={this.handleRequest}
+              disabled={this.state.request.success}
+            >
               {!this.state.request.loading ? (
-                !this.state.request.success ? (
-                  "Add this title"
-                ) : (
+                this.state.request.success ? (
                   <Checkmark id="checkmark" size="medium" color="#4ea345" />
+                ) : (
+                  "Add this title"
                 )
               ) : (
                 <ClipLoader
                   className="btn-spinner"
                   color="#1c1917"
-                  loading={this.state.loading}
+                  loading={this.state.request.loading}
                   size={18}
                 />
               )}

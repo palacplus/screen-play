@@ -1,0 +1,138 @@
+.queue-container {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  top: 120%;
+  left: 50%;
+  font-size: 16px;
+  width: 90vw;
+  max-width: 50.5em;
+  padding: 1.5em 1.8em;
+  background-color: #1e293b;
+  transition: top 0.8s ease-in-out;
+  border-radius: 0.6em;
+  box-shadow: 1.2em 2em 3em rgba(0, 0, 0, 0.2);
+}
+
+.queue-container h4 {
+  color: white;
+  font-size: large;
+}
+
+.queue-container img {
+  width: 5.4em;
+  max-width: fit-content;
+  text-align: center;
+  display: block;
+}
+
+.queue-container table {
+  color: white;
+  border-collapse: separate;
+  border-spacing: 0;
+  box-sizing: border-box;
+}
+
+.queue-container tr {
+  box-shadow: 0px 1px 10px 0px rgba(0, 0, 0, 0.5);
+  transition: 0.5s;
+}
+
+.queue-container td {
+  border: solid 1px #343d4d;
+  border-style: solid;
+  padding: 8px;
+  white-space: nowrap;
+}
+
+.queue-container tr:hover {
+  border-radius: 10px;
+  /* display: block; */
+  background-color: #2c313a;
+  cursor: pointer;
+  border: solid 0px;
+  border-radius: 10px;
+  border-bottom-right-radius: 10px;
+  border-left-style: none;
+}
+
+.queue-container td:nth-child(1) {
+  border-right-style: none;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.queue-container td:nth-child(2) {
+  border-left-style: none;
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+  width: 100%;
+}
+
+.queue-container table header {
+  display: grid;
+  grid-template-columns: 9fr 3fr;
+  padding-top: 0.5em;
+}
+
+.queue-container .content {
+  display: grid;
+  grid-template-columns: 9fr 3fr;
+  gap: 1.2em;
+  padding-top: 0.1em;
+}
+
+.queue-container footer {
+  position: relative;
+  text-align: right;
+  font-size: small;
+  color: #afaeae;
+  display: block;
+  padding-top: 2%;
+}
+
+.spinner {
+  position: relative;
+  left: 46%;
+  margin-top: 2%;
+}
+
+@media screen and (max-width: 600px) {
+  .queue-container {
+    font-size: 14px;
+  }
+  table {
+    margin: auto;
+    width: auto;
+    max-height: 10.8em;
+  }
+}
+
+.quality {
+  text-align: center;
+  font-weight: 300;
+  font-size: 0.75em;
+  padding: 0.4em 1.6em;
+  border-radius: 0.4em;
+  border: 2px solid;
+}
+
+.queue-container .details {
+  justify-content: left;
+  margin: 0;
+}
+
+.download-timer {
+  letter-spacing: 0.1em;
+  font-size: 1.8em;
+}
+
+.eta {
+  padding-left: 0.3em;
+  text-shadow: #1e293b;
+  font-size: small;
+  letter-spacing: 0;
+}
+
+.progress {
+  justify-content: space-between;
+}

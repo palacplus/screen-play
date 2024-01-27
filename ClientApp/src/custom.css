@@ -28,6 +28,7 @@ code {
   padding: 0;
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
+  --bs-border-width: 0;
 }
 
 body {

@@ -53,11 +53,6 @@ export class NavMenu extends Component {
                 </NavLink>
               </NavItem>
               <NavItem>
-                <NavLink tag={Link} className="text-light" to="/counter">
-                  Counter
-                </NavLink>
-              </NavItem>
-              <NavItem>
                 <NavLink tag={Link} className="text-light" to="/fetch-data">
                   Fetch data
                 </NavLink>
@@ -65,6 +60,11 @@ export class NavMenu extends Component {
               <NavItem>
                 <NavLink tag={Link} className="text-light" to="/search">
                   Search
+                </NavLink>
+              </NavItem>
+              <NavItem>
+                <NavLink tag={Link} className="text-light" to="/queue">
+                  Queue
                 </NavLink>
               </NavItem>
               <LoginMenu></LoginMenu>
