@@ -2,7 +2,7 @@ export default class Request {
   // Properties (instance variables)
   constructor(status) {
     this.loading = false;
-    this.error = null;
+    this.error = false;
     this.success = false;
     this.status = status;
   }
@@ -24,6 +24,7 @@ export default class Request {
   }
 
   setError(errorMessage) {
+    this.error = true;
     this.status = errorMessage
       ? errorMessage
       : "An Error occurred. System admin has been notified.";

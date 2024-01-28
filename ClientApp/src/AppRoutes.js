@@ -1,5 +1,4 @@
 import ApiAuthorzationRoutes from "./components/api-authorization/ApiAuthorizationRoutes";
-import { Movie } from "./components/Movie";
 import { FetchData } from "./components/FetchData";
 import { Search } from "./components/Search";
 import { Home } from "./components/Home";
@@ -9,10 +8,6 @@ const AppRoutes = [
   {
     index: true,
     element: <Home />,
-  },
-  {
-    path: "/result",
-    element: <Movie />,
   },
   {
     path: "/fetch-data",

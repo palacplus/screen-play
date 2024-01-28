@@ -42,9 +42,6 @@
   border: none;
   cursor: pointer;
   font-weight: 600;
-}
-
-.search-container button {
   font-size: 0.9em;
   outline: none;
   border-radius: 0.3em;
@@ -122,12 +119,12 @@ p {
   font-size: 0.9em;
   font-weight: 300;
   line-height: 1.8em;
-  text-align: justify;
+  text-align: start;
   color: #a0a0a0;
 }
 
 .msg {
-  text-align: center;
+  text-align: left;
 }
 
 @media screen and (max-width: 600px) {

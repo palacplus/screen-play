@@ -2,6 +2,7 @@ import React, { Component } from "react";
 import { Oval } from "react-loader-spinner";
 import { ProgressBar } from "react-bootstrap";
 import DownloadTimer from "./DownloadTimer";
+import { MovieDetails } from "./MovieDetails";
 import "./Queue.css";
 
 export class Queue extends Component {
@@ -12,13 +13,19 @@ export class Queue extends Component {
 
   constructor(props) {
     super(props);
-    this.state = { downloads: [], loading: true, error: null, timedOut: false };
+    this.state = {
+      downloads: [],
+      loading: true,
+      error: null,
+      timedOut: false,
+      expandedRows: [],
+    };
   }
 
   componentDidMount() {
     this.fetchQueueData();
     this.updateTimeoutId = setTimeout(this.fetchQueueData, 1000);
-    this.intervalId = setInterval(this.fetchQueueData, 3000);
+    // this.intervalId = setInterval(this.fetchQueueData, 3000);
     this.timeoutId = setTimeout(() => {
       this.setState({
         timedOut: true,
@@ -34,54 +41,58 @@ export class Queue extends Component {
     clearTimeout(this.timeoutId);
   }
 
-  static renderQueueTable(downloads) {
+  renderQueueTable(downloads) {
     return (
       <table className="table queue-table">
         <tbody>
-          {downloads.map((download) => (
-            <tr key={download.id}>
+          {downloads.map((download, index) => (
+            <tr key={index} onClick={() => this.handleRowClick(index)}>
               <td>
-                <img src={download.poster} alt=""></img>
-              </td>
-              <td>
-                <ProgressBar
-                  animated={download.percent < 100}
-                  now={download.percent}
-                  variant={download.percent < 100 ? "" : "success"}
-                  label={download.percent === 100 ? "✔ Completed" : ""}
-                />
                 <header>
-                  <h4>{download.title}</h4>
-
-                  <div
-                    className="quality"
-                    style={{
-                      color: Queue.resolutionColor(
-                        download.quality.quality.resolution
-                      ),
-                      borderColor: Queue.resolutionColor(
-                        download.quality.quality.resolution
-                      ),
-                    }}
-                  >
-                    {download.quality.quality.name}
+                  <img src={download.poster} alt=""></img>
+                  <div>
+                    <ProgressBar
+                      animated={download.percent < 100}
+                      now={download.percent}
+                      variant={download.percent < 100 ? "" : "success"}
+                      label={download.percent === 100 ? "✔ Completed" : ""}
+                    />
+                    <div className="inner">
+                      <h4>{download.title}</h4>
+                      <div
+                        className="quality"
+                        style={{
+                          color: Queue.resolutionColor(
+                            download.quality.quality.resolution
+                          ),
+                          borderColor: Queue.resolutionColor(
+                            download.quality.quality.resolution
+                          ),
+                        }}
+                      >
+                        {download.quality.quality.name}
+                      </div>
+                      <DownloadTimer
+                        expiryTimestamp={Queue.convertToDate(download.timeleft)}
+                      />
+                    </div>
                   </div>
                 </header>
-                <div className="content">
-                  <div className="details">
-                    <span>{download.rated}</span>
-                    <span>{download.year}</span>
-                    <span>{download.runtime} min</span>
-                  </div>
-                  <DownloadTimer
-                    expiryTimestamp={Queue.convertToDate(download.timeleft)}
-                  />
-                </div>
                 <footer>
                   <div className="added">
                     <span>{download.addedDt}</span>
                   </div>
                 </footer>
+                <div
+                  id="expandable"
+                  className={
+                    this.state.expandedRows.includes(index) ? "expanded" : ""
+                  }
+                >
+                  {this.state.expandedRows.includes(index) && (
+                    <MovieDetails data={download} />
+                  )}
+                </div>
               </td>
             </tr>
           ))}
@@ -109,11 +120,21 @@ export class Queue extends Component {
             />
           )
         ) : (
-          Queue.renderQueueTable(this.state.downloads)
+          this.renderQueueTable(this.state.downloads)
         )}
       </div>
     );
   }
+
+  handleRowClick = (index) => {
+    const expandedRows = [...this.state.expandedRows];
+    if (expandedRows.includes(index)) {
+      expandedRows.splice(expandedRows.indexOf(index), 1);
+    } else {
+      expandedRows.push(index);
+    }
+    this.setState({ expandedRows });
+  };
 
   static resolutionColor(resolution) {
     switch (resolution) {
@@ -210,9 +231,13 @@ export class Queue extends Component {
           record.addedDt = new Date(record.addedTs).toLocaleString("en-US", {
             timeZoneName: "short",
           });
+          console.log(data);
           record.year = data.year;
-          record.rated = data.certification;
+          record.certification = data.certification;
           record.runtime = data.runtime;
+          record.ratings = data.ratings;
+          record.genres = data.genres;
+          record.overview = data.overview;
           if (data.title === "Not Found") {
             record = null;
           }

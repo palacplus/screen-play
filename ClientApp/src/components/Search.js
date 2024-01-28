@@ -3,10 +3,11 @@ import { ClipLoader } from "react-spinners";
 import { Checkmark } from "react-checkmark";
 import Request from "./Request";
 import "./Search.css";
+import { MovieDetails } from "./MovieDetails";
 
 const Status = {
   ADDED: "Added!",
-  PREVIOUSLYADDED: "Already available!",
+  PREVIOUSLYADDED: "Available!",
   PENDING: "",
 };
 
@@ -21,71 +22,48 @@ export class Search extends Component {
     super(props);
     this.state = {
       searchTerm: "",
-      search: { loading: false, error: null },
+      loading: false,
+      error: false,
+      errorMessage: "",
       request: new Request(Status.PENDING),
       searchResult: null,
     };
   }
 
-  fetchResults = async () => {
-    this.setState({ search: { loading: true, error: null } });
-    let result = document.getElementById("result");
-
-    let url = `https://www.omdbapi.com/?t=${this.state.searchTerm}&apiKey=${Search.omdbApiKey}`;
-
-    let searchState = this.state.search;
+  fetchImdbId = async () => {
+    this.setState({ loading: true, error: false });
+    const url = `https://www.omdbapi.com/?t=${this.state.searchTerm}&apiKey=${Search.omdbApiKey}`;
+    const searchState = this.state;
+    var result = null;
     await fetch(url)
       .then((resp) => resp.json())
       .then((data) => {
         if (data.Response === "True") {
-          this.setState({ searchResult: data });
-          result.innerHTML = `
-              <div class="info">
-                  <img src=${data.Poster} class="poster">
-                  <div class="title">
-                      <h2>${data.Title}</h2>
-                      <div class="rating">
-                          <img src="https://raw.githubusercontent.com/AsmrProg-YT/100-days-of-javascript/74e652f559e5256d1d7bbdce823c42f7a480830a/Day%20%2311%20-%20Movie%20Info%20App/star-icon.svg"></img>
-                          <h4>${data.imdbRating}</h4>
-                      </div>
-                      <div class="details">
-                          <span>${data.Rated}</span>
-                          <span>${data.Year}</span>
-                          <span>${data.Runtime}</span>
-                      </div>
-                      <div class="genre">
-                          <div>${data.Genre.split(",").join(
-                            "</div><div>"
-                          )}</div>
-                      </div>
-                  </div>
-              </div>
-              <h3>Plot:</h3>
-              <p>${data.Plot}</p>
-              <h3>Cast:</h3>
-              <p>${data.Actors}</p>
-          `;
+          result = data.imdbID;
+          console.log(`Found IMDB ID ${result}`);
         } else {
-          result.innerHTML = `<h3 class="msg">${data.Error}</h3>`;
-          searchState.error = data.Error;
+          searchState.error = true;
         }
       })
       .catch((error) => {
         console.error(error.message);
-        result.innerHTML = `<h3 class="msg">Error Occured</h3>`;
-        searchState.error = error;
+        searchState.error = true;
+        searchState.errorMessage = error.message;
       })
       .finally(() => {
         searchState.loading = false;
-        this.setState({ search: searchState });
+        this.setState({ searchState });
       });
+    return result;
   };
 
-  fetchTitleId = async () => {
-    this.setState({ request: this.state.request.startLoading() });
-
-    let url = `https://media.palacpl.us/radarr/api/v3/movie/lookup/imdb?imdbId=${this.state.searchResult.imdbID}&apikey=${Search.radarrApiKey}`;
-    let titleId = null;
+  lookupTitle = async (imdbId) => {
+    this.setState({
+      loading: true,
+      request: this.state.request.startLoading(),
+    });
+    const url = `https://media.palacpl.us/radarr/api/v3/movie/lookup/imdb?imdbId=${imdbId}&apikey=${Search.radarrApiKey}`;
+    var titleId = null;
 
     await fetch(url)
       .then((resp) => {
@@ -96,26 +74,30 @@ export class Search extends Component {
       })
       .then((data) => {
         titleId = data.tmdbId;
+        this.setState({ searchResult: data });
       })
       .catch((error) => {
         console.error(error);
-        this.state.request.setError(error.message);
+        this.setState({ error: true, errorMessage: error.message });
       })
       .finally(() => {
-        this.setState({ request: this.state.request.stopLoading() });
+        this.setState({
+          loading: false,
+          request: this.state.request.stopLoading(),
+        });
       });
     return titleId;
   };
 
-  checkForTitle = async (titleId) => {
+  checkAvailablilty = async (titleId) => {
     this.setState({ request: this.state.request.startLoading() });
-
-    let url = `https://media.palacpl.us/radarr/api/v3/movie?tmdbId=${titleId}&apikey=${Search.radarrApiKey}`;
+    const url = `https://media.palacpl.us/radarr/api/v3/movie?tmdbId=${titleId}&apikey=${Search.radarrApiKey}`;
 
     await fetch(url)
       .then((resp) => resp.json())
       .then((data) => {
         if (data.length === 0) {
+          console.log(`${titleId} has not been previously added`);
           return;
         }
         if (data[0].monitored && data[0].hasFile) {
@@ -131,7 +113,7 @@ export class Search extends Component {
       });
   };
 
-  submitRequest = async (titleId) => {
+  submitRequest = async () => {
     this.setState({ request: this.state.request.startLoading() });
 
     let url = `https://media.palacpl.us/radarr/api/v3/movie?apikey=${Search.radarrApiKey}`;
@@ -139,9 +121,9 @@ export class Search extends Component {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        tmdbId: titleId,
-        title: this.state.searchResult.Title,
-        imdbId: this.state.searchResult.imdbID,
+        tmdbId: this.state.searchResult.tmdbId,
+        title: this.state.searchResult.title,
+        imdbId: this.state.searchResult.imdbId,
         rootFolderPath: "/movies",
         qualityProfileId: 1,
         monitored: true,
@@ -159,7 +141,7 @@ export class Search extends Component {
         throw new Error(resp.statusText);
       })
       .then((data) => {
-        console.log(data);
+        console.log(`Submitting request ${data}`);
         this.state.request.setCompleted(Status.ADDED);
       })
       .catch((error) => {
@@ -169,14 +151,21 @@ export class Search extends Component {
       .finally(() => {
         this.setState({ request: this.state.request.stopLoading() });
       });
-    this.setState({ request: { loading: false, success: true } });
   };
 
   handleSearch = async (event) => {
     event.preventDefault();
-    this.setState({ request: new Request(Status.PENDING) });
-    await this.fetchResults();
-    this.setState({ searchTerm: "" });
+    if (this.state.searchTerm.length > 0) {
+      var imdbId = await this.fetchImdbId();
+      if (!this.state.error && imdbId) {
+        await this.lookupTitle(imdbId);
+      }
+      this.setState({
+        searchTerm: "",
+        loading: false,
+      });
+    }
+    console.debug(this.state);
   };
 
   handleChange = (event) => {
@@ -185,13 +174,11 @@ export class Search extends Component {
 
   handleRequest = async (event) => {
     event.preventDefault();
-    let titleId = await this.fetchTitleId();
-    if (titleId) {
-      console.log(`Found title with ID ${titleId}`);
-      await this.checkForTitle(titleId);
-
+    if (this.state.searchResult.tmdbId) {
+      this.setState({ request: new Request(Status.PENDING) });
+      this.checkAvailablilty(this.state.searchResult.tmdbId);
       if (this.state.request.status === Status.PENDING) {
-        await this.submitRequest(titleId);
+        await this.submitRequest();
       }
     }
 
@@ -214,7 +201,7 @@ export class Search extends Component {
             }}
           ></input>
           <button id="search-btn" onClick={this.handleSearch}>
-            {!this.state.search.loading ? (
+            {!this.state.loading ? (
               "Search"
             ) : (
               <ClipLoader
@@ -226,31 +213,44 @@ export class Search extends Component {
             )}
           </button>
         </div>
-        <div id="result"></div>
+        <div id="result">
+          {this.state.searchResult &&
+          !this.state.loading &&
+          !this.state.error ? (
+            <MovieDetails data={this.state.searchResult} />
+          ) : (
+            <h3 class="msg">{this.state.errorMessage}</h3>
+          )}
+        </div>
         <div className="request-container">
-          <span>{this.state.request.status}</span>
-          {this.state.searchResult && [
-            <button
-              id="request-btn"
-              onClick={this.handleRequest}
-              disabled={this.state.request.success}
-            >
-              {!this.state.request.loading ? (
-                this.state.request.success ? (
-                  <Checkmark id="checkmark" size="medium" color="#4ea345" />
+          <span>{!this.state.error && this.state.request.status}</span>
+          {this.state.searchResult &&
+            !this.state.loading &&
+            !this.state.error && [
+              <button
+                id="request-btn"
+                onClick={this.handleRequest}
+                hidden={this.state.error || this.state.request.error}
+                disabled={
+                  this.state.request.success || this.state.request.error
+                }
+              >
+                {!this.state.request.loading ? (
+                  this.state.request.success ? (
+                    <Checkmark id="checkmark" size="medium" color="#4ea345" />
+                  ) : (
+                    "Add this title"
+                  )
                 ) : (
-                  "Add this title"
-                )
-              ) : (
-                <ClipLoader
-                  className="btn-spinner"
-                  color="#1c1917"
-                  loading={this.state.request.loading}
-                  size={18}
-                />
-              )}
-            </button>,
-          ]}
+                  <ClipLoader
+                    className="btn-spinner"
+                    color="#1c1917"
+                    loading={this.state.request.loading}
+                    size={18}
+                  />
+                )}
+              </button>,
+            ]}
         </div>
       </div>
     );
