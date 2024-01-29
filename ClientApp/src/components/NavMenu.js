@@ -9,6 +9,7 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import { LoginMenu } from "./api-authorization/LoginMenu";
+import { NavDropdownMenu } from "./NavDropdownMenu";
 import "./NavMenu.css";
 
 export class NavMenu extends Component {
@@ -47,27 +48,13 @@ export class NavMenu extends Component {
             navbar
           >
             <ul className="navbar-nav flex-grow">
-              <NavItem>
-                <NavLink tag={Link} className="text-light" to="/">
-                  Home
-                </NavLink>
-              </NavItem>
-              <NavItem>
-                <NavLink tag={Link} className="text-light" to="/fetch-data">
-                  Fetch data
-                </NavLink>
-              </NavItem>
+              <LoginMenu></LoginMenu>
               <NavItem>
                 <NavLink tag={Link} className="text-light" to="/search">
-                  Search
+                  <span class="material-symbols-outlined">video_search</span>
                 </NavLink>
               </NavItem>
-              <NavItem>
-                <NavLink tag={Link} className="text-light" to="/queue">
-                  Queue
-                </NavLink>
-              </NavItem>
-              <LoginMenu></LoginMenu>
+              <NavDropdownMenu></NavDropdownMenu>
             </ul>
           </Collapse>
         </Navbar>

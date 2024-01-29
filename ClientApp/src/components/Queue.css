@@ -1,10 +1,8 @@
 .queue-container {
   position: absolute;
-  transform: translate(-50%, -90%);
-  top: 120%;
+  transform: translate(-50%);
   left: 50%;
   font-size: 16px;
-  max-height: 100%;
   width: 90vw;
   max-width: 50.5em;
   padding: 1.5em 1.8em;
@@ -12,6 +10,11 @@
   transition: top 0.8s ease-in-out;
   border-radius: 0.6em;
   box-shadow: 1.2em 2em 3em rgba(0, 0, 0, 0.2);
+}
+
+.queue-container h1 {
+  text-align: center;
+  font-size: x-large;
 }
 
 .queue-container h4 {
@@ -66,8 +69,6 @@
   max-height: 900px;
   max-width: inherit;
   background-color: #343d4d;
-  /* margin-top: 2%;
-  padding: 2%; */
 }
 
 .queue-container td {
@@ -189,11 +190,11 @@
 .queue-container h3 {
   margin-top: inherit;
   text-align: left;
-  padding-left: 2%;
+  padding-left: 5%;
 }
 
 .queue-container p {
-  padding-left: 2%;
+  padding-left: 5%;
   max-width: 90vw;
   overflow-wrap: break-word;
 }

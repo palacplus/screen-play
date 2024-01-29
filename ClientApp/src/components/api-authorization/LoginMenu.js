@@ -1,8 +1,8 @@
-import React, { Component, Fragment } from 'react';
-import { NavItem, NavLink } from 'reactstrap';
-import { Link } from 'react-router-dom';
-import authService from './AuthorizeService';
-import { ApplicationPaths } from './ApiAuthorizationConstants';
+import React, { Component, Fragment } from "react";
+import { NavItem, NavLink } from "reactstrap";
+import { Link } from "react-router-dom";
+import authService from "./AuthorizeService";
+import { ApplicationPaths } from "./ApiAuthorizationConstants";
 
 export class LoginMenu extends Component {
   constructor(props) {
@@ -10,7 +10,7 @@ export class LoginMenu extends Component {
 
     this.state = {
       isAuthenticated: false,
-      userName: null
+      userName: null,
     };
   }
 
@@ -24,10 +24,13 @@ export class LoginMenu extends Component {
   }
 
   async populateState() {
-    const [isAuthenticated, user] = await Promise.all([authService.isAuthenticated(), authService.getUser()])
+    const [isAuthenticated, user] = await Promise.all([
+      authService.isAuthenticated(),
+      authService.getUser(),
+    ]);
     this.setState({
       isAuthenticated,
-      userName: user && user.name
+      userName: user && user.name,
     });
   }
 
@@ -41,29 +44,62 @@ export class LoginMenu extends Component {
       const profilePath = `${ApplicationPaths.Profile}`;
       const logoutPath = `${ApplicationPaths.LogOut}`;
       const logoutState = { local: true };
-      return this.authenticatedView(userName, profilePath, logoutPath, logoutState);
+      return this.authenticatedView(
+        userName,
+        profilePath,
+        logoutPath,
+        logoutState
+      );
     }
   }
 
   authenticatedView(userName, profilePath, logoutPath, logoutState) {
-    return (<Fragment>
-      <NavItem>
-        <NavLink tag={Link} className="text-dark" to={profilePath}>Hello {userName}</NavLink>
-      </NavItem>
-      <NavItem>
-        <NavLink replace tag={Link} className="text-dark" to={logoutPath} state={logoutState}>Logout</NavLink>
-      </NavItem>
-    </Fragment>);
+    return (
+      <Fragment>
+        <NavItem>
+          <NavLink tag={Link} className="text-light" to={profilePath}>
+            Hello {userName}
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            replace
+            tag={Link}
+            className="text-light"
+            to={logoutPath}
+            state={logoutState}
+          >
+            Logout
+          </NavLink>
+        </NavItem>
+      </Fragment>
+    );
   }
 
   anonymousView(registerPath, loginPath) {
-    return (<Fragment>
-      <NavItem>
-        <NavLink tag={Link} className="text-dark" to={registerPath}>Register</NavLink>
-      </NavItem>
-      <NavItem>
-        <NavLink tag={Link} className="text-dark" to={loginPath}>Login</NavLink>
-      </NavItem>
-    </Fragment>);
+    return (
+      <Fragment>
+        <NavItem>
+          <NavLink
+            tag={Link}
+            className="text-light"
+            id="login-nav"
+            to={registerPath}
+          >
+            Register
+          </NavLink>
+        </NavItem>
+        <NavItem>
+          <NavLink
+            tag={Link}
+            className="text-light"
+            id="login-nav"
+            to={loginPath}
+          >
+            Login
+          </NavLink>
+        </NavItem>
+      </Fragment>
+    );
   }
 }

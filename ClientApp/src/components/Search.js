@@ -34,7 +34,7 @@ export class Search extends Component {
     this.setState({ loading: true, error: false });
     const url = `https://www.omdbapi.com/?t=${this.state.searchTerm}&apiKey=${Search.omdbApiKey}`;
     const searchState = this.state;
-    var result = null;
+    let result = null;
     await fetch(url)
       .then((resp) => resp.json())
       .then((data) => {
@@ -63,7 +63,7 @@ export class Search extends Component {
       request: this.state.request.startLoading(),
     });
     const url = `https://media.palacpl.us/radarr/api/v3/movie/lookup/imdb?imdbId=${imdbId}&apikey=${Search.radarrApiKey}`;
-    var titleId = null;
+    let titleId = null;
 
     await fetch(url)
       .then((resp) => {
@@ -132,6 +132,7 @@ export class Search extends Component {
         },
       }),
     };
+    console.log(this.state.searchResult);
 
     await fetch(url, requestOptions)
       .then((resp) => {
@@ -156,7 +157,7 @@ export class Search extends Component {
   handleSearch = async (event) => {
     event.preventDefault();
     if (this.state.searchTerm.length > 0) {
-      var imdbId = await this.fetchImdbId();
+      let imdbId = await this.fetchImdbId();
       if (!this.state.error && imdbId) {
         await this.lookupTitle(imdbId);
       }

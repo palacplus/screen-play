@@ -25,7 +25,7 @@ export class Queue extends Component {
   componentDidMount() {
     this.fetchQueueData();
     this.updateTimeoutId = setTimeout(this.fetchQueueData, 1000);
-    // this.intervalId = setInterval(this.fetchQueueData, 3000);
+    this.intervalId = setInterval(this.fetchQueueData, 3000);
     this.timeoutId = setTimeout(() => {
       this.setState({
         timedOut: true,
@@ -45,6 +45,7 @@ export class Queue extends Component {
     return (
       <table className="table queue-table">
         <tbody>
+          <h1>{Queue.DisplayName}</h1>
           {downloads.map((download, index) => (
             <tr key={index} onClick={() => this.handleRowClick(index)}>
               <td>
@@ -73,7 +74,9 @@ export class Queue extends Component {
                         {download.quality.quality.name}
                       </div>
                       <DownloadTimer
-                        expiryTimestamp={Queue.convertToDate(download.timeleft)}
+                        expiryTimestamp={Queue.dateFromDuration(
+                          download.timeleft
+                        )}
                       />
                     </div>
                   </div>
@@ -147,10 +150,10 @@ export class Queue extends Component {
     }
   }
 
-  static convertToDate(timeLeft) {
-    if (!timeLeft) return new Date();
-    var tsArray = timeLeft.split(".");
-    var days = 0;
+  static dateFromDuration(duration) {
+    if (!duration) return new Date();
+    let tsArray = duration.split(".");
+    let days = 0;
     if (tsArray.length > 1) {
       days = parseInt(tsArray[0]);
       tsArray = tsArray[1];
@@ -159,10 +162,10 @@ export class Queue extends Component {
     }
     tsArray = tsArray.split(":");
 
-    var dt = new Date();
-    var hours = dt.getHours() + parseInt(tsArray[0]) + days * 24;
-    var minutes = dt.getMinutes() + parseInt(tsArray[1]);
-    var seconds = dt.getSeconds() + parseInt(tsArray[2]);
+    let dt = new Date();
+    let hours = dt.getHours() + parseInt(tsArray[0]) + days * 24;
+    let minutes = dt.getMinutes() + parseInt(tsArray[1]);
+    let seconds = dt.getSeconds() + parseInt(tsArray[2]);
     dt.setHours(hours, minutes, seconds);
     return dt;
   }
@@ -188,6 +191,12 @@ export class Queue extends Component {
         console.error(error);
         this.setState({ error: error.message });
       });
+
+    records = records.filter(
+      (val, index, self) =>
+        self.findIndex((t) => t.movieId === val.movieId) === index
+    );
+
     records = await this.updateQueueData(records);
     records.sort((a, b) => b.addedTs - a.addedTs);
     if (this.state.error === null) {
@@ -231,7 +240,6 @@ export class Queue extends Component {
           record.addedDt = new Date(record.addedTs).toLocaleString("en-US", {
             timeZoneName: "short",
           });
-          console.log(data);
           record.year = data.year;
           record.certification = data.certification;
           record.runtime = data.runtime;
