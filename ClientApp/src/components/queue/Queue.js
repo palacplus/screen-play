@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import { Oval } from "react-loader-spinner";
 import { ProgressBar } from "react-bootstrap";
 import DownloadTimer from "./DownloadTimer";
-import { MovieDetails } from "./MovieDetails";
+import { MovieDetails } from "../MovieDetails";
 import "./Queue.css";
 
 export class Queue extends Component {

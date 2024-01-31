@@ -1,5 +1,4 @@
-export default class Request {
-  // Properties (instance variables)
+export default class MovieRequest {
   constructor(status) {
     this.loading = false;
     this.error = false;
@@ -7,7 +6,6 @@ export default class Request {
     this.status = status;
   }
 
-  // Methods (functions attached to the class)
   startLoading() {
     this.loading = true;
     return this;

@@ -51,7 +51,9 @@ export class NavMenu extends Component {
               <LoginMenu></LoginMenu>
               <NavItem>
                 <NavLink tag={Link} className="text-light" to="/search">
-                  <span class="material-symbols-outlined">video_search</span>
+                  <span className="material-symbols-outlined">
+                    video_search
+                  </span>
                 </NavLink>
               </NavItem>
               <NavDropdownMenu></NavDropdownMenu>

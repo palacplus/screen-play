@@ -36,7 +36,7 @@ export class NavDropdownMenu extends Component {
       <div className="nav-dropdown">
         <Dropdown isOpen={dropdownOpen} toggle={this.toggle}>
           <DropdownToggle caret={false} onClick={this.toggle}>
-            <span class="material-symbols-outlined">menu</span>
+            <span className="material-symbols-outlined">menu</span>
           </DropdownToggle>
           <DropdownMenu>
             {items.map((item, index) => (
