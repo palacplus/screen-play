@@ -53,9 +53,9 @@ class SearchResult extends Component {
 
   handleRequest = async (event) => {
     event.preventDefault();
-    if (this.state.data.tmdbId) {
+    if (this.props.location.state.tmdbId) {
       this.setState({ request: new Request(Status.PENDING) });
-      this.checkAvailablilty(this.state.data.tmdbId);
+      this.checkAvailablilty(this.props.location.state.tmdbId);
       if (this.state.request.status === Status.PENDING) {
         await this.submitRequest();
       }
@@ -95,9 +95,9 @@ class SearchResult extends Component {
       method: "post",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        tmdbId: this.state.data.tmdbId,
-        title: this.state.data.title,
-        imdbId: this.state.data.imdbId,
+        tmdbId: this.props.location.state.tmdbId,
+        title: this.props.location.state.title,
+        imdbId: this.props.location.state.imdbId,
         rootFolderPath: "/movies",
         qualityProfileId: 1,
         monitored: true,
@@ -106,7 +106,7 @@ class SearchResult extends Component {
         },
       }),
     };
-    console.log(this.state.data);
+    console.log(this.props.location.state);
 
     await fetch(url, requestOptions)
       .then((resp) => {
