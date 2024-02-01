@@ -5,62 +5,47 @@ import { MovieDetails } from "../MovieDetails";
 import { Status } from "./SearchConstants";
 import { ClipLoader } from "react-spinners";
 import { Checkmark } from "react-checkmark";
-import { withOutletContext } from "../Wrappers";
+import { withLocation } from "../Wrappers";
 
 class SearchResult extends Component {
-  static radarrApiKey = process.env.RADARR_API_KEY;
+  static radarrApiKey = process.env.REACT_APP_RADARR_API_KEY;
 
   constructor(props) {
     super(props);
-    console.log(props.context);
-    const searchContext = props.context;
     this.state = {
       request: new MovieRequest(Status.PENDING),
       loading: false,
       error: false,
       errorMessage: "",
-      data: searchContext.searchResult,
     };
   }
 
-  componentDidMount() {}
-
-  componentWillUnmount() {}
-
   render() {
-    // console.log(this.state.data);
+    const data = this.props.location.state;
+    console.debug(data);
     return (
       <div className="result">
-        <MovieDetails data={this.state.data} />
+        <MovieDetails data={data} />
         <div className="request-container">
           <span>{!this.state.error && this.state.request.status}</span>
-          {this.state.data &&
-            !this.state.loading &&
-            !this.state.error && [
-              <button
-                id="request-btn"
-                onClick={this.handleRequest}
-                hidden={this.state.error || this.state.request.error}
-                disabled={
-                  this.state.request.success || this.state.request.error
-                }
-              >
-                {!this.state.request.loading ? (
-                  this.state.request.success ? (
-                    <Checkmark id="checkmark" size="medium" color="#4ea345" />
-                  ) : (
-                    "Add this title"
-                  )
+          {data && !this.state.loading && !this.state.error && (
+            <button
+              id="request-btn"
+              onClick={this.handleRequest}
+              hidden={this.state.error || this.state.request.error}
+              disabled={this.state.request.success || this.state.request.error}
+            >
+              {!this.state.request.loading ? (
+                this.state.request.success ? (
+                  <Checkmark id="checkmark" size="medium" color="#4ea345" />
                 ) : (
-                  <ClipLoader
-                    className="btn-spinner"
-                    color="#1c1917"
-                    loading={this.state.request.loading}
-                    size={18}
-                  />
-                )}
-              </button>,
-            ]}
+                  "Add this title"
+                )
+              ) : (
+                <ClipLoader className="btn-spinner" color="#1c1917" loading={this.state.request.loading} size={18} />
+              )}
+            </button>
+          )}
         </div>
       </div>
     );
@@ -143,5 +128,5 @@ class SearchResult extends Component {
       });
   };
 }
-const SearchResultWrapped = withOutletContext(SearchResult);
+const SearchResultWrapped = withLocation(SearchResult);
 export default SearchResultWrapped;

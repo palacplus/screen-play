@@ -2,6 +2,7 @@
   font-size: 16px;
   width: 90vw;
   max-width: 37.5em;
+  max-height: min-content;
   padding: 3em 1.8em;
   background-color: #1e293b;
   position: absolute;

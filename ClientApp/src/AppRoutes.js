@@ -1,6 +1,6 @@
 import ApiAuthorzationRoutes from "./components/api-authorization/ApiAuthorizationRoutes";
 import { FetchData } from "./components/FetchData";
-import { Search } from "./components/search/Search";
+import SearchWrapped from "./components/search/Search";
 import SearchResultWrapped from "./components/search/SearchResult";
 import { Home } from "./components/Home";
 import { Queue } from "./components/queue/Queue";
@@ -19,8 +19,8 @@ const AppRoutes = [
   },
   {
     path: "/search",
-    element: <Search />,
-    children: [<Route path=":imdbId" element={<SearchResultWrapped />} />],
+    element: <SearchWrapped />,
+    children: [<Route key="10" path=":imdbId" element={<SearchResultWrapped />} />],
   },
   {
     path: "/queue",

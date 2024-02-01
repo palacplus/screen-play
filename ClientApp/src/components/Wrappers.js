@@ -1,10 +1,18 @@
 import React from "react";
-import { useLocation, useOutletContext } from "react-router-dom";
+import { useLocation, useOutletContext, useNavigate } from "react-router-dom";
 
 export const withLocation = (Component) => {
   return (props) => {
     const location = useLocation();
-    return <Component location={location} {...props} />;
+    const context = useOutletContext();
+    return <Component location={location} context={context} {...props} />;
+  };
+};
+
+export const withNavigation = (Component) => {
+  return (props) => {
+    const navigate = useNavigate();
+    return <Component navigate={navigate} {...props} />;
   };
 };
 

@@ -51,7 +51,7 @@ export class Queue extends Component {
               <td>
                 <header>
                   <img src={download.poster} alt=""></img>
-                  <div>
+                  <div className="queue-grid">
                     <ProgressBar
                       animated={download.percent < 100}
                       now={download.percent}
@@ -63,21 +63,13 @@ export class Queue extends Component {
                       <div
                         className="quality"
                         style={{
-                          color: Queue.resolutionColor(
-                            download.quality.quality.resolution
-                          ),
-                          borderColor: Queue.resolutionColor(
-                            download.quality.quality.resolution
-                          ),
+                          color: Queue.resolutionColor(download.quality.quality.resolution),
+                          borderColor: Queue.resolutionColor(download.quality.quality.resolution),
                         }}
                       >
                         {download.quality.quality.name}
                       </div>
-                      <DownloadTimer
-                        expiryTimestamp={Queue.dateFromDuration(
-                          download.timeleft
-                        )}
-                      />
+                      <DownloadTimer expiryTimestamp={Queue.dateFromDuration(download.timeleft)} />
                     </div>
                   </div>
                 </header>
@@ -86,15 +78,8 @@ export class Queue extends Component {
                     <span>{download.addedDt}</span>
                   </div>
                 </footer>
-                <div
-                  id="expandable"
-                  className={
-                    this.state.expandedRows.includes(index) ? "expanded" : ""
-                  }
-                >
-                  {this.state.expandedRows.includes(index) && (
-                    <MovieDetails data={download} />
-                  )}
+                <div id="expandable" className={this.state.expandedRows.includes(index) ? "expanded" : ""}>
+                  {this.state.expandedRows.includes(index) && <MovieDetails data={download} />}
                 </div>
               </td>
             </tr>
@@ -192,10 +177,7 @@ export class Queue extends Component {
         this.setState({ error: error.message });
       });
 
-    records = records.filter(
-      (val, index, self) =>
-        self.findIndex((t) => t.movieId === val.movieId) === index
-    );
+    records = records.filter((val, index, self) => self.findIndex((t) => t.movieId === val.movieId) === index);
 
     records = await this.updateQueueData(records);
     records.sort((a, b) => b.addedTs - a.addedTs);
@@ -210,8 +192,7 @@ export class Queue extends Component {
       let arr = await acc;
       let stored = this.state.downloads.find(({ id }) => id === record.id);
       if (stored) {
-        stored.percent =
-          100 - Math.round((record.sizeleft / record.size) * 100);
+        stored.percent = 100 - Math.round((record.sizeleft / record.size) * 100);
         arr.push(stored);
       } else {
         record = await this.fetchDetails(record);
@@ -232,9 +213,7 @@ export class Queue extends Component {
         if (data) {
           record.title = data.title;
           if (data.images) {
-            record.poster = data.images.find(
-              (img) => img.coverType === "poster"
-            ).remoteUrl;
+            record.poster = data.images.find((img) => img.coverType === "poster").remoteUrl;
           }
           record.addedTs = Date.parse(data.added);
           record.addedDt = new Date(record.addedTs).toLocaleString("en-US", {

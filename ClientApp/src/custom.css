@@ -29,6 +29,11 @@ code {
   box-sizing: border-box;
   font-family: "Poppins", sans-serif;
   --bs-border-width: 0;
+  --bs-navbar-color: white;
+  --bs-navbar-hover-color: white;
+  --bs-navbar-active-color: white;
+  --bs-navbar-brand-color: white;
+  --bs-navbar-brand-hover-color: white;
 }
 
 body {
