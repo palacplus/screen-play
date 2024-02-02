@@ -73,13 +73,13 @@ export class Queue extends Component {
                     </div>
                   </div>
                 </header>
-                <footer>
-                  <div className="added">
-                    <span>{download.addedDt}</span>
-                  </div>
-                </footer>
                 <div id="expandable" className={this.state.expandedRows.includes(index) ? "expanded" : ""}>
                   {this.state.expandedRows.includes(index) && <MovieDetails data={download} />}
+                  <footer>
+                    <div className="added" hidden={!this.state.expandedRows.includes(index)}>
+                      <span>{download.addedDt}</span>
+                    </div>
+                  </footer>
                 </div>
               </td>
             </tr>

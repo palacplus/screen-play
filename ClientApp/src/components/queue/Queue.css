@@ -23,12 +23,12 @@
 }
 
 .queue-container img {
-  width: 5.4em;
+  width: 4.4em;
   max-width: fit-content;
   text-align: center;
   display: block;
   position: relative;
-  left: 5%;
+  left: 15%;
 }
 
 .queue-container table {
@@ -44,7 +44,6 @@
 .queue-container tr {
   transition: 0.5s;
   max-height: none;
-  border: solid 0px;
   border-radius: 30px;
   display: block;
 }
@@ -80,10 +79,11 @@
 }
 
 .queue-container td {
-  border: solid 1px #343d4d;
   border-style: solid;
   padding: 8px;
   border-radius: 30px;
+  display: inline-block;
+  width: 100%;
 }
 
 .queue-container td:hover {
@@ -141,14 +141,28 @@
 .download-timer {
   letter-spacing: 0.1em;
   font-size: 1.2em;
-  text-align: left;
+  text-align: center;
 }
 
-.eta {
+.clock {
+  float: inline-start;
+  width: 30px;
+}
+
+.clock.days {
+  padding-right: 10%;
+}
+
+.clock.colon {
+  width: 8px;
+}
+
+.clock.eta {
   padding-left: 0.3em;
-  text-shadow: #1e293b;
   font-size: small;
   letter-spacing: 0;
+  text-align: left;
+  position: relative;
 }
 
 .queue-grid {

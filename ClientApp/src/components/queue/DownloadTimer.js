@@ -9,11 +9,13 @@ export default function DownloadTimer({ expiryTimestamp }) {
   return (
     <div className="download-timer">
       <div>
-        <span>{days > 0 ? days + "d" : ""}</span>{" "}
-        <span>{hours.toString().padStart(2, "0")}</span>:
-        <span>{minutes.toString().padStart(2, "0")}</span>:
-        <span>{seconds.toString().padStart(2, "0")}</span>
-        <span className="eta">ETA</span>
+        <span className="clock days">{days > 0 ? days + "d" : ""}</span>{" "}
+        <span className="clock">{hours.toString().padStart(2, "0")}</span>
+        <span className="clock colon">:</span>
+        <span className="clock">{minutes.toString().padStart(2, "0")}</span>
+        <span className="clock colon">:</span>
+        <span className="clock">{seconds.toString().padStart(2, "0")}</span>
+        <span className="clock eta">ETA</span>
       </div>
     </div>
   );
