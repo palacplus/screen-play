@@ -47,7 +47,7 @@ export class Queue extends Component {
         <tbody>
           <h1>{Queue.DisplayName}</h1>
           {downloads.map((download, index) => (
-            <tr key={index} onClick={() => this.handleRowClick(index)}>
+            <tr key={index} className="expandable-row" id={index} onClick={() => this.handleRowClick(index)}>
               <td>
                 <header>
                   <img src={download.poster} alt=""></img>
@@ -122,6 +122,13 @@ export class Queue extends Component {
       expandedRows.push(index);
     }
     this.setState({ expandedRows });
+    const row = document.getElementById(index);
+
+    if (row.classList.contains("expanded")) {
+      row.classList.remove("expanded");
+    } else {
+      row.classList.add("expanded");
+    }
   };
 
   static resolutionColor(resolution) {

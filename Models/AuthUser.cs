@@ -2,6 +2,4 @@
 
 namespace Climax.Models;
 
-public class ApplicationUser : IdentityUser
-{
-}
+public class AuthUser : IdentityUser { }

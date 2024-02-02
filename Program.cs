@@ -17,26 +17,23 @@ var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
+builder.Services.AddDbContext<AuthDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDbContext<ClimaxDbContext>(options => options.UseNpgsql(connectionString));
 
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder
-    .Services.AddDefaultIdentity<ApplicationUser>(options =>
-        options.SignIn.RequireConfirmedAccount = true
-    )
-    .AddEntityFrameworkStores<ApplicationDbContext>();
+    .Services.AddDefaultIdentity<AuthUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .AddEntityFrameworkStores<AuthDbContext>();
 
-builder.Services.AddIdentityServer().AddApiAuthorization<ApplicationUser, ApplicationDbContext>();
+builder.Services.AddIdentityServer().AddApiAuthorization<AuthUser, AuthDbContext>();
 
 builder.Services.AddAuthentication().AddIdentityServerJwt();
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
-builder.Services.Configure<TransmissionOptions>(
-    builder.Configuration.GetSection(TransmissionOptions.ConfigSection)
-);
+builder.Services.Configure<TransmissionOptions>(builder.Configuration.GetSection(TransmissionOptions.ConfigSection));
 builder.Services.AddScoped<ITransmissionClient, TransmissionClient>();
 
 var app = builder.Build();

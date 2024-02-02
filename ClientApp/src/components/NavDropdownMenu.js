@@ -1,12 +1,5 @@
 import React, { Component } from "react";
-import {
-  Dropdown,
-  DropdownToggle,
-  DropdownMenu,
-  DropdownItem,
-  NavItem,
-  NavLink,
-} from "reactstrap";
+import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem, NavItem, NavLink } from "reactstrap";
 import { Link } from "react-router-dom";
 
 export class NavDropdownMenu extends Component {
@@ -30,6 +23,7 @@ export class NavDropdownMenu extends Component {
       { Name: "Search", Route: "/search" },
       { Name: "Queue", Route: "/queue" },
       { Name: "Fetch Data", Route: "/fetch-data" },
+      { Name: "Login", Route: "/login" },
     ];
 
     return (
@@ -42,11 +36,7 @@ export class NavDropdownMenu extends Component {
             {items.map((item, index) => (
               <DropdownItem key={index}>
                 <NavItem>
-                  <NavLink
-                    tag={Link}
-                    className="dropdown-text-light"
-                    to={item.Route}
-                  >
+                  <NavLink tag={Link} className="dropdown-text-light" to={item.Route}>
                     {item.Name}
                   </NavLink>
                 </NavItem>

@@ -10,8 +10,9 @@
   top: 50%;
   left: 50%;
   transition: top 0.8s ease-in-out;
-  border-radius: 0.6em;
+  border-radius: 30px;
   box-shadow: 1.2em 2em 3em rgba(0, 0, 0, 0.2);
+  background: linear-gradient(to bottom, #344157, #1e293b);
 }
 
 .search-container {
@@ -46,6 +47,7 @@
   font-size: 0.9em;
   outline: none;
   border-radius: 0.3em;
+  color: #594290;
 }
 
 .info {
@@ -155,6 +157,8 @@ p {
   border: none;
   cursor: pointer;
   font-weight: 600;
+  color: #594290;
+  border-radius: 0.4em;
 }
 
 #request-btn {

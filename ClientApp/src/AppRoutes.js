@@ -4,8 +4,8 @@ import SearchWrapped from "./components/search/Search";
 import SearchResultWrapped from "./components/search/SearchResult";
 import { Home } from "./components/Home";
 import { Queue } from "./components/queue/Queue";
-
 import { Route } from "react-router-dom";
+import { Login } from "./components/login/Login";
 
 const AppRoutes = [
   {
@@ -25,6 +25,10 @@ const AppRoutes = [
   {
     path: "/queue",
     element: <Queue />,
+  },
+  {
+    path: "/login",
+    element: <Login />,
   },
   ...ApiAuthorzationRoutes,
 ];
