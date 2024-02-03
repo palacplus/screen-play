@@ -159,10 +159,9 @@
 
 .clock.eta {
   padding-left: 0.3em;
-  font-size: small;
+  font-size: x-small;
   letter-spacing: 0;
   text-align: left;
-  position: relative;
 }
 
 .queue-grid {
@@ -196,7 +195,7 @@
   position: relative;
   left: -4%;
   display: flex;
-  gap: 2.6em;
+  gap: 2em;
 }
 
 .queue-container .rating h4 {
