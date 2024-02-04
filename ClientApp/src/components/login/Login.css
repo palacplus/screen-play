@@ -6,9 +6,9 @@
   box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35);
   position: relative;
   overflow: hidden;
-  width: 768px;
+  width: 800px;
   max-width: 100%;
-  min-height: 480px;
+  min-height: 500px;
 }
 
 .login-container p {
@@ -20,6 +20,7 @@
 
 .login-container span {
   font-size: 12px;
+  align-self: start;
 }
 
 .login-container a {
@@ -27,6 +28,9 @@
   font-size: 13px;
   text-decoration: none;
   margin: 15px 0 10px;
+}
+
+.g-signin2 {
 }
 
 .login-container button {

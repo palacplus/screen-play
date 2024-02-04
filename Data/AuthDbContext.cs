@@ -6,7 +6,7 @@ using Microsoft.Extensions.Options;
 
 namespace Climax.Data;
 
-public class AuthDbContext : ApiAuthorizationDbContext<AuthUser>
+public class AuthDbContext : ApiAuthorizationDbContext<AppUser>
 {
     public AuthDbContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
         : base(options, operationalStoreOptions) { }

@@ -23,18 +23,29 @@ builder.Services.AddDbContext<ClimaxDbContext>(options => options.UseNpgsql(conn
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder
-    .Services.AddDefaultIdentity<AuthUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<AuthDbContext>();
 
-builder.Services.AddIdentityServer().AddApiAuthorization<AuthUser, AuthDbContext>();
+builder.Services.AddIdentityServer().AddApiAuthorization<AppUser, AuthDbContext>();
 
-builder.Services.AddAuthentication().AddIdentityServerJwt();
+var googleAuthConfig = builder.Configuration.GetSection(GoogleAuthKeys.ConfigSection).Get<GoogleAuthKeys>();
+builder
+    .Services.AddAuthentication()
+    .AddIdentityServerJwt()
+    .AddGoogle(googleOptions =>
+    {
+        googleOptions.ClientId = googleAuthConfig.ClientId;
+        googleOptions.ClientSecret = googleAuthConfig.ClientSecret;
+        googleOptions.SignInScheme = IdentityConstants.ExternalScheme;
+    });
 
 builder.Services.AddControllersWithViews();
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<TransmissionOptions>(builder.Configuration.GetSection(TransmissionOptions.ConfigSection));
 builder.Services.AddScoped<ITransmissionClient, TransmissionClient>();
+builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
@@ -42,6 +53,12 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
+        options.RoutePrefix = string.Empty;
+    });
 }
 else
 {
