@@ -16,6 +16,8 @@ const context = [
   "/ApplyDatabaseMigrations",
   "/_framework",
   "/api",
+  "/signin-google",
+  "/swagger",
 ];
 
 const onError = (err, req, resp, target) => {

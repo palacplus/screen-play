@@ -1,6 +1,9 @@
 using System.ComponentModel.DataAnnotations;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.CodeAnalysis.Emit;
 
 namespace Climax.Dtos;
 
@@ -32,4 +35,19 @@ public class NewUserInfo
     [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
     [JsonPropertyName("confirmPassword")]
     public string ConfirmPassword { get; set; }
+
+    public NewUserInfo(JwtSecurityToken jwtToken)
+    {
+        var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email");
+        if (emailClaim != null)
+        {
+            Email = emailClaim.Value;
+            Password = "insecure";
+            ConfirmPassword = "insecure";
+        }
+        else
+        {
+            throw new Exception();
+        }
+    }
 }

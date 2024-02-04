@@ -14,3 +14,9 @@ dotnet ef migrations add [NameOfMigration] --context ClimaxDbContext
 
 dotnet ef database update --context ClimaxDbContext
 
+
+
+### KNOWN BUGS
+
+Search
+    - Invalid search does not display error message

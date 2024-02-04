@@ -11,8 +11,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.UI.Services;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc;
+// using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Logging;
@@ -43,9 +42,9 @@ public class RegistrationService : IRegistrationService
         _externalLogins = _signInManager.GetExternalAuthenticationSchemesAsync().Result.ToList();
     }
 
-    public async Task<ExternalLoginInfo> GetExternalInfoAsync()
+    public async Task<SignInResult> GetExternalInfoAsync()
     {
-        var info = await _signInManager.GetExternalLoginInfoAsync();
+        var info = await _signInManager.PasswordSignInAsync("mpalacio123@gmail.com", "", isPersistent: false, false);
         return info;
     }
 

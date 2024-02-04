@@ -28,12 +28,11 @@ export class Login extends Component {
               <div className="social-icons">
                 <GoogleLogin
                   onSuccess={(credentialResponse) => {
-                    console.log(credentialResponse);
+                    this.submitTokenRegistration(credentialResponse);
                   }}
                   onError={() => {
                     console.log("Login Failed");
                   }}
-                  type="icon"
                 />
               </div>
               {this.state.validationErrors.Email ? (
@@ -69,13 +68,11 @@ export class Login extends Component {
               <div className="social-icons">
                 <GoogleLogin
                   onSuccess={(credentialResponse) => {
-                    console.log(credentialResponse);
+                    this.submitTokenRegistration(credentialResponse);
                   }}
                   onError={() => {
                     console.log("Login Failed");
                   }}
-                  type="icon"
-                  login_uri="/signin-google"
                 />
               </div>
               <span>or use your email</span>
@@ -128,11 +125,40 @@ export class Login extends Component {
     this.setState({ confirmPassword: event.target.value });
   };
 
+  submitTokenRegistration = async (credentialsResponse) => {
+    this.setState({ loading: true });
+    console.log(this.state);
+
+    const requestOptions = {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Token: credentialsResponse.credential,
+      }),
+    };
+
+    await fetch("api/account/register/token", requestOptions)
+      .then((resp) => {
+        if (resp.status !== 200) {
+          throw new Error(resp.statusText);
+        }
+      })
+      .then(() => {
+        console.log("User Added!");
+        this.setState({ registered: true });
+      })
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ errorMessage: error.message });
+      })
+      .finally(() => {
+        this.setState({ loading: false });
+      });
+  };
+
   submitRegister = async (event) => {
     event.preventDefault();
     this.setState({ loading: true });
-    console.log("Processing registration");
-    console.log(this.state);
 
     const requestOptions = {
       method: "post",

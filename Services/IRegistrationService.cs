@@ -14,6 +14,6 @@ namespace Climax.Services
         /// </summary>
         /// <returns>ModelState</returns>
         Task<AppUser> RegisterUserAsync(NewUserInfo userInfo, string returnUrl = null);
-        Task<ExternalLoginInfo> GetExternalInfoAsync();
+        Task<SignInResult> GetExternalInfoAsync();
     }
 }
