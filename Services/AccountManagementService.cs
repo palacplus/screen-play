@@ -4,6 +4,7 @@ using System.Text;
 using System.Text.Encodings.Web;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Web;
 using Climax.Dtos;
 using Climax.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -18,20 +19,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Climax.Services;
 
-public class RegistrationService : IRegistrationService
+public class AccountManagementService : IAccountManagementService
 {
     private readonly SignInManager<AppUser> _signInManager;
     private readonly UserManager<AppUser> _userManager;
     private readonly IUserStore<AppUser> _userStore;
     private readonly IUserEmailStore<AppUser> _emailStore;
-    private readonly ILogger<RegistrationService> _logger;
+    private readonly ILogger<AccountManagementService> _logger;
     private readonly IEnumerable<AuthenticationScheme> _externalLogins;
+    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public RegistrationService(
+    public AccountManagementService(
         UserManager<AppUser> userManager,
         IUserStore<AppUser> userStore,
         SignInManager<AppUser> signInManager,
-        ILogger<RegistrationService> logger
+        ILogger<AccountManagementService> logger,
+        IHttpContextAccessor httpContextAccessor
     )
     {
         _userManager = userManager;
@@ -40,6 +43,7 @@ public class RegistrationService : IRegistrationService
         _signInManager = signInManager;
         _logger = logger;
         _externalLogins = _signInManager.GetExternalAuthenticationSchemesAsync().Result.ToList();
+        _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<SignInResult> GetExternalInfoAsync()
@@ -48,7 +52,7 @@ public class RegistrationService : IRegistrationService
         return info;
     }
 
-    public async Task<AppUser> RegisterUserAsync(NewUserInfo userInfo, string returnUrl = null)
+    public async Task<AppUser> RegisterUserAsync(NewUserInfo userInfo)
     {
         var user = CreateUser();
 
@@ -87,6 +91,47 @@ public class RegistrationService : IRegistrationService
         }
         _logger.LogError(result.Errors.ToString());
         return user;
+    }
+
+    public async Task<AppUser?> LoginUserAsync(UserInfo userInfo)
+    {
+        // Clear the existing external cookie to ensure a clean login process
+        var context = _httpContextAccessor.HttpContext;
+        if (context != null)
+        {
+            await context.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
+        var result = await _signInManager.PasswordSignInAsync(
+            userInfo.Email,
+            userInfo.Password,
+            userInfo.RememberMe,
+            lockoutOnFailure: false
+        );
+
+        var user = await _userManager.FindByEmailAsync(userInfo.Email);
+        if (result.Succeeded)
+        {
+            _logger.LogInformation("User logged in.");
+            return user;
+        }
+        if (result.RequiresTwoFactor)
+        {
+            _logger.LogWarning("User has 2FA enabled");
+            return user;
+        }
+        if (result.IsLockedOut)
+        {
+            _logger.LogWarning("User account locked out.");
+            return user;
+        }
+        _logger.LogError("User login failed with result {result}", result.ToString());
+        return user;
+    }
+
+    public async Task LogoutUserAsync()
+    {
+        await _signInManager.SignOutAsync();
+        _logger.LogInformation("User logged out.");
     }
 
     private AppUser CreateUser()

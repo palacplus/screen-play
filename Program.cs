@@ -40,11 +40,12 @@ builder
     });
 
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<TransmissionOptions>(builder.Configuration.GetSection(TransmissionOptions.ConfigSection));
 builder.Services.AddScoped<ITransmissionClient, TransmissionClient>();
-builder.Services.AddScoped<IRegistrationService, RegistrationService>();
+builder.Services.AddScoped<IAccountManagementService, AccountManagementService>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();

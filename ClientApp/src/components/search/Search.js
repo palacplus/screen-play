@@ -36,7 +36,7 @@ class Search extends Component {
               if (e.key === "Enter") this.handleSearch(e);
             }}
           ></input>
-          <button id="search-btn" onClick={this.handleSearch}>
+          <button id="search-btn" type="submit" onClick={this.handleSearch}>
             {!this.state.loading ? (
               "Search"
             ) : (

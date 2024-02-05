@@ -23,14 +23,15 @@
   align-self: start;
 }
 
+.login-container .message {
+  align-self: center;
+}
+
 .login-container a {
   color: #333;
   font-size: 13px;
   text-decoration: none;
   margin: 15px 0 10px;
-}
-
-.g-signin2 {
 }
 
 .login-container button {

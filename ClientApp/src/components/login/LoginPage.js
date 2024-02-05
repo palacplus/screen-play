@@ -1,9 +1,10 @@
 import React, { Component } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
 import { GoogleLogin } from "@react-oauth/google";
-import "./Login.css";
+import authService from "../api-authorization/AuthorizeService";
+import "./LoginPage.css";
 
-export class Login extends Component {
+export class LoginPage extends Component {
   static googleAuthClientID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
   constructor(props) {
     super(props);
@@ -12,15 +13,18 @@ export class Login extends Component {
       email: "",
       password: "",
       confirmPassword: "",
+      persistLogin: false,
       errorMessage: null,
       registered: false,
+      loggedIn: false,
       validationErrors: {},
+      userName: null,
     };
   }
 
   render() {
     return (
-      <GoogleOAuthProvider clientId={Login.googleAuthClientID}>
+      <GoogleOAuthProvider clientId={LoginPage.googleAuthClientID}>
         <div className="login-container" id="login-container">
           <div className="form-container sign-up">
             <form>
@@ -33,12 +37,13 @@ export class Login extends Component {
                   onError={() => {
                     console.log("Login Failed");
                   }}
+                  text="signup_with"
                 />
               </div>
               {this.state.validationErrors.Email ? (
                 this.state.validationErrors.Email.map((error, idx) => <span key={idx}>{error}</span>)
               ) : (
-                <span>or use your email for registeration</span>
+                <span className="message">or use your email for registeration</span>
               )}
               <input type="email" placeholder="Email" value={this.state.email} onChange={this.changeEmailInput} />
               {this.state.validationErrors.Password &&
@@ -64,8 +69,9 @@ export class Login extends Component {
           </div>
           <div className="form-container sign-in">
             <form>
-              <h1>Sign In</h1>
-              <div className="social-icons">
+              <h1 hidden={this.state.loggedIn}>Sign In</h1>
+              <h1 hidden={!this.state.loggedIn}>Hello, Friend!</h1>
+              <div className="social-icons" hidden={this.state.loggedIn}>
                 <GoogleLogin
                   onSuccess={(credentialResponse) => {
                     this.submitTokenRegistration(credentialResponse);
@@ -75,11 +81,41 @@ export class Login extends Component {
                   }}
                 />
               </div>
-              <span>or use your email</span>
-              <input type="email" placeholder="Email" />
-              <input type="password" placeholder="Password" />
-              <a href="#">Forget Your Password?</a>
-              <button>Sign In</button>
+              {this.state.validationErrors.Email ? (
+                this.state.validationErrors.Email.map((error, idx) => <span key={idx}>{error}</span>)
+              ) : (
+                <span className="message" hidden={this.state.loggedIn}>
+                  or use your email
+                </span>
+              )}
+              <span className="message" hidden={!this.state.loggedIn}>
+                You are signed in
+              </span>
+              <input
+                type="email"
+                placeholder="Email"
+                value={this.state.email}
+                onChange={this.changeEmailInput}
+                hidden={this.state.loggedIn}
+              />
+              {this.state.validationErrors.Password &&
+                this.state.validationErrors.Password.map((error, idx) => <span key={idx}>{error}</span>)}
+              <input
+                type="password"
+                placeholder="Password"
+                value={this.state.password}
+                onChange={this.changePasswordInput}
+                hidden={this.state.loggedIn}
+              />
+              <a href="#" hidden={this.state.loggedIn}>
+                Forget Your Password?
+              </a>
+              <button type="submit" onClick={this.submitLogin} hidden={this.state.loggedIn}>
+                Sign In
+              </button>
+              <button type="submit" onClick={this.submitLogout} hidden={!this.state.loggedIn}>
+                Sign Out
+              </button>
             </form>
           </div>
           <div className="toggle-container">
@@ -92,7 +128,7 @@ export class Login extends Component {
                 </button>
               </div>
               <div className="toggle-panel toggle-right">
-                <h1>Hello, Friend!</h1>
+                <h1>New Here?</h1>
                 <p>Register with your personal details to use all of site features</p>
                 <button className="hidden" id="register" onClick={this.switchToRegister}>
                   Sign Up
@@ -105,12 +141,46 @@ export class Login extends Component {
     );
   }
 
+  componentDidMount() {
+    this._subscription = authService.subscribe(() => this.populateState());
+    this.populateState();
+  }
+
+  componentWillUnmount() {
+    authService.unsubscribe(this._subscription);
+  }
+
+  async populateState() {
+    const [isAuthenticated, user] = await Promise.all([authService.isAuthenticated(), authService.getUser()]);
+    this.setState({
+      loggedIn: isAuthenticated,
+      userName: user && user.name,
+    });
+  }
+
+  resetState = async () => {
+    this.setState({
+      loading: false,
+      email: "",
+      password: "",
+      confirmPassword: "",
+      persistLogin: false,
+      errorMessage: null,
+      registered: false,
+      validationErrors: {},
+    });
+  };
+
   switchToRegister = async (event) => {
+    event.preventDefault();
+    await this.resetState();
     const container = document.getElementById("login-container");
     container.classList.add("active");
   };
 
   switchToLogin = async (event) => {
+    event.preventDefault();
+    await this.resetState();
     const container = document.getElementById("login-container");
     container.classList.remove("active");
   };
@@ -158,7 +228,7 @@ export class Login extends Component {
 
   submitRegister = async (event) => {
     event.preventDefault();
-    this.setState({ loading: true });
+    this.setState({ loading: true, validationErrors: {} });
 
     const requestOptions = {
       method: "post",
@@ -203,5 +273,70 @@ export class Login extends Component {
         ConfirmPassword: data.errors.ConfirmPassword,
       },
     });
+  };
+
+  submitLogin = async (event) => {
+    event.preventDefault();
+    this.setState({ loading: true, validationErrors: {} });
+
+    const requestOptions = {
+      method: "post",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        Email: this.state.email,
+        Password: this.state.password,
+        RememberMe: this.state.persistLogin,
+      }),
+    };
+
+    await fetch("api/account/login", requestOptions)
+      .then((resp) => {
+        if (resp.status !== 200 && resp.status !== 400) {
+          throw new Error(resp.statusText);
+        }
+        if (resp.status === 400) {
+          this.setValidationError(resp);
+          throw new Error("Invalid input");
+        }
+        return resp.json();
+      })
+      .then((data) => {
+        console.log("User Logged In!");
+        this.setState({ loggedIn: true });
+      })
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ errorMessage: error.message });
+      })
+      .finally(() => {
+        this.setState({ loading: false });
+      });
+
+    await authService.signIn(null);
+  };
+
+  submitLogout = async (event) => {
+    event.preventDefault();
+    this.setState({ loading: true, validationErrors: {} });
+
+    await fetch("api/account/logout")
+      .then((resp) => {
+        if (resp.status !== 200) {
+          throw new Error(resp.statusText);
+        }
+      })
+      .then(() => {
+        console.log("User Logged Out");
+        this.setState({ loggedIn: false });
+      })
+      .catch((error) => {
+        console.error(error.message);
+        this.setState({ errorMessage: error.message });
+      })
+      .finally(() => {
+        this.setState({ loading: false, password: null });
+      });
+
+    await authService.signOut(null);
   };
 }
