@@ -1,4 +1,3 @@
-using System.Configuration;
 using Climax.Configuration;
 using Climax.Data;
 using Climax.Models;
@@ -23,12 +22,14 @@ builder.Services.AddDbContext<ClimaxDbContext>(options => options.UseNpgsql(conn
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 builder
-    .Services.AddDefaultIdentity<AppUser>(options => options.SignIn.RequireConfirmedAccount = true)
+    .Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
     .AddEntityFrameworkStores<AuthDbContext>();
 
 builder.Services.AddIdentityServer().AddApiAuthorization<AppUser, AuthDbContext>();
 
-var googleAuthConfig = builder.Configuration.GetSection(GoogleAuthKeys.ConfigSection).Get<GoogleAuthKeys>();
+var googleAuthConfig = builder
+    .Configuration.GetSection(GoogleAuthConfiguration.ConfigSection)
+    .Get<GoogleAuthConfiguration>();
 builder
     .Services.AddAuthentication()
     .AddIdentityServerJwt()
@@ -43,9 +44,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
 
-builder.Services.Configure<TransmissionOptions>(builder.Configuration.GetSection(TransmissionOptions.ConfigSection));
-builder.Services.AddScoped<ITransmissionClient, TransmissionClient>();
-builder.Services.AddScoped<IAccountManagementService, AccountManagementService>();
+builder.Services.Configure<AdminConfiguration>(builder.Configuration.GetSection(AdminConfiguration.ConfigSection));
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();

@@ -7,13 +7,13 @@ namespace Climax.Services
     /// <summary>
     /// Registration Interface for add new user identities
     /// </summary>
-    public interface IAccountManagementService
+    public interface IAuthService
     {
         /// <summary>
         /// Registers an new Identity User using the user provided info
         /// </summary>
         /// <returns>ModelState</returns>
-        Task<AppUser> RegisterUserAsync(NewUserInfo userInfo);
+        Task<AppUser> RegisterUserAsync(NewUserInfo userInfo, string role);
 
         /// <summary>
         /// Processes a password login request using the user provided info

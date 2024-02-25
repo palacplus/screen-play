@@ -4,8 +4,10 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Climax.Configuration;
 using Climax.Data;
 using Climax.Dtos;
+using Climax.Models;
 using Climax.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -16,15 +18,17 @@ namespace Climax.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]
-public class AccountController : ControllerBase
+public class AuthController : ControllerBase
 {
-    private readonly ILogger<AccountController> _logger;
-    private readonly IAccountManagementService _service;
+    private readonly ILogger<AuthController> _logger;
+    private readonly IAuthService _service;
+    private readonly string _adminEmail;
 
-    public AccountController(ILogger<AccountController> logger, IAccountManagementService service)
+    public AuthController(ILogger<AuthController> logger, IAuthService service, AdminConfiguration adminConfig)
     {
         _logger = logger;
         _service = service;
+        _adminEmail = adminConfig.Email;
     }
 
     [HttpGet]
@@ -47,7 +51,7 @@ public class AccountController : ControllerBase
     {
         try
         {
-            var user = await _service.RegisterUserAsync(userInfo);
+            var user = RegisterUserWithRoleAsync(userInfo);
             _logger.LogInformation("New User registered {user}", userInfo.Email);
             return Ok();
         }
@@ -69,7 +73,7 @@ public class AccountController : ControllerBase
             var handler = new JwtSecurityTokenHandler();
             var token = handler.ReadJwtToken(tokenResponse.Token);
             var userInfo = new NewUserInfo(token);
-            var user = await _service.RegisterUserAsync(userInfo);
+            var user = RegisterUserWithRoleAsync(userInfo);
             _logger.LogInformation("New User registered {email}", userInfo.Email);
             return Ok();
         }
@@ -119,6 +123,18 @@ public class AccountController : ControllerBase
         {
             _logger.LogError(ex, "User registration failed");
             return UnprocessableEntity();
+        }
+    }
+
+    private async Task<AppUser> RegisterUserWithRoleAsync(NewUserInfo userInfo)
+    {
+        if (userInfo.Email == _adminEmail)
+        {
+            return await _service.RegisterUserAsync(userInfo, UserRoles.Admin);
+        }
+        else
+        {
+            return await _service.RegisterUserAsync(userInfo, UserRoles.User);
         }
     }
 }

@@ -19,25 +19,28 @@ using Microsoft.Extensions.Logging;
 
 namespace Climax.Services;
 
-public class AccountManagementService : IAccountManagementService
+public class AuthService : IAuthService
 {
     private readonly SignInManager<AppUser> _signInManager;
     private readonly UserManager<AppUser> _userManager;
+    private readonly RoleManager<IdentityRole> _roleManager;
     private readonly IUserStore<AppUser> _userStore;
     private readonly IUserEmailStore<AppUser> _emailStore;
-    private readonly ILogger<AccountManagementService> _logger;
+    private readonly ILogger<AuthService> _logger;
     private readonly IEnumerable<AuthenticationScheme> _externalLogins;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public AccountManagementService(
+    public AuthService(
         UserManager<AppUser> userManager,
+        RoleManager<IdentityRole> roleManager,
         IUserStore<AppUser> userStore,
         SignInManager<AppUser> signInManager,
-        ILogger<AccountManagementService> logger,
+        ILogger<AuthService> logger,
         IHttpContextAccessor httpContextAccessor
     )
     {
         _userManager = userManager;
+        _roleManager = roleManager;
         _userStore = userStore;
         _emailStore = GetEmailStore();
         _signInManager = signInManager;
@@ -52,7 +55,7 @@ public class AccountManagementService : IAccountManagementService
         return info;
     }
 
-    public async Task<AppUser> RegisterUserAsync(NewUserInfo userInfo)
+    public async Task<AppUser> RegisterUserAsync(NewUserInfo userInfo, string role)
     {
         var user = CreateUser();
 
@@ -86,6 +89,11 @@ public class AccountManagementService : IAccountManagementService
             //     $"Please confirm your account by <a href='{HtmlEncoder.Default.Encode(callbackUrl)}'>clicking here</a>."
             // );
 
+            if (!await _roleManager.RoleExistsAsync(role))
+            {
+                await _roleManager.CreateAsync(new IdentityRole(role));
+            }
+            await _userManager.AddToRoleAsync(user, role);
             await _signInManager.SignInAsync(user, isPersistent: false);
             return user;
         }

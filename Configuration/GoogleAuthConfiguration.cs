@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Climax.Configuration;
 
-public class GoogleAuthKeys
+public class GoogleAuthConfiguration
 {
     public static string ConfigSection => "Authentication:Google";
 
