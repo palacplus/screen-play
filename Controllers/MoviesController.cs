@@ -14,9 +14,9 @@ namespace Climax.Controllers
     [ApiController]
     public class MoviesController : ControllerBase
     {
-        private readonly ClimaxDbContext _context;
+        private readonly AppDbContext _context;
 
-        public MoviesController(ClimaxDbContext context)
+        public MoviesController(AppDbContext context)
         {
             _context = context;
         }
@@ -88,7 +88,7 @@ namespace Climax.Controllers
         {
           if (_context.Movies == null)
           {
-              return Problem("Entity set 'ClimaxDbContext.Movies'  is null.");
+              return Problem("Entity set 'AppDbContext.Movies'  is null.");
           }
             _context.Movies.Add(movie);
             await _context.SaveChangesAsync();

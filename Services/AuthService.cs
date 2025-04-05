@@ -1,21 +1,15 @@
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Security.Cryptography;
 using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading;
-using System.Threading.Tasks;
-using System.Web;
+using Climax.Configuration;
+using Climax.Data;
 using Climax.Dtos;
 using Climax.Models;
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI.Services;
-// using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Tokens;
 
 namespace Climax.Services;
 
@@ -29,6 +23,8 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly IEnumerable<AuthenticationScheme> _externalLogins;
     private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly JwtConfiguration _jwtConfig;
+    private readonly AuthDbContext _authDbContext;
 
     public AuthService(
         UserManager<AppUser> userManager,
@@ -36,7 +32,9 @@ public class AuthService : IAuthService
         IUserStore<AppUser> userStore,
         SignInManager<AppUser> signInManager,
         ILogger<AuthService> logger,
-        IHttpContextAccessor httpContextAccessor
+        IHttpContextAccessor httpContextAccessor,
+        JwtConfiguration jwtConfig,
+        AuthDbContext authDbContext
     )
     {
         _userManager = userManager;
@@ -47,6 +45,8 @@ public class AuthService : IAuthService
         _logger = logger;
         _externalLogins = _signInManager.GetExternalAuthenticationSchemesAsync().Result.ToList();
         _httpContextAccessor = httpContextAccessor;
+        _jwtConfig = jwtConfig;
+        _authDbContext = authDbContext;
     }
 
     public async Task<SignInResult> GetExternalInfoAsync()
@@ -55,7 +55,7 @@ public class AuthService : IAuthService
         return info;
     }
 
-    public async Task<AppUser> RegisterUserAsync(NewUserInfo userInfo, string role)
+    public async Task<AppUser> RegisterAsync(NewUserInfo userInfo, string role)
     {
         var user = CreateUser();
 
@@ -101,7 +101,7 @@ public class AuthService : IAuthService
         return user;
     }
 
-    public async Task<AppUser?> LoginUserAsync(UserInfo userInfo)
+    public async Task<AuthResponse> LoginAsync(UserInfo userInfo)
     {
         // Clear the existing external cookie to ensure a clean login process
         var context = _httpContextAccessor.HttpContext;
@@ -116,27 +116,96 @@ public class AuthService : IAuthService
             lockoutOnFailure: false
         );
 
-        var user = await _userManager.FindByEmailAsync(userInfo.Email);
         if (result.Succeeded)
         {
             _logger.LogInformation("User logged in.");
-            return user;
+            var user = await _userManager.FindByEmailAsync(userInfo.Email);
+            var token = GenerateEncodedToken(user);
+            await _userManager.RemoveAuthenticationTokenAsync(user, string.Empty, "refresh_token");
+            var refreshToken = GenerateRefreshToken();
+            await _userManager.SetAuthenticationTokenAsync(user, string.Empty, "refresh_token", refreshToken);
+            return new AuthResponse
+            {
+                Token = token,
+                Expiration = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
+                RefreshToken = null,
+            };
         }
-        if (result.RequiresTwoFactor)
+
+        var response = new AuthResponse
         {
-            _logger.LogWarning("User has 2FA enabled");
-            return user;
-        }
-        if (result.IsLockedOut)
+            Token = null,
+            Expiration = DateTime.UtcNow,
+            RefreshToken = null,
+        };
+        if (result.IsNotAllowed)
         {
-            _logger.LogWarning("User account locked out.");
-            return user;
+            response.ErrorMessage = "User is not allowed to login.";
         }
-        _logger.LogError("User login failed with result {result}", result.ToString());
-        return user;
+        else if (result.IsLockedOut)
+        {
+            response.ErrorMessage = "User account locked out.";
+        }
+        else
+        {
+            response.ErrorMessage = "Invalid login attempt.";
+        }
+        _logger.LogError(
+            "User login failed with result {result}: {errorMessage}",
+            result.ToString(),
+            response.ErrorMessage
+        );
+        return response;
     }
 
-    public async Task LogoutUserAsync()
+    public async Task<AuthResponse> RefreshTokenAsync(TokenInfo tokenInfo)
+    {
+        var principal = GetPrincipalFromExpiredToken(tokenInfo.AccessToken);
+        var email = principal.FindFirstValue(ClaimTypes.Email);
+        var user = await _userManager.FindByEmailAsync(email);
+
+        if (user == null)
+        {
+            return new AuthResponse
+            {
+                Token = null,
+                Expiration = DateTime.UtcNow,
+                RefreshToken = null,
+                ErrorMessage = "User not found",
+            };
+        }
+
+        var isValidToken = await _userManager.VerifyUserTokenAsync(
+            user,
+            string.Empty,
+            "refresh_token",
+            tokenInfo.RefreshToken
+        );
+        if (!isValidToken)
+        {
+            return new AuthResponse
+            {
+                Token = null,
+                Expiration = DateTime.UtcNow,
+                RefreshToken = null,
+                ErrorMessage = "Invalid refresh token",
+            };
+        }
+
+        await _userManager.RemoveAuthenticationTokenAsync(user, string.Empty, "refresh_token");
+        var newAccessToken = GenerateEncodedToken(user);
+        var newRefreshToken = GenerateRefreshToken();
+        await _userManager.SetAuthenticationTokenAsync(user, string.Empty, "refresh_token", newRefreshToken);
+
+        return new AuthResponse
+        {
+            Token = newAccessToken,
+            Expiration = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
+            RefreshToken = newRefreshToken,
+        };
+    }
+
+    public async Task LogoutAsync()
     {
         await _signInManager.SignOutAsync();
         _logger.LogInformation("User logged out.");
@@ -165,5 +234,88 @@ public class AuthService : IAuthService
             throw new NotSupportedException("The default UI requires a user store with email support.");
         }
         return (IUserEmailStore<AppUser>)_userStore;
+    }
+
+    private string GenerateEncodedToken(AppUser user)
+    {
+        if (user == null)
+        {
+            throw new ArgumentNullException(nameof(user), "User cannot be null");
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+            new Claim(ClaimTypes.Email, user.Email),
+        };
+
+        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
+        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
+
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
+            IssuedAt = DateTime.UtcNow,
+            SigningCredentials = credentials,
+            Issuer = _jwtConfig.Issuer,
+            Audience = _jwtConfig.Audience,
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+
+        return tokenHandler.WriteToken(token);
+    }
+
+    private string GenerateRefreshToken()
+    {
+        var randomNumber = new byte[32];
+
+        using var randomNumberGenerator = RandomNumberGenerator.Create();
+        randomNumberGenerator.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
+    }
+
+    private ClaimsPrincipal GetPrincipalFromExpiredToken(string accessToken)
+    {
+        var tokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidAudience = _jwtConfig.Audience,
+            ValidIssuer = _jwtConfig.Issuer,
+            ValidateLifetime = false,
+            ClockSkew = TimeSpan.Zero,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key)),
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        // Validate the token and extract the claims principal and the security token.
+        var principal = tokenHandler.ValidateToken(
+            accessToken,
+            tokenValidationParameters,
+            out SecurityToken securityToken
+        );
+
+        // Cast the security token to a JwtSecurityToken for further validation.
+        var jwtSecurityToken = securityToken as JwtSecurityToken;
+
+        // Ensure the token is a valid JWT and uses the HmacSha256 signing algorithm.
+        // If no throw new SecurityTokenException
+        if (
+            jwtSecurityToken == null
+            || !jwtSecurityToken.Header.Alg.Equals(
+                SecurityAlgorithms.HmacSha256,
+                StringComparison.InvariantCultureIgnoreCase
+            )
+        )
+        {
+            throw new SecurityTokenException("Invalid token");
+        }
+
+        // return the principal
+        return principal;
     }
 }

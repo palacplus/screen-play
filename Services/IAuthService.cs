@@ -12,18 +12,31 @@ namespace Climax.Services
         /// <summary>
         /// Registers an new Identity User using the user provided info
         /// </summary>
-        /// <returns>ModelState</returns>
-        Task<AppUser> RegisterUserAsync(NewUserInfo userInfo, string role);
+        /// <returns>Task<AppUser></returns>
+        Task<AppUser> RegisterAsync(NewUserInfo userInfo, string role);
 
         /// <summary>
         /// Processes a password login request using the user provided info
         /// </summary>
-        Task<AppUser?> LoginUserAsync(UserInfo userInfo);
+        /// <returns>Task<AuthResponse></returns>
+        Task<AuthResponse> LoginAsync(UserInfo userInfo);
 
         /// <summary>
         /// Processes a logout request
         /// </summary>
-        Task LogoutUserAsync();
+        /// <returns>Task</returns>
+        Task LogoutAsync();
+
+        /// <summary>
+        /// Processes a password reset request using the user provided info
+        /// </summary>
+        /// <returns>Task<SignInResult></returns>
         Task<SignInResult> GetExternalInfoAsync();
+
+        /// <summary>
+        /// Refreshes the token using the user provided info
+        /// </summary>
+        /// <returns>Task<AuthResponse></returns>
+        Task<AuthResponse> RefreshTokenAsync(TokenInfo tokenInfo);
     }
 }

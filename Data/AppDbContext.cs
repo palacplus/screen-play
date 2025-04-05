@@ -6,8 +6,8 @@ using Climax.Models;
 
 namespace Climax.Data;
 
-public class ClimaxDbContext : DbContext
+public class AppDbContext : DbContext
 {
-    public ClimaxDbContext(DbContextOptions<ClimaxDbContext> options) : base(options) { }
+    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
     public DbSet<Movie> Movies { get; set; }
 }

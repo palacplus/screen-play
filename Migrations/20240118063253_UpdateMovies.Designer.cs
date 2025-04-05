@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace Climax.Migrations
 {
-    [DbContext(typeof(ClimaxDbContext))]
+    [DbContext(typeof(AppDbContext))]
     [Migration("20240118063253_UpdateMovies")]
     partial class UpdateMovies
     {

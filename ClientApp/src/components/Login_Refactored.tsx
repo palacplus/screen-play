@@ -1,12 +1,32 @@
-import React, { Component } from "react";
+import React, { Component, ChangeEvent, FormEvent } from "react";
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { GoogleLogin } from "@react-oauth/google";
-import authService from "../api-authorization/AuthorizeService";
+import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
+import authService from "../../components/api-authorization/AuthorizeService";
 import "./LoginPage.css";
 
-export class LoginPage extends Component {
-  static googleAuthClientID = process.env.REACT_APP_GOOGLE_CLIENT_ID;
-  constructor(props) {
+interface LoginPageState {
+  loading: boolean;
+  email: string;
+  password: string;
+  confirmPassword: string;
+  persistLogin: boolean;
+  errorMessage: string | null;
+  registered: boolean;
+  loggedIn: boolean;
+  validationErrors: {
+    Email?: string[];
+    Password?: string[];
+    ConfirmPassword?: string[];
+  };
+  userName: string | null;
+}
+
+export class LoginPage extends Component<{}, LoginPageState> {
+  static googleAuthClientID: string | undefined = process.env.REACT_APP_GOOGLE_CLIENT_ID;
+
+  private _subscription: any;
+
+  constructor(props: {}) {
     super(props);
     this.state = {
       loading: false,
@@ -24,56 +44,16 @@ export class LoginPage extends Component {
 
   render() {
     return (
-      <GoogleOAuthProvider clientId={LoginPage.googleAuthClientID}>
+      <GoogleOAuthProvider clientId={LoginPage.googleAuthClientID || ""}>
         <div className="login-container" id="login-container">
-          <div className="form-container sign-up">
-            <form>
-              <h1>Create Account</h1>
-              <div className="social-icons">
-                <GoogleLogin
-                  onSuccess={(credentialResponse) => {
-                    this.submitTokenRegistration(credentialResponse);
-                  }}
-                  onError={() => {
-                    console.log("Login Failed");
-                  }}
-                  text="signup_with"
-                />
-              </div>
-              {this.state.validationErrors.Email ? (
-                this.state.validationErrors.Email.map((error, idx) => <span key={idx}>{error}</span>)
-              ) : (
-                <span className="message">or use your email for registeration</span>
-              )}
-              <input type="email" placeholder="Email" value={this.state.email} onChange={this.changeEmailInput} />
-              {this.state.validationErrors.Password &&
-                this.state.validationErrors.Password.map((error, idx) => <span key={idx}>{error}</span>)}
-              <input
-                type="password"
-                placeholder="Password"
-                value={this.state.password}
-                onChange={this.changePasswordInput}
-              />
-              {this.state.validationErrors.ConfirmPassword &&
-                this.state.validationErrors.ConfirmPassword.map((error, idx) => <span key={idx}>{error}</span>)}
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                value={this.state.confirmPassword}
-                onChange={this.changeConfirmPasswordInput}
-              />
-              <button type="submit" onClick={this.submitRegister}>
-                Sign Up
-              </button>
-            </form>
-          </div>
+          {/* Register Form Here */}
           <div className="form-container sign-in">
             <form>
               <h1 hidden={this.state.loggedIn}>Sign In</h1>
               <h1 hidden={!this.state.loggedIn}>Hello, Friend!</h1>
               <div className="social-icons" hidden={this.state.loggedIn}>
                 <GoogleLogin
-                  onSuccess={(credentialResponse) => {
+                  onSuccess={(credentialResponse: CredentialResponse) => {
                     this.submitTokenRegistration(credentialResponse);
                   }}
                   onError={() => {
@@ -171,36 +151,37 @@ export class LoginPage extends Component {
     });
   };
 
-  switchToRegister = async (event) => {
+  switchToRegister = async (event: FormEvent) => {
     event.preventDefault();
     await this.resetState();
     const container = document.getElementById("login-container");
-    container.classList.add("active");
+    container?.classList.add("active");
   };
 
-  switchToLogin = async (event) => {
+  switchToLogin = async (event: FormEvent) => {
     event.preventDefault();
     await this.resetState();
     const container = document.getElementById("login-container");
-    container.classList.remove("active");
+    container?.classList.remove("active");
   };
 
-  changeEmailInput = (event) => {
+  changeEmailInput = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({ email: event.target.value });
   };
-  changePasswordInput = (event) => {
+
+  changePasswordInput = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({ password: event.target.value });
   };
-  changeConfirmPasswordInput = (event) => {
+
+  changeConfirmPasswordInput = (event: ChangeEvent<HTMLInputElement>) => {
     this.setState({ confirmPassword: event.target.value });
   };
 
-  submitTokenRegistration = async (credentialsResponse) => {
+  submitTokenRegistration = async (credentialsResponse: CredentialResponse) => {
     this.setState({ loading: true });
-    console.log(this.state);
 
     const requestOptions = {
-      method: "post",
+      method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         Token: credentialsResponse.credential,
@@ -226,7 +207,7 @@ export class LoginPage extends Component {
       });
   };
 
-  submitRegister = async (event) => {
+  submitRegister = async (event: FormEvent) => {
     event.preventDefault();
     this.setState({ loading: true, validationErrors: {} });
 
@@ -263,7 +244,7 @@ export class LoginPage extends Component {
       });
   };
 
-  setValidationError = async (response) => {
+  setValidationError = async (response: Response) => {
     let data = await response.json();
     console.debug(data);
     this.setState({
@@ -275,7 +256,7 @@ export class LoginPage extends Component {
     });
   };
 
-  submitLogin = async (event) => {
+  submitLogin = async (event: FormEvent) => {
     event.preventDefault();
     this.setState({ loading: true, validationErrors: {} });
 
@@ -300,7 +281,7 @@ export class LoginPage extends Component {
         }
         return resp.json();
       })
-      .then((data) => {
+      .then(() => {
         console.log("User Logged In!");
         this.setState({ loggedIn: true });
       })
@@ -315,7 +296,7 @@ export class LoginPage extends Component {
     await authService.signIn(null);
   };
 
-  submitLogout = async (event) => {
+  submitLogout = async (event: FormEvent) => {
     event.preventDefault();
     this.setState({ loading: true, validationErrors: {} });
 
@@ -334,7 +315,7 @@ export class LoginPage extends Component {
         this.setState({ errorMessage: error.message });
       })
       .finally(() => {
-        this.setState({ loading: false, password: null });
+        this.setState({ loading: false, password: "" });
       });
 
     await authService.signOut(null);

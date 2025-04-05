@@ -1,13 +1,13 @@
+using System.Text;
 using Climax.Configuration;
 using Climax.Data;
 using Climax.Models;
 using Climax.Services;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,24 +17,43 @@ var connectionString =
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
 builder.Services.AddDbContext<AuthDbContext>(options => options.UseNpgsql(connectionString));
-builder.Services.AddDbContext<ClimaxDbContext>(options => options.UseNpgsql(connectionString));
-
+builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
+// Authentication
 builder
     .Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<AuthDbContext>();
-
-builder.Services.AddIdentityServer().AddApiAuthorization<AppUser, AuthDbContext>();
-
-var googleAuthConfig = builder
-    .Configuration.GetSection(GoogleAuthConfiguration.ConfigSection)
-    .Get<GoogleAuthConfiguration>();
-builder
-    .Services.AddAuthentication()
+    .AddEntityFrameworkStores<AuthDbContext>()
+    .AddDefaultTokenProviders()
+    .Services.AddIdentityServer()
+    .AddApiAuthorization<AppUser, AuthDbContext>()
+    .Services.AddAuthentication(options =>
+    {
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
+    .AddJwtBearer(options =>
+    {
+        var jwtConfig = builder.Configuration.GetSection(JwtConfiguration.ConfigSection).Get<JwtConfiguration>();
+        options.SaveToken = true;
+        options.RequireHttpsMetadata = false;
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidAudience = jwtConfig.Audience,
+            ValidIssuer = jwtConfig.Issuer,
+            ClockSkew = TimeSpan.Zero,
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtConfig.Key)),
+        };
+    })
     .AddIdentityServerJwt()
     .AddGoogle(googleOptions =>
     {
+        var googleAuthConfig = builder
+            .Configuration.GetSection(GoogleAuthConfiguration.ConfigSection)
+            .Get<GoogleAuthConfiguration>();
         googleOptions.ClientId = googleAuthConfig.ClientId;
         googleOptions.ClientSecret = googleAuthConfig.ClientSecret;
         googleOptions.SignInScheme = IdentityConstants.ExternalScheme;
@@ -45,6 +64,7 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
 
 builder.Services.Configure<AdminConfiguration>(builder.Configuration.GetSection(AdminConfiguration.ConfigSection));
+builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection(JwtConfiguration.ConfigSection));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSwaggerGen();
 
@@ -72,6 +92,7 @@ app.UseStaticFiles();
 app.UseRouting();
 
 app.UseAuthentication();
+app.UseAuthorization();
 app.UseIdentityServer();
 app.UseAuthorization();
 
