@@ -162,6 +162,16 @@ public class AuthService : IAuthService
     {
         var principal = GetPrincipalFromExpiredToken(tokenInfo.AccessToken);
         var email = principal.FindFirstValue(ClaimTypes.Email);
+        if (email == null)
+        {
+            return new AuthResponse
+            {
+                Token = null,
+                Expiration = DateTime.UtcNow,
+                RefreshToken = null,
+                ErrorMessage = "Invalid token",
+            };
+        }
         var user = await _userManager.FindByEmailAsync(email);
 
         if (user == null)

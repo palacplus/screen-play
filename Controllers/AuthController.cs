@@ -39,7 +39,7 @@ public class AuthController : ControllerBase
     [HttpPost("register/user")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> RegisterAsync([FromBody] NewUserInfo userInfo)
+    public async Task<ActionResult<AppUser>> RegisterAsync([FromBody] NewUserInfo userInfo)
     {
         try
         {
@@ -57,7 +57,7 @@ public class AuthController : ControllerBase
     [HttpPost("register/token")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<IActionResult> RegisterWithTokenAsync([FromBody] JwtTokenResponse tokenResponse)
+    public async Task<ActionResult<AppUser>> RegisterWithTokenAsync([FromBody] JwtTokenResponse tokenResponse)
     {
         try
         {
@@ -66,7 +66,7 @@ public class AuthController : ControllerBase
             var userInfo = new NewUserInfo(token);
             var user = await RegisterUserWithRoleAsync(userInfo);
             _logger.LogInformation("New User registered {email}", userInfo.Email);
-            return Ok(user);
+            return CreatedAtAction(nameof(RegisterWithTokenAsync), user);
         }
         catch (Exception ex)
         {
@@ -79,7 +79,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult> LoginAsync([FromBody] UserInfo userInfo)
+    public async Task<ActionResult<AuthResponse>> LoginAsync([FromBody] UserInfo userInfo)
     {
         try
         {
@@ -103,7 +103,7 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult> RefreshTokenAsync([FromBody] TokenInfo tokenInfo)
+    public async Task<ActionResult<AuthResponse>> RefreshTokenAsync([FromBody] TokenInfo tokenInfo)
     {
         try
         {

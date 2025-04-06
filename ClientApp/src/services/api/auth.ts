@@ -1,42 +1,36 @@
 import { User } from '@/types/user';
+import { AuthResponse, UserInfo, NewUserInfo } from '@/types/auth';
 import { AuthEndpoints } from '@/types/endpoints';
+import axios from 'axios';
 
 
-export async function registerWithToken(authToken: string) {
-    const response = await fetch(AuthEndpoints.TOKEN_REGISTER, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            token: authToken
-        }),
+export async function registerWithToken(token: string) {
+    const response = await axios.post(AuthEndpoints.TOKEN_REGISTER, {
+        token: token
     });
-    if (!response.ok) {
+    if (response.status !== 201) {
         throw new Error(response.statusText);
     }
-    const newUser = await response.json();
-    createUser(newUser.email, newUser.token);
-    return [200, { authToken, user: testUser }] as const;
+    const newUser = (await response.data) as User;
+    return [response.status, { token, user: newUser }] as const;
 }
 
-export async function login() {
-  await new Promise((resolve) => setTimeout(resolve, 1000));
-
-  const authToken = generateAuthToken();
-
-  return [200, { authToken, user: testUser }] as const;
-}
-
-function generateAuthToken() {
-  return Math.random().toString(36).substring(2);
-}
-
-function createUser(email: string, accessToken: string) {
-    const newUser : User = {
-        email: email,
-        token: accessToken,
-        createdAt: new Date(),
+export async function refreshToken(token: string) {
+    const response = await axios.post(AuthEndpoints.REFRESH_TOKEN, {
+        token: token
+    });
+    if (response.status !== 200) {
+        throw new Error(response.statusText);
     }
-  return newUser;
+    const authResponse = (await response.data) as AuthResponse;
+    return [response.status, authResponse] as const;
+}
+
+export async function login(user: UserInfo) {
+    const response = await axios.post(AuthEndpoints.LOGIN, user);
+    if (response.status !== 200) {
+        throw new Error(response.statusText);
+    }
+    const authResponse = (await response.data) as AuthResponse;
+    return [response.status, authResponse] as const;
 }

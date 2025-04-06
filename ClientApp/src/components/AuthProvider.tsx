@@ -1,15 +1,17 @@
-import { getUser, login } from '@/services/api/auth';
+import { refreshToken, login } from '@/services/api/auth';
 import { User } from '@/types/user';
 import {
   createContext,
   PropsWithChildren,
   useContext,
   useEffect,
+  useLayoutEffect,
   useState,
 } from 'react';
+import axios from 'axios';
 
 type AuthContext = {
-  authToken?: string | null;
+  token?: string | null;
   currentUser?: User | null;
   handleLogin: () => Promise<void>;
   handleLogout: () => Promise<void>;
@@ -20,7 +22,7 @@ const AuthContext = createContext<AuthContext | undefined>(undefined);
 type AuthProviderProps = PropsWithChildren;
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const [authToken, setAuthToken] = useState<string | null>();
+  const [token, setToken] = useState<string | null>();
   const [currentUser, setCurrentUser] = useState<User | null>();
 
   useEffect(() => {
@@ -28,12 +30,12 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       try {
         const response = await getUser();
 
-        const { authToken, user } = response[1];
+        const { token, user } = response[1];
 
-        setAuthToken(authToken);
+        setToken(token);
         setCurrentUser(user);
       } catch {
-        setAuthToken(null);
+        setToken(null);
         setCurrentUser(null);
       }
     }
@@ -41,29 +43,73 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     fetchUser();
   }, []);
 
+  useLayoutEffect(() => {
+    const authInterceptor = axios.interceptors.request.use((config) => {
+      config.headers.Authorization =
+        !config._retry && token
+          ? `Bearer ${token}`
+          : config.headers.Authorization;
+      return config;
+    });
+
+    return () => {
+      axios.interceptors.request.eject(authInterceptor);
+    };
+  }, [token]);
+
+  useLayoutEffect(() => {
+    const refreshTokenInterceptor = axios.interceptors.response.use(
+      (response) => response,
+      async (error) => {
+        const originalRequest = error.config;
+        if (error.response.status === 403 && error.response.message === 'Unauthorized') {
+          try {
+            const resp = await refreshToken(token);
+
+            setToken(resp[1].token);
+
+            originalRequest.headers.Authorization = `Bearer ${resp[1].token}`;
+            originalRequest._retry = true;
+
+            return axios(originalRequest);
+          } catch (err) {
+            setToken(null);
+            setCurrentUser(null);
+          }
+        }
+          return Promise.reject(error);
+        }
+      );
+  
+      return () => {
+        axios.interceptors.response.eject(refreshTokenInterceptor);
+      };
+    }, [token]);
+
+
   async function handleLogin() {
     try {
       const response = await login();
 
-      const { authToken, user } = response[1];
+      const { token, user } = response[1];
 
-      setAuthToken(authToken);
+      setToken(token);
       setCurrentUser(user);
     } catch {
-      setAuthToken(null);
+      setToken(null);
       setCurrentUser(null);
     }
   }
 
   async function handleLogout() {
-    setAuthToken(null);
+    setToken(null);
     setCurrentUser(null);
   }
 
   return (
     <AuthContext.Provider
       value={{
-        authToken,
+        token,
         currentUser,
         handleLogin,
         handleLogout,
