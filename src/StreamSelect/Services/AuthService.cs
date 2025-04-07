@@ -1,13 +1,10 @@
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Security.Cryptography;
-using System.Text;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using StreamSelect.Configuration;
 using StreamSelect.Dtos;
 using StreamSelect.Models;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.IdentityModel.Tokens;
 
 namespace StreamSelect.Services;
 
@@ -27,7 +24,7 @@ public class AuthService : IAuthService
         SignInManager<AppUser> signInManager,
         ILogger<AuthService> logger,
         IHttpContextAccessor httpContextAccessor,
-        JwtConfiguration jwtConfig
+        IOptions<JwtConfiguration> jwtOptions
     )
     {
         _userManager = userManager;
@@ -36,7 +33,7 @@ public class AuthService : IAuthService
         _logger = logger;
         _externalLogins = _signInManager.GetExternalAuthenticationSchemesAsync().Result.ToList();
         _httpContextAccessor = httpContextAccessor;
-        _jwtConfig = jwtConfig;
+        _jwtConfig = jwtOptions.Value;
     }
 
     public async Task<SignInResult> GetExternalInfoAsync()

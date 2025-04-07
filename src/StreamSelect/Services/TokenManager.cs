@@ -1,10 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
-using StreamSelect.Models;
 using StreamSelect.Configuration;
-using System.Security.Claims;
+using StreamSelect.Models;
 
 namespace StreamSelect.Services;
 
@@ -12,11 +12,12 @@ public static class TokenManager
 {
     public static string GenerateEncodedToken(AppUser user, JwtConfiguration jwtConfig)
     {
-        if (user == null) throw new ArgumentNullException(nameof(user));
+        if (user == null)
+            throw new ArgumentNullException(nameof(user));
 
         var claims = new[]
         {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Email),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Email ?? throw new ArgumentNullException(nameof(user.Email))),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.NameIdentifier, user.Id),
             new Claim(ClaimTypes.Email, user.Email)

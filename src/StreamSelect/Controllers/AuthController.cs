@@ -1,9 +1,10 @@
 using System.IdentityModel.Tokens.Jwt;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 using StreamSelect.Configuration;
 using StreamSelect.Dtos;
 using StreamSelect.Models;
 using StreamSelect.Services;
-using Microsoft.AspNetCore.Mvc;
 
 namespace StreamSelect.Controllers;
 
@@ -15,11 +16,15 @@ public class AuthController : ControllerBase
     private readonly IAuthService _service;
     private readonly string _adminEmail;
 
-    public AuthController(ILogger<AuthController> logger, IAuthService service, AdminConfiguration adminConfig)
+    public AuthController(
+        ILogger<AuthController> logger,
+        IAuthService service,
+        IOptions<AdminConfiguration> adminOptions
+    )
     {
         _logger = logger;
         _service = service;
-        _adminEmail = adminConfig.Email;
+        _adminEmail = adminOptions.Value.Email;
     }
 
     [HttpGet("externalInfo")]

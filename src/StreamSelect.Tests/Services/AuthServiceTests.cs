@@ -2,6 +2,7 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
 using StreamSelect.Configuration;
 using StreamSelect.Dtos;
 using StreamSelect.Models;
@@ -50,13 +51,15 @@ public class AuthServiceTests
     );
     private readonly ILogger<AuthService> _logger = Substitute.For<ILogger<AuthService>>();
     private readonly IHttpContextAccessor _httpContextAccessor = Substitute.For<IHttpContextAccessor>();
-    private readonly JwtConfiguration _jwtConfig = new JwtConfiguration
-    {
-        Key = "test_key_12345678901234567890123456789012",
-        Issuer = "test_issuer",
-        Audience = "test_audience",
-        ExpirationMinutes = 60
-    };
+    private readonly IOptions<JwtConfiguration> _jwtOptions = Options.Create(
+        new JwtConfiguration
+        {
+            Key = "test_key_12345678901234567890123456789012",
+            Issuer = "test_issuer",
+            Audience = "test_audience",
+            ExpirationMinutes = 60
+        }
+    );
 
     private readonly AuthService _authService;
 
@@ -69,7 +72,7 @@ public class AuthServiceTests
             _signInManager,
             _logger,
             _httpContextAccessor,
-            _jwtConfig
+            _jwtOptions
         );
     }
 
@@ -128,7 +131,7 @@ public class AuthServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Token.Should().NotBeNullOrEmpty();
-        _userManager
+        await _userManager
             .ReceivedWithAnyArgs()
             .SetAuthenticationTokenAsync(default, Arg.Any<string>(), Arg.Any<string>(), Arg.Any<string>());
     }
@@ -140,7 +143,7 @@ public class AuthServiceTests
         var appUser = new AppUser { Email = "user@example.com" };
         var tokenInfo = new TokenInfo
         {
-            AccessToken = TokenManager.GenerateEncodedToken(appUser, _jwtConfig),
+            AccessToken = TokenManager.GenerateEncodedToken(appUser, _jwtOptions.Value),
             RefreshToken = "valid_refresh_token"
         };
 

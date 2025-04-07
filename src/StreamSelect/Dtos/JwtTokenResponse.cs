@@ -8,5 +8,5 @@ public class JwtTokenResponse
     [Required]
     [Display(Name = "Token")]
     [JsonPropertyName("token")]
-    public string Token { get; set; }
+    public required string Token { get; set; }
 }

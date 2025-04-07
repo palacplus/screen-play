@@ -1,13 +1,13 @@
 using System.Text;
-using StreamSelect.Configuration;
-using StreamSelect.Data;
-using StreamSelect.Models;
-using StreamSelect.Services;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
+using StreamSelect.Configuration;
+using StreamSelect.Data;
+using StreamSelect.Models;
+using StreamSelect.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,6 +19,11 @@ var connectionString =
 builder.Services.AddDbContext<AuthDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
+
+// Configuration
+builder.Services.BindAndValidateOnStart<AdminConfiguration>(AdminConfiguration.ConfigSection);
+builder.Services.BindAndValidateOnStart<JwtConfiguration>(JwtConfiguration.ConfigSection);
+builder.Services.BindAndValidateOnStart<GoogleAuthConfiguration>(GoogleAuthConfiguration.ConfigSection);
 
 // Authentication
 builder
@@ -62,9 +67,6 @@ builder
 builder.Services.AddControllersWithViews();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddRazorPages();
-
-builder.Services.Configure<AdminConfiguration>(builder.Configuration.GetSection(AdminConfiguration.ConfigSection));
-builder.Services.Configure<JwtConfiguration>(builder.Configuration.GetSection(JwtConfiguration.ConfigSection));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSwaggerGen();
 

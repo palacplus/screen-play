@@ -13,7 +13,7 @@ namespace StreamSelect.Services
         /// Registers an new Identity User using the user provided info
         /// </summary>
         /// <returns>Task<AppUser></returns>
-        Task<AppUser> RegisterAsync(LoginInfo LoginInfo, string role);
+        Task<AppUser?> RegisterAsync(LoginInfo LoginInfo, string role);
 
         /// <summary>
         /// Processes a password login request using the user provided info
