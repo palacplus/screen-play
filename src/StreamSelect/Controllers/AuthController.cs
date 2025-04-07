@@ -38,19 +38,25 @@ public class AuthController : ControllerBase
 
     [HttpPost("register/user")]
     [ProducesResponseType(StatusCodes.Status201Created)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<AppUser>> RegisterUserAsync([FromBody] LoginInfo loginInfo)
     {
         try
         {
             var user = await RegisterUserWithRoleAsync(loginInfo);
+            if (user == null)
+            {
+                _logger.LogError("User not found {email}", loginInfo.Email);
+                return BadRequest();
+            }
+
             _logger.LogInformation("New User registered {user}", loginInfo.Email);
             return CreatedAtAction(nameof(RegisterUserAsync), user);
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "User registration failed");
-            return UnprocessableEntity();
+            throw;
         }
     }
 
@@ -62,15 +68,20 @@ public class AuthController : ControllerBase
         try
         {
             var handler = new JwtSecurityTokenHandler();
-            var LoginInfo = new LoginInfo(handler.ReadJwtToken(tokenResponse.Token));
-            var user = await RegisterUserWithRoleAsync(LoginInfo);
-            _logger.LogInformation("New User registered {email}", LoginInfo.Email);
+            var loginInfo = new LoginInfo(handler.ReadJwtToken(tokenResponse.Token));
+            var user = await RegisterUserWithRoleAsync(loginInfo);
+            if (user == null)
+            {
+                _logger.LogError("User not found {email}", loginInfo.Email);
+                return BadRequest();
+            }
+            _logger.LogInformation("New User registered {email}", loginInfo.Email);
             return CreatedAtAction(nameof(RegisterWithTokenAsync), user);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "User registration failed");
-            return UnprocessableEntity();
+            _logger.LogError(ex, "User registration with external token failed");
+            throw;
         }
     }
 

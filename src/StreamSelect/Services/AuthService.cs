@@ -3,7 +3,6 @@ using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 using StreamSelect.Configuration;
-using StreamSelect.Data;
 using StreamSelect.Dtos;
 using StreamSelect.Models;
 using Microsoft.AspNetCore.Authentication;
@@ -17,35 +16,27 @@ public class AuthService : IAuthService
     private readonly SignInManager<AppUser> _signInManager;
     private readonly UserManager<AppUser> _userManager;
     private readonly RoleManager<IdentityRole> _roleManager;
-    private readonly IUserStore<AppUser> _userStore;
-    private readonly IUserEmailStore<AppUser> _emailStore;
     private readonly ILogger<AuthService> _logger;
     private readonly IEnumerable<AuthenticationScheme> _externalLogins;
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly JwtConfiguration _jwtConfig;
-    private readonly AuthDbContext _authDbContext;
 
     public AuthService(
         UserManager<AppUser> userManager,
         RoleManager<IdentityRole> roleManager,
-        IUserStore<AppUser> userStore,
         SignInManager<AppUser> signInManager,
         ILogger<AuthService> logger,
         IHttpContextAccessor httpContextAccessor,
-        JwtConfiguration jwtConfig,
-        AuthDbContext authDbContext
+        JwtConfiguration jwtConfig
     )
     {
         _userManager = userManager;
         _roleManager = roleManager;
-        _userStore = userStore;
-        _emailStore = GetEmailStore();
         _signInManager = signInManager;
         _logger = logger;
         _externalLogins = _signInManager.GetExternalAuthenticationSchemesAsync().Result.ToList();
         _httpContextAccessor = httpContextAccessor;
         _jwtConfig = jwtConfig;
-        _authDbContext = authDbContext;
     }
 
     public async Task<SignInResult> GetExternalInfoAsync()
@@ -54,17 +45,15 @@ public class AuthService : IAuthService
         return info;
     }
 
-    public async Task<AppUser> RegisterAsync(LoginInfo loginInfo, string role)
+    public async Task<AppUser?> RegisterAsync(LoginInfo loginInfo, string role)
     {
         var user = CreateUser();
-
-        await _userStore.SetUserNameAsync(user, loginInfo.Email, CancellationToken.None);
-        await _emailStore.SetEmailAsync(user, loginInfo.Email, CancellationToken.None);
         var result = await _userManager.CreateAsync(user, loginInfo.Password);
 
         if (result.Succeeded)
         {
             _logger.LogInformation("User created a new account with password.");
+            await _userManager.SetEmailAsync(user, loginInfo.Email);
 
             if (loginInfo.IsExternalLogin)
             {
@@ -79,16 +68,18 @@ public class AuthService : IAuthService
             // var userId = await _userManager.GetUserIdAsync(user);
             // var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
 
-
             if (!await _roleManager.RoleExistsAsync(role))
             {
                 await _roleManager.CreateAsync(new IdentityRole(role));
             }
             await _userManager.AddToRoleAsync(user, role);
-            return user;
         }
-        _logger.LogError(result.Errors.ToString());
-        return user;
+        else
+        {
+            _logger.LogError("User registration failed: {errors}", result.Errors.ToString());
+            return null;
+        }
+        return await _userManager.FindByEmailAsync(loginInfo.Email);
     }
 
     public async Task<AuthResponse> LoginAsync(LoginInfo loginInfo)
@@ -106,9 +97,9 @@ public class AuthService : IAuthService
         {
             _logger.LogInformation("User logged in.");
             var user = await _userManager.FindByEmailAsync(loginInfo.Email);
-            var token = GenerateEncodedToken(user);
+            var token = TokenManager.GenerateEncodedToken(user, _jwtConfig);
             await _userManager.RemoveAuthenticationTokenAsync(user, string.Empty, "refresh_token");
-            var refreshToken = GenerateRefreshToken();
+            var refreshToken = TokenManager.GenerateRefreshToken();
             await _userManager.SetAuthenticationTokenAsync(user, string.Empty, "refresh_token", refreshToken);
             return new AuthResponse
             {
@@ -146,7 +137,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> RefreshTokenAsync(TokenInfo tokenInfo)
     {
-        var principal = GetPrincipalFromExpiredToken(tokenInfo.AccessToken);
+        var principal = TokenManager.GetPrincipalFromExpiredToken(tokenInfo.AccessToken, _jwtConfig);
         var email = principal.FindFirstValue(ClaimTypes.Email);
         if (email == null)
         {
@@ -158,8 +149,8 @@ public class AuthService : IAuthService
                 ErrorMessage = "Invalid token",
             };
         }
-        var user = await _userManager.FindByEmailAsync(email);
 
+        var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
             return new AuthResponse
@@ -189,8 +180,8 @@ public class AuthService : IAuthService
         }
 
         await _userManager.RemoveAuthenticationTokenAsync(user, string.Empty, "refresh_token");
-        var newAccessToken = GenerateEncodedToken(user);
-        var newRefreshToken = GenerateRefreshToken();
+        var newAccessToken = TokenManager.GenerateEncodedToken(user, _jwtConfig);
+        var newRefreshToken = TokenManager.GenerateRefreshToken();
         await _userManager.SetAuthenticationTokenAsync(user, string.Empty, "refresh_token", newRefreshToken);
 
         return new AuthResponse
@@ -221,98 +212,6 @@ public class AuthService : IAuthService
                     + $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml"
             );
         }
-    }
-
-    private IUserEmailStore<AppUser> GetEmailStore()
-    {
-        if (!_userManager.SupportsUserEmail)
-        {
-            throw new NotSupportedException("The default UI requires a user store with email support.");
-        }
-        return (IUserEmailStore<AppUser>)_userStore;
-    }
-
-    private string GenerateEncodedToken(AppUser user)
-    {
-        if (user == null)
-        {
-            throw new ArgumentNullException(nameof(user), "User cannot be null");
-        }
-
-        var claims = new List<Claim>
-        {
-            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
-            new Claim(ClaimTypes.Email, user.Email),
-        };
-
-        var securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
-        var credentials = new SigningCredentials(securityKey, SecurityAlgorithms.HmacSha256);
-
-        var tokenDescriptor = new SecurityTokenDescriptor
-        {
-            Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
-            IssuedAt = DateTime.UtcNow,
-            SigningCredentials = credentials,
-            Issuer = _jwtConfig.Issuer,
-            Audience = _jwtConfig.Audience,
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-        var token = tokenHandler.CreateToken(tokenDescriptor);
-
-        return tokenHandler.WriteToken(token);
-    }
-
-    private string GenerateRefreshToken()
-    {
-        var randomNumber = new byte[32];
-
-        using var randomNumberGenerator = RandomNumberGenerator.Create();
-        randomNumberGenerator.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
-    }
-
-    private ClaimsPrincipal GetPrincipalFromExpiredToken(string accessToken)
-    {
-        var tokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidAudience = _jwtConfig.Audience,
-            ValidIssuer = _jwtConfig.Issuer,
-            ValidateLifetime = false,
-            ClockSkew = TimeSpan.Zero,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key)),
-        };
-
-        var tokenHandler = new JwtSecurityTokenHandler();
-
-        // Validate the token and extract the claims principal and the security token.
-        var principal = tokenHandler.ValidateToken(
-            accessToken,
-            tokenValidationParameters,
-            out SecurityToken securityToken
-        );
-
-        // Cast the security token to a JwtSecurityToken for further validation.
-        var jwtSecurityToken = securityToken as JwtSecurityToken;
-
-        // Ensure the token is a valid JWT and uses the HmacSha256 signing algorithm.
-        // If no throw new SecurityTokenException
-        if (
-            jwtSecurityToken == null
-            || !jwtSecurityToken.Header.Alg.Equals(
-                SecurityAlgorithms.HmacSha256,
-                StringComparison.InvariantCultureIgnoreCase
-            )
-        )
-        {
-            throw new SecurityTokenException("Invalid token");
-        }
-
-        // return the principal
-        return principal;
     }
 
     private async Task<AppUser> AddExternalUserLoginAsync(AppUser user)

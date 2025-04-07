@@ -26,7 +26,7 @@ public class LoginInfo
     public string ConfirmPassword { get; set; }
 
     [Display(Name = "Remember me?")]
-    public bool RememberMe { get; set; }
+    public bool RememberMe { get; set; } = true;
 
     [JsonIgnore]
     public bool IsExternalLogin { get; }

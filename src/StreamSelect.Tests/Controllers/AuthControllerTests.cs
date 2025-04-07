@@ -1,17 +1,11 @@
-using System;
 using System.IdentityModel.Tokens.Jwt;
-using System.Threading.Tasks;
 using StreamSelect.Configuration;
 using StreamSelect.Controllers;
 using StreamSelect.Dtos;
 using StreamSelect.Models;
 using StreamSelect.Services;
-using FluentAssertions;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using NSubstitute;
-using Xunit;
 
 namespace StreamSelect.Tests.Controllers;
 
@@ -55,12 +49,10 @@ public class AuthControllerTests
             .Returns(Task.FromException<AppUser>(new Exception("Registration failed")));
 
         // Act
-        var result = await _controller.RegisterUserAsync(loginInfo);
+        var act = async () => await _controller.RegisterUserAsync(loginInfo);
 
         // Assert
-        var unprocessableResult = result.Result as UnprocessableEntityResult;
-        unprocessableResult.Should().NotBeNull();
-        unprocessableResult!.StatusCode.Should().Be(StatusCodes.Status422UnprocessableEntity);
+        await act.Should().ThrowAsync<Exception>().WithMessage("Registration failed");
     }
 
     [Fact]
