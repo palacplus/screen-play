@@ -48,20 +48,19 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var user = await RegisterUserWithRoleAsync(loginInfo);
-            if (user == null)
+            var response = await RegisterUserWithRoleAsync(loginInfo);
+            if (response.Token == null)
             {
                 _logger.LogError("User not found {email}", loginInfo.Email);
                 return BadRequest();
             }
 
             _logger.LogInformation("New User registered {user}", loginInfo.Email);
-            return CreatedAtAction(nameof(RegisterUserAsync), user);
+            return CreatedAtAction(nameof(RegisterUserAsync), response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "User registration failed");
-            throw;
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
     }
 
@@ -74,19 +73,18 @@ public class AuthController : ControllerBase
         {
             var handler = new JwtSecurityTokenHandler();
             var loginInfo = new LoginInfo(handler.ReadJwtToken(tokenResponse.Token));
-            var user = await RegisterUserWithRoleAsync(loginInfo);
-            if (user == null)
+            var response = await RegisterUserWithRoleAsync(loginInfo);
+            if (response.Token == null)
             {
                 _logger.LogError("User not found {email}", loginInfo.Email);
                 return BadRequest();
             }
             _logger.LogInformation("New User registered {email}", loginInfo.Email);
-            return CreatedAtAction(nameof(RegisterWithTokenAsync), user);
+            return CreatedAtAction(nameof(RegisterWithTokenAsync), response);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "User registration with external token failed");
-            throw;
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
     }
 
@@ -109,8 +107,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "User registration failed");
-            return UnprocessableEntity();
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
     }
 
@@ -131,8 +128,7 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Token refresh failed");
-            return UnprocessableEntity();
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
     }
 
@@ -147,20 +143,19 @@ public class AuthController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "User registration failed");
-            return UnprocessableEntity();
+            return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
         }
     }
 
-    private async Task<AppUser> RegisterUserWithRoleAsync(LoginInfo LoginInfo)
+    private async Task<AuthResponse> RegisterUserWithRoleAsync(LoginInfo LoginInfo)
     {
         if (LoginInfo.Email == _adminEmail)
         {
-            return await _service.RegisterAsync(LoginInfo, UserRole.Admin);
+            return await _service.RegisterAsync(LoginInfo, AppRole.Admin);
         }
         else
         {
-            return await _service.RegisterAsync(LoginInfo, UserRole.User);
+            return await _service.RegisterAsync(LoginInfo, AppRole.User);
         }
     }
 }

@@ -10,7 +10,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace StreamSelect.Migrations
 {
-    [DbContext(typeof(AppDbContext))]
+    [DbContext(typeof(StreamDbContext))]
     [Migration("20240118053446_InitialCreate")]
     partial class InitialCreate
     {

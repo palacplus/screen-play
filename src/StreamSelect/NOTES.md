@@ -2,17 +2,17 @@
 
 ## Generate a new controller
 
-dotnet-aspnet-codegenerator controller -name MoviesController -async -api -m Movie -dc AppDbContext --relativeFolderPath Controllers
+dotnet-aspnet-codegenerator controller -name MoviesController -async -api -m Movie -dc StreamDbContext --relativeFolderPath Controllers
 
 
 ## Add a new database migration
 
-dotnet ef migrations add [NameOfMigration] --context AppDbContext
+dotnet ef migrations add [NameOfMigration] --context StreamDbContext
 
 
 ## Update database from migration
 
-dotnet ef database update --context AppDbContext
+dotnet ef database update --context StreamDbContext
 
 
 ### KNOWN BUGS

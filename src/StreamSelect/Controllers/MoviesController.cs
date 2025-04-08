@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -10,13 +11,14 @@ using StreamSelect.Models;
 
 namespace StreamSelect.Controllers
 {
-    [Route("api/[controller]")]
     [ApiController]
+    [Route("api/[controller]")]
+    [Authorize]
     public class MoviesController : ControllerBase
     {
-        private readonly AppDbContext _context;
+        private readonly StreamDbContext _context;
 
-        public MoviesController(AppDbContext context)
+        public MoviesController(StreamDbContext context)
         {
             _context = context;
         }
@@ -88,7 +90,7 @@ namespace StreamSelect.Controllers
         {
           if (_context.Movies == null)
           {
-              return Problem("Entity set 'AppDbContext.Movies'  is null.");
+              return Problem("Entity set 'StreamDbContext.Movies'  is null.");
           }
             _context.Movies.Add(movie);
             await _context.SaveChangesAsync();

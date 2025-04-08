@@ -16,8 +16,8 @@ var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
 
-builder.Services.AddDbContext<AuthDbContext>(options => options.UseNpgsql(connectionString));
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<StreamDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Configuration
@@ -28,10 +28,10 @@ builder.Services.BindAndValidateOnStart<GoogleAuthConfiguration>(GoogleAuthConfi
 // Authentication
 builder
     .Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
-    .AddEntityFrameworkStores<AuthDbContext>()
+    .AddEntityFrameworkStores<UserDbContext>()
     .AddDefaultTokenProviders()
     .Services.AddIdentityServer()
-    .AddApiAuthorization<AppUser, AuthDbContext>()
+    .AddApiAuthorization<AppUser, UserDbContext>()
     .Services.AddAuthentication(options =>
     {
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;

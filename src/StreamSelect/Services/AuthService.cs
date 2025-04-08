@@ -16,7 +16,7 @@ public class AuthService : IAuthService
     private readonly ILogger<AuthService> _logger;
     private readonly IEnumerable<AuthenticationScheme> _externalLogins;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly JwtConfiguration _jwtConfig;
+    private readonly ITokenService _tokenService;
 
     public AuthService(
         UserManager<AppUser> userManager,
@@ -24,7 +24,7 @@ public class AuthService : IAuthService
         SignInManager<AppUser> signInManager,
         ILogger<AuthService> logger,
         IHttpContextAccessor httpContextAccessor,
-        IOptions<JwtConfiguration> jwtOptions
+        ITokenService tokenService
     )
     {
         _userManager = userManager;
@@ -33,7 +33,7 @@ public class AuthService : IAuthService
         _logger = logger;
         _externalLogins = _signInManager.GetExternalAuthenticationSchemesAsync().Result.ToList();
         _httpContextAccessor = httpContextAccessor;
-        _jwtConfig = jwtOptions.Value;
+        _tokenService = tokenService;
     }
 
     public async Task<SignInResult> GetExternalInfoAsync()
@@ -42,41 +42,53 @@ public class AuthService : IAuthService
         return info;
     }
 
-    public async Task<AppUser?> RegisterAsync(LoginInfo loginInfo, string role)
+    public async Task<AuthResponse> RegisterAsync(LoginInfo loginInfo, string role)
     {
         var user = CreateUser();
         var result = await _userManager.CreateAsync(user, loginInfo.Password);
 
-        if (result.Succeeded)
-        {
-            _logger.LogInformation("User created a new account with password.");
-            await _userManager.SetEmailAsync(user, loginInfo.Email);
-
-            if (loginInfo.IsExternalLogin)
-            {
-                user = await AddExternalUserLoginAsync(user);
-                if (user == null)
-                {
-                    _logger.LogError("Failed to add external login to user.");
-                    return null;
-                }
-            }
-            // TODO: Send email confirmation link
-            // var userId = await _userManager.GetUserIdAsync(user);
-            // var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
-
-            if (!await _roleManager.RoleExistsAsync(role))
-            {
-                await _roleManager.CreateAsync(new IdentityRole(role));
-            }
-            await _userManager.AddToRoleAsync(user, role);
-        }
-        else
+        if (!result.Succeeded)
         {
             _logger.LogError("User registration failed: {errors}", result.Errors.ToString());
-            return null;
+            return new AuthResponse();
         }
-        return await _userManager.FindByEmailAsync(loginInfo.Email);
+
+        _logger.LogInformation("User created a new account with password.");
+        await _userManager.SetEmailAsync(user, loginInfo.Email);
+
+        if (loginInfo.IsExternalLogin)
+        {
+            user = await AddExternalUserLoginAsync(user);
+            if (user == null)
+            {
+                _logger.LogError("Failed to add external login to user.");
+                return null;
+            }
+        }
+        // TODO: Send email confirmation link
+        // var userId = await _userManager.GetUserIdAsync(user);
+        // var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+
+        if (!await _roleManager.RoleExistsAsync(role))
+        {
+            await _roleManager.CreateAsync(new IdentityRole(role));
+        }
+        await _userManager.AddToRoleAsync(user, role);
+
+        var loginResult = await SignInAsync(loginInfo);
+        if (!loginResult.Succeeded)
+        {
+            _logger.LogError("User login failed after registration.");
+            return new AuthResponse();
+        }
+        user = await _userManager.FindByEmailAsync(loginInfo.Email);
+        if (user == null)
+        {
+            _logger.LogError("User not found after registration.");
+            return new AuthResponse() { ErrorMessage = "User not found" };
+        }
+        var tokenInfo = await GetUserTokensAsync(user);
+        return new AuthResponse { Token = tokenInfo.AccessToken, RefreshToken = tokenInfo.RefreshToken };
     }
 
     public async Task<AuthResponse> LoginAsync(LoginInfo loginInfo)
@@ -94,24 +106,21 @@ public class AuthService : IAuthService
         {
             _logger.LogInformation("User logged in.");
             var user = await _userManager.FindByEmailAsync(loginInfo.Email);
-            var token = TokenManager.GenerateEncodedToken(user, _jwtConfig);
-            await _userManager.RemoveAuthenticationTokenAsync(user, string.Empty, "refresh_token");
-            var refreshToken = TokenManager.GenerateRefreshToken();
-            await _userManager.SetAuthenticationTokenAsync(user, string.Empty, "refresh_token", refreshToken);
-            return new AuthResponse
+            if (user == null)
             {
-                Token = token,
-                Expiration = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
-                RefreshToken = null,
-            };
+                _logger.LogError("User not found after login.");
+                return new AuthResponse
+                {
+                    Token = null,
+                    RefreshToken = null,
+                    ErrorMessage = "User not found"
+                };
+            }
+            var tokenInfo = await GetUserTokensAsync(user);
+            return new AuthResponse { Token = tokenInfo.AccessToken, RefreshToken = tokenInfo.RefreshToken };
         }
 
-        var response = new AuthResponse
-        {
-            Token = null,
-            Expiration = DateTime.UtcNow,
-            RefreshToken = null,
-        };
+        var response = new AuthResponse();
         if (result.IsNotAllowed)
         {
             response.ErrorMessage = "User is not allowed to login.";
@@ -122,7 +131,7 @@ public class AuthService : IAuthService
         }
         else
         {
-            response.ErrorMessage = "Invalid login attempt.";
+            response.ErrorMessage = "Invalid login attempt. ";
         }
         _logger.LogError(
             "User login failed with result {result}: {errorMessage}",
@@ -134,14 +143,12 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> RefreshTokenAsync(TokenInfo tokenInfo)
     {
-        var principal = TokenManager.GetPrincipalFromExpiredToken(tokenInfo.AccessToken, _jwtConfig);
-        var email = principal.FindFirstValue(ClaimTypes.Email);
+        var email = _tokenService.TryGetEmailFromExpiredToken(tokenInfo.AccessToken);
         if (email == null)
         {
             return new AuthResponse
             {
                 Token = null,
-                Expiration = DateTime.UtcNow,
                 RefreshToken = null,
                 ErrorMessage = "Invalid token",
             };
@@ -150,43 +157,20 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
-            return new AuthResponse
-            {
-                Token = null,
-                Expiration = DateTime.UtcNow,
-                RefreshToken = null,
-                ErrorMessage = "User not found",
-            };
+            return new AuthResponse { ErrorMessage = "User not found" };
         }
 
-        var isValidToken = await _userManager.VerifyUserTokenAsync(
-            user,
-            string.Empty,
-            "refresh_token",
-            tokenInfo.RefreshToken
-        );
+        var isValidToken = _tokenService.ValidateRefreshToken(user, tokenInfo.RefreshToken);
         if (!isValidToken)
         {
-            return new AuthResponse
-            {
-                Token = null,
-                Expiration = DateTime.UtcNow,
-                RefreshToken = null,
-                ErrorMessage = "Invalid refresh token",
-            };
+            return new AuthResponse { ErrorMessage = "Invalid refresh token", };
         }
 
-        await _userManager.RemoveAuthenticationTokenAsync(user, string.Empty, "refresh_token");
-        var newAccessToken = TokenManager.GenerateEncodedToken(user, _jwtConfig);
-        var newRefreshToken = TokenManager.GenerateRefreshToken();
-        await _userManager.SetAuthenticationTokenAsync(user, string.Empty, "refresh_token", newRefreshToken);
+        var newAccessToken = _tokenService.GenerateAccessToken(user);
+        var newRefreshToken = _tokenService.GenerateRefreshToken();
+        await _tokenService.SetTokensForUserAsync(user, newAccessToken, newRefreshToken);
 
-        return new AuthResponse
-        {
-            Token = newAccessToken,
-            Expiration = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
-            RefreshToken = newRefreshToken,
-        };
+        return new AuthResponse { Token = newAccessToken, RefreshToken = newRefreshToken };
     }
 
     public async Task LogoutAsync()
@@ -211,7 +195,7 @@ public class AuthService : IAuthService
         }
     }
 
-    private async Task<AppUser> AddExternalUserLoginAsync(AppUser user)
+    private async Task<AppUser?> AddExternalUserLoginAsync(AppUser user)
     {
         var info = await _signInManager.GetExternalLoginInfoAsync();
         if (info == null)
@@ -256,5 +240,12 @@ public class AuthService : IAuthService
             loginInfo.RememberMe,
             lockoutOnFailure: false
         );
+    }
+
+    private async Task<TokenInfo> GetUserTokensAsync(AppUser user)
+    {
+        var token = _tokenService.GenerateAccessToken(user);
+        var refreshToken = _tokenService.GenerateRefreshToken();
+        return await _tokenService.SetTokensForUserAsync(user, token, refreshToken);
     }
 }

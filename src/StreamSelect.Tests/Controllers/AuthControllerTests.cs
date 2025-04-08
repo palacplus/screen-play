@@ -29,8 +29,8 @@ public class AuthControllerTests
     {
         // Arrange
         var loginInfo = new LoginInfo() { Email = "user@example.com", Password = "password" };
-        var appUser = new AppUser { Email = loginInfo.Email };
-        _authService.RegisterAsync(loginInfo, UserRole.User).Returns(appUser);
+        var authResponse = new AuthResponse { Token = "access-token"};
+        _authService.RegisterAsync(loginInfo, AppRole.User).Returns(authResponse);
 
         // Act
         var result = await _controller.RegisterUserAsync(loginInfo);
@@ -39,23 +39,26 @@ public class AuthControllerTests
         var createdResult = result.Result as CreatedAtActionResult;
         createdResult.Should().NotBeNull();
         createdResult!.StatusCode.Should().Be(StatusCodes.Status201Created);
-        createdResult.Value.Should().Be(appUser);
+        createdResult.Value.Should().Be(authResponse);
     }
 
     [Fact]
-    public async Task RegisterUserAsync_ShouldReturnUnprocessableEntity_WhenRegistrationFails()
+    public async Task RegisterUserAsync_ShouldReturnInternalError_WhenRegistrationFails()
     {
         // Arrange
         var loginInfo = new LoginInfo { Email = "user@example.com", Password = "password" };
         _authService
-            .RegisterAsync(loginInfo, UserRole.User)
-            .Returns(Task.FromException<AppUser>(new Exception("Registration failed")));
+            .RegisterAsync(loginInfo, AppRole.User)
+            .Returns(Task.FromException<AuthResponse>(new Exception("Registration failed")));
 
         // Act
-        var act = async () => await _controller.RegisterUserAsync(loginInfo);
+        var result = await _controller.RegisterUserAsync(loginInfo);
 
         // Assert
-        await act.Should().ThrowAsync<Exception>().WithMessage("Registration failed");
+        var objectResult = result.Result as ObjectResult;
+        objectResult.Should().NotBeNull();
+        objectResult!.StatusCode.Should().Be(StatusCodes.Status500InternalServerError);
+        objectResult.Value.Should().Be("Registration failed");
     }
 
     [Fact]

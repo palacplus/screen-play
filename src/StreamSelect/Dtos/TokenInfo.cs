@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 
 public class TokenInfo
 {
+    [Key]
     public int Id { get; set; }
 
     [Required]
