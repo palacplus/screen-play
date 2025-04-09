@@ -25,7 +25,7 @@ namespace StreamSelect.Services
         /// Processes a logout request
         /// </summary>
         /// <returns>Task</returns>
-        Task LogoutAsync();
+        Task LogoutAsync(string email);
 
         /// <summary>
         /// Processes a password reset request using the user provided info

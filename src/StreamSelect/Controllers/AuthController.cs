@@ -1,4 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
 using StreamSelect.Configuration;
@@ -28,6 +30,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("externalInfo")]
+    [Authorize(Roles = AppRole.Admin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> GetExternalInfoAsync()
@@ -52,7 +55,7 @@ public class AuthController : ControllerBase
             if (response.Token == null)
             {
                 _logger.LogError("User not found {email}", loginInfo.Email);
-                return BadRequest();
+                return BadRequest(response.ErrorMessage);
             }
 
             _logger.LogInformation("New User registered {user}", loginInfo.Email);
@@ -77,7 +80,7 @@ public class AuthController : ControllerBase
             if (response.Token == null)
             {
                 _logger.LogError("User not found {email}", loginInfo.Email);
-                return BadRequest();
+                return BadRequest(response.ErrorMessage);
             }
             _logger.LogInformation("New User registered {email}", loginInfo.Email);
             return CreatedAtAction(nameof(RegisterWithTokenAsync), response);
@@ -111,7 +114,7 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("refresh-token")]
+    [HttpPost("refreshToken")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -138,7 +141,12 @@ public class AuthController : ControllerBase
     {
         try
         {
-            await _service.LogoutAsync();
+            var principal = User.FindFirst(ClaimTypes.Email);
+            if (principal == null)
+            {
+                return Unauthorized("User not found");
+            }
+            await _service.LogoutAsync(principal.Value);;
             return Ok();
         }
         catch (Exception ex)

@@ -158,7 +158,7 @@ public class AuthServiceTests
         var appUser = new AppUser { Email = "user@example.com" };
         var tokenInfo = new TokenInfo { AccessToken = "valid_access_token", RefreshToken = "valid_refresh_token" };
 
-        _tokenService.TryGetEmailFromExpiredToken(tokenInfo.AccessToken).Returns(appUser.Email);
+        _tokenService.TryGetClaimFromExpiredToken(tokenInfo.AccessToken, ClaimTypes.Email).Returns(appUser.Email);
         _tokenService.ValidateRefreshToken(appUser, tokenInfo.RefreshToken).Returns(true);
         _tokenService.GenerateAccessToken(appUser).Returns("new_access_token");
         _tokenService.GenerateRefreshToken().Returns("new_refresh_token");
@@ -181,10 +181,18 @@ public class AuthServiceTests
     [Fact]
     public async Task LogoutAsync_ShouldSignOutUser()
     {
+        // Arrange
+        var email = "user@example.com";
+        var appUser = new AppUser { Email = email };
+
+        _userManager.FindByEmailAsync(email).Returns(appUser);
+
         // Act
-        await _authService.LogoutAsync();
+        await _authService.LogoutAsync(email);
 
         // Assert
+        await _userManager.Received(1).FindByEmailAsync(email);
+        await _tokenService.Received(1).RevokeTokensAsync(appUser);
         await _signInManager.Received(1).SignOutAsync();
     }
 }

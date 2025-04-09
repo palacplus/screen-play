@@ -58,7 +58,7 @@ public class TokenService : ITokenService
         return Convert.ToBase64String(randomNumber);
     }
 
-    public string? TryGetEmailFromExpiredToken(string accessToken)
+    public string? TryGetClaimFromExpiredToken(string accessToken, string claimType)
     {
         var tokenValidationParameters = new TokenValidationParameters
         {
@@ -91,7 +91,7 @@ public class TokenService : ITokenService
             throw new SecurityTokenException("Invalid token");
         }
 
-        return principal.FindFirstValue(ClaimTypes.Email);
+        return principal.FindFirstValue(claimType);
     }
 
     public async Task<TokenInfo> SetTokensForUserAsync(AppUser user, string accessToken, string refreshToken)
@@ -132,5 +132,15 @@ public class TokenService : ITokenService
             return false;
 
         return true;
+    }
+
+    public async Task RevokeTokensAsync(AppUser user)
+    {
+        var tokenInfo = _userDbContext.Tokens.FirstOrDefault(a => a.Username == user.Email);
+        if (tokenInfo != null)
+        {
+            _userDbContext.Tokens.Remove(tokenInfo);
+            await _userDbContext.SaveChangesAsync();
+        }
     }
 }

@@ -1,5 +1,5 @@
 import { User } from '@/types/user';
-import { AuthResponse, LoginInfo, LoginInfo } from '@/types/auth';
+import { AuthResponse, LoginInfo } from '@/types/auth';
 import { AuthEndpoints } from '@/types/endpoints';
 import axios from 'axios';
 
@@ -8,8 +8,8 @@ export async function registerUser(LoginInfo: LoginInfo) {
     if (response.status !== 201) {
         throw new Error(response.statusText);
     }
-    const user = (await response.data) as User;
-    return [response.status, user] as const;
+    const authResponse = (await response.data) as AuthResponse;
+    return [response.status, authResponse] as const;
 }
 
 export async function registerWithToken(token: string) {
@@ -19,8 +19,8 @@ export async function registerWithToken(token: string) {
     if (response.status !== 201) {
         throw new Error(response.statusText);
     }
-    const user = (await response.data) as User;
-    return [response.status, { token, user: user }] as const;
+    const authResponse = (await response.data) as AuthResponse;
+    return [response.status, authResponse] as const;
 }
 
 export async function refreshToken(token: string) {

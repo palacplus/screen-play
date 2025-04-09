@@ -62,7 +62,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        if (error.response.status === 403 && error.response.message === 'Unauthorized') {
+        if (error.response.status === 403) {
           try {
             const resp = await refreshToken(token);
 

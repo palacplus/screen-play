@@ -75,14 +75,14 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public void TryGetEmailFromExpiredToken_ShouldReturnEmail_WhenTokenIsValid()
+    public void TryGetClaimFromExpiredToken_ShouldReturnEmail_WhenTokenIsValid()
     {
         // Arrange
         var user = new AppUser { Id = "123", Email = "user@example.com" };
         var token = _tokenService.GenerateAccessToken(user);
 
         // Act
-        var email = _tokenService.TryGetEmailFromExpiredToken(token);
+        var email = _tokenService.TryGetClaimFromExpiredToken(token, ClaimTypes.Email);
 
         // Assert
         email.Should().NotBeNullOrEmpty();
@@ -90,13 +90,13 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public void TryGetEmailFromExpiredToken_ShouldThrowException_WhenTokenIsInvalid()
+    public void TryGetClaimFromExpiredToken_ShouldThrowException_WhenTokenIsInvalid()
     {
         // Arrange
         var invalidToken = "invalid_token";
 
         // Act
-        Action act = () => _tokenService.TryGetEmailFromExpiredToken(invalidToken);
+        Action act = () => _tokenService.TryGetClaimFromExpiredToken(invalidToken, ClaimTypes.Email);
 
         // Assert
         act.Should().Throw<SecurityTokenMalformedException>();
@@ -185,5 +185,32 @@ public class TokenServiceTests
 
         // Assert
         result.Should().BeFalse();
+    }
+
+    [Fact]
+    public async Task RevokeTokensAsync_ShouldRemoveTokensFromDatabase()
+    {
+        // Arrange
+        var user = new AppUser { Id = "123", Email = "user@example.com" };
+
+        var tokenInfo = new TokenInfo
+        {
+            Username = user.Email,
+            AccessToken = "access_token",
+            RefreshToken = "refresh_token",
+            ExpiredAt = DateTime.UtcNow.AddDays(1)
+        };
+
+        _userDbContext.ChangeTracker.Clear();
+        _userDbContext.Tokens.RemoveRange(_userDbContext.Tokens);
+        _userDbContext.Tokens.Add(tokenInfo);
+        await _userDbContext.SaveChangesAsync();
+
+        // Act
+        await _tokenService.RevokeTokensAsync(user);
+
+        // Assert
+        var storedTokenInfo = await _userDbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);
+        storedTokenInfo.Should().BeNull();
     }
 }

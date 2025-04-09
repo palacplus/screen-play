@@ -1,8 +1,6 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using StreamSelect.Configuration;
 using StreamSelect.Dtos;
 using StreamSelect.Models;
 
@@ -49,8 +47,9 @@ public class AuthService : IAuthService
 
         if (!result.Succeeded)
         {
-            _logger.LogError("User registration failed: {errors}", result.Errors.ToString());
-            return new AuthResponse();
+            var errors = string.Join(", ", result.Errors.Select(err => err.Description));
+            _logger.LogError("User registration failed: {errors}", errors);
+            return new AuthResponse() { ErrorMessage = $"User registration failed : {result.Errors}" };
         }
 
         _logger.LogInformation("User created a new account with password.");
@@ -62,7 +61,7 @@ public class AuthService : IAuthService
             if (user == null)
             {
                 _logger.LogError("Failed to add external login to user.");
-                return null;
+                return new AuthResponse() { ErrorMessage = "Failed to add external login" };
             }
         }
         // TODO: Send email confirmation link
@@ -143,7 +142,7 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> RefreshTokenAsync(TokenInfo tokenInfo)
     {
-        var email = _tokenService.TryGetEmailFromExpiredToken(tokenInfo.AccessToken);
+        var email = _tokenService.TryGetClaimFromExpiredToken(tokenInfo.AccessToken, ClaimTypes.Email);
         if (email == null)
         {
             return new AuthResponse
@@ -173,8 +172,10 @@ public class AuthService : IAuthService
         return new AuthResponse { Token = newAccessToken, RefreshToken = newRefreshToken };
     }
 
-    public async Task LogoutAsync()
+    public async Task LogoutAsync(string email)
     {
+        var user = await _userManager.FindByEmailAsync(email);
+        await _tokenService.RevokeTokensAsync(user);
         await _signInManager.SignOutAsync();
         _logger.LogInformation("User logged out.");
     }
