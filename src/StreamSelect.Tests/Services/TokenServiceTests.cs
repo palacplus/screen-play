@@ -103,7 +103,7 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public async Task SetTokensForUserAsync_ShouldStoreTokensInDatabase()
+    public async Task SetTokenForUserAsync_ShouldStoreTokensInDatabase()
     {
         // Arrange
         var user = new AppUser { Id = "123", Email = "user@example.com" };
@@ -124,7 +124,7 @@ public class TokenServiceTests
         await _userDbContext.SaveChangesAsync();
 
         // Act
-        await _tokenService.SetTokensForUserAsync(user, accessToken, refreshToken);
+        await _tokenService.SetTokenForUserAsync(user, accessToken, refreshToken);
 
         // Assert
         var storedTokenInfo = await _userDbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);

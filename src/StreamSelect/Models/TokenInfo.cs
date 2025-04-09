@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace StreamSelect.Models;
+
 public class TokenInfo
 {
     [Key]
@@ -10,11 +12,10 @@ public class TokenInfo
     public string Username { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(200)]
     public string AccessToken { get; set; } = string.Empty;
 
     [Required]
-    [MaxLength(200)]
+    [MaxLength(100)]
     public string RefreshToken { get; set; } = string.Empty;
 
     [Required]

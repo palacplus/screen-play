@@ -184,7 +184,7 @@ export class LoginPage extends Component<{}, LoginPageState> {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
-        Token: credentialsResponse.credential,
+        credential: credentialsResponse.credential,
       }),
     };
 

@@ -8,11 +8,13 @@ dotnet-aspnet-codegenerator controller -name MoviesController -async -api -m Mov
 ## Add a new database migration
 
 dotnet ef migrations add [NameOfMigration] --context StreamDbContext
+dotnet ef migrations add [NameOfMigration] --context UserDbContext
 
 
 ## Update database from migration
 
 dotnet ef database update --context StreamDbContext
+dotnet ef database update --context UserDbContext
 
 
 ### KNOWN BUGS

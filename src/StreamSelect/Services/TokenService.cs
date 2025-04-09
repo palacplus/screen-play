@@ -94,7 +94,7 @@ public class TokenService : ITokenService
         return principal.FindFirstValue(claimType);
     }
 
-    public async Task<TokenInfo> SetTokensForUserAsync(AppUser user, string accessToken, string refreshToken)
+    public async Task<TokenInfo> SetRefreshTokenForUserAsync(AppUser user, string refreshToken)
     {
         var tokenInfo = _userDbContext.Tokens.FirstOrDefault(a => a.Username == user.Email);
 
@@ -104,14 +104,12 @@ public class TokenService : ITokenService
             {
                 Username = user.Email,
                 RefreshToken = refreshToken,
-                AccessToken = accessToken,
                 ExpiredAt = DateTime.UtcNow.AddDays(1)
             };
             _userDbContext.Tokens.Add(ti);
         }
         else
         {
-            tokenInfo.AccessToken = accessToken;
             tokenInfo.RefreshToken = refreshToken;
             tokenInfo.ExpiredAt = DateTime.UtcNow.AddDays(1);
         }

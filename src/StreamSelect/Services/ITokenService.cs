@@ -8,7 +8,7 @@ namespace StreamSelect.Services
         string GenerateAccessToken(AppUser user);
         string GenerateRefreshToken();
         string? TryGetClaimFromExpiredToken(string accessToken, string claimType);
-        Task<TokenInfo> SetTokensForUserAsync(AppUser user, string accessToken, string refreshToken);
+        Task<TokenInfo> SetRefreshTokenForUserAsync(AppUser user, string refreshToken);
         bool ValidateRefreshToken(AppUser user, string token);
         Task RevokeTokensAsync(AppUser user);
     }

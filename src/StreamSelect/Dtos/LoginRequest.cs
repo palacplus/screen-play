@@ -1,10 +1,10 @@
 using System.ComponentModel.DataAnnotations;
-using System.IdentityModel.Tokens.Jwt;
 using System.Text.Json.Serialization;
+using Google.Apis.Auth;
 
 namespace StreamSelect.Dtos;
 
-public class LoginInfo
+public class LoginRequest
 {
     [Required(ErrorMessage = "Please enter a valid email")]
     [EmailAddress]
@@ -28,31 +28,26 @@ public class LoginInfo
     [Display(Name = "Remember me?")]
     public bool RememberMe { get; set; } = true;
 
-    [JsonIgnore]
-    public bool IsExternalLogin { get; }
+    public bool IsExternalLogin => string.IsNullOrEmpty(Password) && string.IsNullOrEmpty(ConfirmPassword);
 
-    public LoginInfo()
+    public LoginRequest()
     {
         Email = string.Empty;
         Password = string.Empty;
         ConfirmPassword = string.Empty;
         RememberMe = true;
-        IsExternalLogin = false;
     }
-    public LoginInfo(JwtSecurityToken jwtToken)
+}
+
+public class ExternalLoginRequest : LoginRequest
+{
+    public string Provider { get; set; } = string.Empty;
+    public new string Password { get; set; } = string.Empty;
+    public new string ConfirmPassword { get; set; } = string.Empty;
+
+    public ExternalLoginRequest(GoogleJsonWebSignature.Payload payload)
     {
-        var emailClaim = jwtToken.Claims.FirstOrDefault(x => x.Type == "email");
-        if (emailClaim != null)
-        {
-            Email = emailClaim.Value;
-            Password = string.Empty;
-            ConfirmPassword = string.Empty;
-            RememberMe = true;
-            IsExternalLogin = true;
-        }
-        else
-        {
-            throw new Exception("Email claim not found in JWT token.");
-        }
+        Provider = "Google";
+        Email = payload.Email;
     }
 }

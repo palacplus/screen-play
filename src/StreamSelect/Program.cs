@@ -27,7 +27,8 @@ builder.Services.BindAndValidateOnStart<GoogleAuthConfiguration>(GoogleAuthConfi
 
 // Authentication
 builder
-    .Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = true)
+    // TODO: Enable RequiredConfirmedAccount
+    .Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
     .AddEntityFrameworkStores<UserDbContext>()
     .AddDefaultTokenProviders()
     .Services.AddIdentityServer()
@@ -54,14 +55,16 @@ builder
         };
     })
     .AddIdentityServerJwt()
-    .AddGoogle(googleOptions =>
+    .AddGoogle(opts =>
     {
         var googleAuthConfig = builder
             .Configuration.GetSection(GoogleAuthConfiguration.ConfigSection)
             .Get<GoogleAuthConfiguration>();
-        googleOptions.ClientId = googleAuthConfig.ClientId;
-        googleOptions.ClientSecret = googleAuthConfig.ClientSecret;
-        googleOptions.SignInScheme = IdentityConstants.ExternalScheme;
+        opts.ClientId = googleAuthConfig.ClientId;
+        opts.ClientSecret = googleAuthConfig.ClientSecret;
+        opts.SignInScheme = IdentityConstants.ExternalScheme;
+        opts.CallbackPath = "/api/auth/external-login";
+        opts.SaveTokens = true;
     });
 
 builder.Services.AddControllersWithViews();

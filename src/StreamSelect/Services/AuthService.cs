@@ -40,27 +40,62 @@ public class AuthService : IAuthService
         return info;
     }
 
-    public async Task<AuthResponse> RegisterAsync(LoginInfo loginInfo, string role)
+    public async Task<AppUser?> GetUserByEmailAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            _logger.LogError("No user exists with email: {email}", email);
+            return null;
+        }
+        return user;
+    }
+
+    public async Task<bool> DeleteUserAsync(string email)
+    {
+        var user = await _userManager.FindByEmailAsync(email);
+        if (user == null)
+        {
+            _logger.LogError("No user exists with email: {email}", email);
+            return false;
+        }
+        var result = await _userManager.DeleteAsync(user);
+        if (!result.Succeeded)
+        {
+            var errors = string.Join("\n", result.Errors.Select(err => err.Description));
+            _logger.LogError("User deletion failed: {errors}", errors);
+            return false;
+        }
+        return true;
+    }
+
+    public async Task<AuthResponse> RegisterAsync(LoginRequest request, string role)
     {
         var user = CreateUser();
-        var result = await _userManager.CreateAsync(user, loginInfo.Password);
+        user.UserName = request.Email;
+        user.Email = request.Email;
+
+        // TODO: Handle email confirmation below without explicitly setting it here.
+        user.EmailConfirmed = true;
+        var result = await _userManager.CreateAsync(user, request.Password);
 
         if (!result.Succeeded)
         {
-            var errors = string.Join(", ", result.Errors.Select(err => err.Description));
+            var errors = string.Join("\n", result.Errors.Select(err => err.Description));
             _logger.LogError("User registration failed: {errors}", errors);
-            return new AuthResponse() { ErrorMessage = $"User registration failed : {result.Errors}" };
+            return new AuthResponse() { ErrorMessage = $"User registration failed : {errors}" };
         }
 
         _logger.LogInformation("User created a new account with password.");
-        await _userManager.SetEmailAsync(user, loginInfo.Email);
+        await _userManager.SetEmailAsync(user, request.Email);
 
-        if (loginInfo.IsExternalLogin)
+        if (request.IsExternalLogin)
         {
             user = await AddExternalUserLoginAsync(user);
             if (user == null)
             {
                 _logger.LogError("Failed to add external login to user.");
+                await _userManager.DeleteAsync(user);
                 return new AuthResponse() { ErrorMessage = "Failed to add external login" };
             }
         }
@@ -74,23 +109,15 @@ public class AuthService : IAuthService
         }
         await _userManager.AddToRoleAsync(user, role);
 
-        var loginResult = await SignInAsync(loginInfo);
-        if (!loginResult.Succeeded)
+        var loginResponse = await LoginAsync(request);
+        if (loginResponse.Token == null)
         {
-            _logger.LogError("User login failed after registration.");
-            return new AuthResponse();
+            await _userManager.DeleteAsync(user);
         }
-        user = await _userManager.FindByEmailAsync(loginInfo.Email);
-        if (user == null)
-        {
-            _logger.LogError("User not found after registration.");
-            return new AuthResponse() { ErrorMessage = "User not found" };
-        }
-        var tokenInfo = await GetUserTokensAsync(user);
-        return new AuthResponse { Token = tokenInfo.AccessToken, RefreshToken = tokenInfo.RefreshToken };
+        return loginResponse;
     }
 
-    public async Task<AuthResponse> LoginAsync(LoginInfo loginInfo)
+    public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
         // Clear the existing external cookie to ensure a clean login process
         var context = _httpContextAccessor.HttpContext;
@@ -99,12 +126,12 @@ public class AuthService : IAuthService
             await context.SignOutAsync(IdentityConstants.ExternalScheme);
         }
 
-        var result = await SignInAsync(loginInfo);
+        var result = await SignInAsync(request);
 
         if (result.Succeeded)
         {
             _logger.LogInformation("User logged in.");
-            var user = await _userManager.FindByEmailAsync(loginInfo.Email);
+            var user = await _userManager.FindByEmailAsync(request.Email);
             if (user == null)
             {
                 _logger.LogError("User not found after login.");
@@ -119,24 +146,8 @@ public class AuthService : IAuthService
             return new AuthResponse { Token = tokenInfo.AccessToken, RefreshToken = tokenInfo.RefreshToken };
         }
 
-        var response = new AuthResponse();
-        if (result.IsNotAllowed)
-        {
-            response.ErrorMessage = "User is not allowed to login.";
-        }
-        else if (result.IsLockedOut)
-        {
-            response.ErrorMessage = "User account locked out.";
-        }
-        else
-        {
-            response.ErrorMessage = "Invalid login attempt. ";
-        }
-        _logger.LogError(
-            "User login failed with result {result}: {errorMessage}",
-            result.ToString(),
-            response.ErrorMessage
-        );
+        var response = new AuthResponse() { ErrorMessage = result.ToString() };
+        _logger.LogError("User login failed with result: {result}", result.ToString());
         return response;
     }
 
@@ -165,11 +176,11 @@ public class AuthService : IAuthService
             return new AuthResponse { ErrorMessage = "Invalid refresh token", };
         }
 
-        var newAccessToken = _tokenService.GenerateAccessToken(user);
-        var newRefreshToken = _tokenService.GenerateRefreshToken();
-        await _tokenService.SetTokensForUserAsync(user, newAccessToken, newRefreshToken);
-
-        return new AuthResponse { Token = newAccessToken, RefreshToken = newRefreshToken };
+        return new AuthResponse
+        {
+            Token = _tokenService.GenerateAccessToken(user),
+            RefreshToken = tokenInfo.RefreshToken
+        };
     }
 
     public async Task LogoutAsync(string email)
@@ -218,9 +229,9 @@ public class AuthService : IAuthService
         }
     }
 
-    private async Task<SignInResult> SignInAsync(LoginInfo loginInfo)
+    private async Task<SignInResult> SignInAsync(LoginRequest LoginRequest)
     {
-        if (loginInfo.IsExternalLogin)
+        if (LoginRequest.IsExternalLogin)
         {
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -236,17 +247,18 @@ public class AuthService : IAuthService
             );
         }
         return await _signInManager.PasswordSignInAsync(
-            loginInfo.Email,
-            loginInfo.Password,
-            loginInfo.RememberMe,
+            LoginRequest.Email,
+            LoginRequest.Password,
+            LoginRequest.RememberMe,
             lockoutOnFailure: false
         );
     }
 
     private async Task<TokenInfo> GetUserTokensAsync(AppUser user)
     {
-        var token = _tokenService.GenerateAccessToken(user);
         var refreshToken = _tokenService.GenerateRefreshToken();
-        return await _tokenService.SetTokensForUserAsync(user, token, refreshToken);
+        var tokenInfo = await _tokenService.SetRefreshTokenForUserAsync(user, refreshToken);
+        tokenInfo.AccessToken = _tokenService.GenerateAccessToken(user);
+        return tokenInfo;
     }
 }

@@ -1,5 +1,6 @@
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
+using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
@@ -29,7 +30,22 @@ public class AuthController : ControllerBase
         _adminEmail = adminOptions.Value.Email;
     }
 
-    [HttpGet("externalInfo")]
+    [HttpDelete("delete-user")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> DeleteUserAsync([FromQuery] string email)
+    {
+        var user = await _service.GetUserByEmailAsync(email);
+        if (user == null)
+        {
+            _logger.LogError("User not found {email}", email);
+            return NotFound("User not found");
+        }
+        await _service.DeleteUserAsync(email);
+        return Ok("User deleted successfully");
+    }
+
+    [HttpGet("external-info")]
     [Authorize(Roles = AppRole.Admin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -44,21 +60,21 @@ public class AuthController : ControllerBase
         return Ok(info);
     }
 
-    [HttpPost("register/user")]
+    [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<AppUser>> RegisterUserAsync([FromBody] LoginInfo loginInfo)
+    public async Task<ActionResult<AppUser>> RegisterUserAsync([FromBody] LoginRequest loginRequest)
     {
         try
         {
-            var response = await RegisterUserWithRoleAsync(loginInfo);
+            var response = await RegisterUserWithRoleAsync(loginRequest);
             if (response.Token == null)
             {
-                _logger.LogError("User not found {email}", loginInfo.Email);
+                _logger.LogError("User not found {email}", loginRequest.Email);
                 return BadRequest(response.ErrorMessage);
             }
 
-            _logger.LogInformation("New User registered {user}", loginInfo.Email);
+            _logger.LogInformation("New User registered {user}", loginRequest.Email);
             return CreatedAtAction(nameof(RegisterUserAsync), response);
         }
         catch (Exception ex)
@@ -67,23 +83,43 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("register/token")]
+    [HttpPost("external-login")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<AppUser>> RegisterWithTokenAsync([FromBody] JwtTokenResponse tokenResponse)
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<AppUser>> ExternalLoginAsync([FromBody] GoogleCallbackRequest request)
     {
         try
         {
-            var handler = new JwtSecurityTokenHandler();
-            var loginInfo = new LoginInfo(handler.ReadJwtToken(tokenResponse.Token));
-            var response = await RegisterUserWithRoleAsync(loginInfo);
-            if (response.Token == null)
+            var payload = await GoogleJsonWebSignature.ValidateAsync(request.Credential);
+            var loginRequest = new ExternalLoginRequest(payload);
+
+            var user = await _service.GetUserByEmailAsync(loginRequest.Email);
+            if (user != null)
             {
-                _logger.LogError("User not found {email}", loginInfo.Email);
-                return BadRequest(response.ErrorMessage);
+                var loginResponse = await _service.LoginAsync(loginRequest);
+                if (loginResponse.Token == null)
+                {
+                    _logger.LogError("User not found {email}", loginRequest.Email);
+                    return Unauthorized(loginResponse.ErrorMessage);
+                }
+                _logger.LogInformation("User logged in {email}", loginRequest.Email);
+                return Ok(loginResponse);
             }
-            _logger.LogInformation("New User registered {email}", loginInfo.Email);
-            return CreatedAtAction(nameof(RegisterWithTokenAsync), response);
+
+            var registerResponse = await RegisterUserWithRoleAsync(loginRequest);
+            if (registerResponse.Token == null)
+            {
+                _logger.LogError("Unable to register external user {email}", loginRequest.Email);
+                return BadRequest(registerResponse.ErrorMessage);
+            }
+            _logger.LogInformation("New User registered {email}", loginRequest.Email);
+            return CreatedAtAction(nameof(ExternalLoginAsync), registerResponse);
+        }
+        catch (InvalidJwtException ex)
+        {
+            _logger.LogError("Invalid JWT token: {error}", ex.Message);
+            return BadRequest("Invalid JWT token");
         }
         catch (Exception ex)
         {
@@ -95,17 +131,17 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<AuthResponse>> LoginAsync([FromBody] LoginInfo loginInfo)
+    public async Task<ActionResult<AuthResponse>> LoginAsync([FromBody] LoginRequest LoginRequest)
     {
         try
         {
-            var response = await _service.LoginAsync(loginInfo);
+            var response = await _service.LoginAsync(LoginRequest);
             if (response.Token == null)
             {
-                _logger.LogError("User not found {email}", loginInfo.Email);
+                _logger.LogError("User not found {email}", LoginRequest.Email);
                 return Unauthorized(response.ErrorMessage);
             }
-            _logger.LogInformation("User logged in {email}", loginInfo.Email);
+            _logger.LogInformation("User logged in {email}", LoginRequest.Email);
             return Ok(response);
         }
         catch (Exception ex)
@@ -114,14 +150,29 @@ public class AuthController : ControllerBase
         }
     }
 
-    [HttpPost("refreshToken")]
+    [HttpPost("refresh-token")]
+    [Authorize]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<AuthResponse>> RefreshTokenAsync([FromBody] TokenInfo tokenInfo)
+    public async Task<ActionResult<AuthResponse>> RefreshTokenAsync(
+        [FromBody] TokenRequest request,
+        [FromHeader] string authorization
+    )
     {
         try
         {
+            if (authorization == null || authorization.StartsWith("Bearer ") == false)
+            {
+                return Unauthorized("Invalid access token");
+            }
+            var token = authorization.Substring("Bearer ".Length).Trim();
+            var tokenInfo = new TokenInfo
+            {
+                AccessToken = token,
+                RefreshToken = request.RefreshToken,
+                Username = request.Email
+            };
             var response = await _service.RefreshTokenAsync(tokenInfo);
             if (response.Token == null)
             {
@@ -146,7 +197,8 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized("User not found");
             }
-            await _service.LogoutAsync(principal.Value);;
+            await _service.LogoutAsync(principal.Value);
+            ;
             return Ok();
         }
         catch (Exception ex)
@@ -155,15 +207,15 @@ public class AuthController : ControllerBase
         }
     }
 
-    private async Task<AuthResponse> RegisterUserWithRoleAsync(LoginInfo LoginInfo)
+    private async Task<AuthResponse> RegisterUserWithRoleAsync(LoginRequest LoginRequest)
     {
-        if (LoginInfo.Email == _adminEmail)
+        if (LoginRequest.Email == _adminEmail)
         {
-            return await _service.RegisterAsync(LoginInfo, AppRole.Admin);
+            return await _service.RegisterAsync(LoginRequest, AppRole.Admin);
         }
         else
         {
-            return await _service.RegisterAsync(LoginInfo, AppRole.User);
+            return await _service.RegisterAsync(LoginRequest, AppRole.User);
         }
     }
 }

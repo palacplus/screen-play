@@ -1,6 +1,6 @@
+using Microsoft.AspNetCore.Identity;
 using StreamSelect.Dtos;
 using StreamSelect.Models;
-using Microsoft.AspNetCore.Identity;
 
 namespace StreamSelect.Services
 {
@@ -10,16 +10,30 @@ namespace StreamSelect.Services
     public interface IAuthService
     {
         /// <summary>
+        /// Gets the user by email
+        /// </summary>
+        /// <returns>Task<AppUser></returns>
+        /// <param name="email">Email of the user</param>
+        Task<AppUser?> GetUserByEmailAsync(string email);
+
+        /// <summary>
+        /// Deletes the user by email
+        /// </summary>
+        /// <returns>Task<bool></returns>
+        /// <param name="email">Email of the user</param>
+        Task<bool> DeleteUserAsync(string email);
+
+        /// <summary>
         /// Registers an new Identity User using the user provided info
         /// </summary>
         /// <returns>Task<AppUser></returns>
-        Task<AuthResponse> RegisterAsync(LoginInfo LoginInfo, string role);
+        Task<AuthResponse> RegisterAsync(LoginRequest LoginRequest, string role);
 
         /// <summary>
         /// Processes a password login request using the user provided info
         /// </summary>
         /// <returns>Task<AuthResponse></returns>
-        Task<AuthResponse> LoginAsync(LoginInfo LoginInfo);
+        Task<AuthResponse> LoginAsync(LoginRequest LoginRequest);
 
         /// <summary>
         /// Processes a logout request

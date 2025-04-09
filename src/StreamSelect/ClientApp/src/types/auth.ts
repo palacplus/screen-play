@@ -5,13 +5,13 @@ export type AuthResponse = {
     errorMessage: string | null;
 }
 
-export type LoginInfo = {
+export type LoginRequest = {
     email: string;
     password: string;
     rememberMe: boolean;
 }
 
-export type LoginInfo = {
+export type LoginRequest = {
     email: string;
     password: string;
     confirmPassword: string;
