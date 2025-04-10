@@ -229,9 +229,9 @@ public class AuthService : IAuthService
         }
     }
 
-    private async Task<SignInResult> SignInAsync(LoginRequest LoginRequest)
+    private async Task<SignInResult> SignInAsync(LoginRequest request)
     {
-        if (LoginRequest.IsExternalLogin)
+        if (request.IsExternalLogin)
         {
             var info = await _signInManager.GetExternalLoginInfoAsync();
             if (info == null)
@@ -247,9 +247,9 @@ public class AuthService : IAuthService
             );
         }
         return await _signInManager.PasswordSignInAsync(
-            LoginRequest.Email,
-            LoginRequest.Password,
-            LoginRequest.RememberMe,
+            request.Email,
+            request.Password,
+            request.RememberMe,
             lockoutOnFailure: false
         );
     }

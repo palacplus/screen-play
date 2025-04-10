@@ -63,18 +63,18 @@ public class AuthController : ControllerBase
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<AppUser>> RegisterUserAsync([FromBody] LoginRequest loginRequest)
+    public async Task<ActionResult<AppUser>> RegisterUserAsync([FromBody] LoginRequest request)
     {
         try
         {
-            var response = await RegisterUserWithRoleAsync(loginRequest);
+            var response = await RegisterUserWithRoleAsync(request);
             if (response.Token == null)
             {
-                _logger.LogError("User not found {email}", loginRequest.Email);
+                _logger.LogError("User not found {email}", request.Email);
                 return BadRequest(response.ErrorMessage);
             }
 
-            _logger.LogInformation("New User registered {user}", loginRequest.Email);
+            _logger.LogInformation("New User registered {user}", request.Email);
             return CreatedAtAction(nameof(RegisterUserAsync), response);
         }
         catch (Exception ex)
@@ -131,17 +131,17 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
-    public async Task<ActionResult<AuthResponse>> LoginAsync([FromBody] LoginRequest LoginRequest)
+    public async Task<ActionResult<AuthResponse>> LoginAsync([FromBody] LoginRequest request)
     {
         try
         {
-            var response = await _service.LoginAsync(LoginRequest);
+            var response = await _service.LoginAsync(request);
             if (response.Token == null)
             {
-                _logger.LogError("User not found {email}", LoginRequest.Email);
+                _logger.LogError("User not found {email}", request.Email);
                 return Unauthorized(response.ErrorMessage);
             }
-            _logger.LogInformation("User logged in {email}", LoginRequest.Email);
+            _logger.LogInformation("User logged in {email}", request.Email);
             return Ok(response);
         }
         catch (Exception ex)
@@ -207,15 +207,15 @@ public class AuthController : ControllerBase
         }
     }
 
-    private async Task<AuthResponse> RegisterUserWithRoleAsync(LoginRequest LoginRequest)
+    private async Task<AuthResponse> RegisterUserWithRoleAsync(LoginRequest request)
     {
-        if (LoginRequest.Email == _adminEmail)
+        if (request.Email == _adminEmail)
         {
-            return await _service.RegisterAsync(LoginRequest, AppRole.Admin);
+            return await _service.RegisterAsync(request, AppRole.Admin);
         }
         else
         {
-            return await _service.RegisterAsync(LoginRequest, AppRole.User);
+            return await _service.RegisterAsync(request, AppRole.User);
         }
     }
 }

@@ -103,7 +103,7 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public async Task SetTokenForUserAsync_ShouldStoreTokensInDatabase()
+    public async Task SetRefreshTokenForUserAsync_ShouldStoreTokensInDatabase()
     {
         // Arrange
         var user = new AppUser { Id = "123", Email = "user@example.com" };
@@ -124,13 +124,12 @@ public class TokenServiceTests
         await _userDbContext.SaveChangesAsync();
 
         // Act
-        await _tokenService.SetTokenForUserAsync(user, accessToken, refreshToken);
+        await _tokenService.SetRefreshTokenForUserAsync(user, refreshToken);
 
         // Assert
         var storedTokenInfo = await _userDbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);
         storedTokenInfo.Should().NotBeNull();
         storedTokenInfo.Username.Should().Be(user.Email);
-        storedTokenInfo.AccessToken.Should().Be(accessToken);
         storedTokenInfo.RefreshToken.Should().Be(refreshToken);
         storedTokenInfo.ExpiredAt.Should().BeCloseTo(DateTime.UtcNow.AddDays(1), TimeSpan.FromSeconds(1));
     }

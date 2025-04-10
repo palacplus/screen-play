@@ -86,8 +86,10 @@ public class AuthServiceTests
     public async Task RegisterAsync_ShouldCreateUserAndAssignRole()
     {
         // Arrange
-        var LoginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
-        var appUser = new AppUser { Email = LoginRequest.Email };
+        var loginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
+        var appUser = new AppUser { Email = loginRequest.Email };
+
+        _httpContextAccessor.HttpContext = null;
         _userManager.CreateAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
         _userManager.SetEmailAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
         _roleManager.RoleExistsAsync(Arg.Any<string>()).Returns(false);
@@ -95,60 +97,60 @@ public class AuthServiceTests
         _userManager.FindByEmailAsync(Arg.Any<string>()).Returns(appUser);
         _userManager.AddToRoleAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
         _signInManager
-            .PasswordSignInAsync(LoginRequest.Email, LoginRequest.Password, true, false)
+            .PasswordSignInAsync(loginRequest.Email, loginRequest.Password, true, false)
             .Returns(Task.FromResult(SignInResult.Success));
 
         _tokenService.GenerateAccessToken(appUser).Returns("access_token");
         _tokenService.GenerateRefreshToken().Returns("refresh_token");
         _tokenService
-            .SetTokenForUserAsync(appUser, Arg.Any<string>(), Arg.Any<string>())
+            .SetRefreshTokenForUserAsync(appUser, Arg.Any<string>())
             .Returns(Task.FromResult(new TokenInfo { AccessToken = "access_token", RefreshToken = "refresh_token" }));
 
         // Act
-        var result = await _authService.RegisterAsync(LoginRequest, "User");
+        var result = await _authService.RegisterAsync(loginRequest, "User");
 
         // Assert
         result.Should().NotBeNull();
         result.Token.Should().NotBeNullOrEmpty();
         result.RefreshToken.Should().NotBeNullOrEmpty();
-        await _userManager.Received(1).CreateAsync(Arg.Any<AppUser>(), LoginRequest.Password);
-        await _userManager.Received(1).SetEmailAsync(Arg.Any<AppUser>(), LoginRequest.Email);
+        await _userManager.Received(1).CreateAsync(Arg.Any<AppUser>(), loginRequest.Password);
+        await _userManager.Received(1).SetEmailAsync(Arg.Any<AppUser>(), loginRequest.Email);
         await _roleManager.Received(1).RoleExistsAsync("User");
         await _roleManager.Received(1).CreateAsync(Arg.Is<IdentityRole>(r => r.Name == "User"));
         await _userManager.Received(1).AddToRoleAsync(Arg.Any<AppUser>(), "User");
-        await _tokenService.Received(1).SetTokenForUserAsync(appUser, "access_token", "refresh_token");
-        await _signInManager.Received(1).PasswordSignInAsync(LoginRequest.Email, LoginRequest.Password, true, false);
+        await _tokenService.Received(1).SetRefreshTokenForUserAsync(appUser, "refresh_token");
+        await _signInManager.Received(1).PasswordSignInAsync(loginRequest.Email, loginRequest.Password, true, false);
     }
 
     [Fact]
     public async Task LoginAsync_ShouldReturnAuthResponse_WhenLoginIsSuccessful()
     {
         // Arrange
-        var LoginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
-        var appUser = new AppUser { Email = LoginRequest.Email };
+        var loginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
+        var appUser = new AppUser { Email = loginRequest.Email };
 
         _httpContextAccessor.HttpContext = null;
 
         _signInManager
-            .PasswordSignInAsync(LoginRequest.Email, LoginRequest.Password, LoginRequest.RememberMe, false)
+            .PasswordSignInAsync(loginRequest.Email, loginRequest.Password, loginRequest.RememberMe, false)
             .Returns(Task.FromResult(SignInResult.Success));
         _userManager.FindByEmailAsync(Arg.Any<string>()).Returns(appUser);
         _tokenService.GenerateAccessToken(appUser).Returns("access_token");
         _tokenService.GenerateRefreshToken().Returns("refresh_token");
         _tokenService
-            .SetTokenForUserAsync(appUser, Arg.Any<string>(), Arg.Any<string>())
+            .SetRefreshTokenForUserAsync(appUser, Arg.Any<string>())
             .Returns(Task.FromResult(new TokenInfo { AccessToken = "access_token", RefreshToken = "refresh_token" }));
 
         // Act
-        var result = await _authService.LoginAsync(LoginRequest);
+        var result = await _authService.LoginAsync(loginRequest);
 
         // Assert
         result.Should().NotBeNull();
         result.Token.Should().NotBeNullOrEmpty();
-        await _tokenService.Received(1).SetTokenForUserAsync(appUser, "access_token", "refresh_token");
+        await _tokenService.Received(1).SetRefreshTokenForUserAsync(appUser, "refresh_token");
         await _signInManager
             .Received(1)
-            .PasswordSignInAsync(LoginRequest.Email, LoginRequest.Password, LoginRequest.RememberMe, false);
+            .PasswordSignInAsync(loginRequest.Email, loginRequest.Password, loginRequest.RememberMe, false);
     }
 
     [Fact]
@@ -163,7 +165,7 @@ public class AuthServiceTests
         _tokenService.GenerateAccessToken(appUser).Returns("new_access_token");
         _tokenService.GenerateRefreshToken().Returns("new_refresh_token");
         _tokenService
-            .SetTokenForUserAsync(appUser, Arg.Any<string>(), Arg.Any<string>())
+            .SetRefreshTokenForUserAsync(appUser, Arg.Any<string>())
             .Returns(
                 Task.FromResult(new TokenInfo { AccessToken = "new_access_token", RefreshToken = "new_refresh_token" })
             );

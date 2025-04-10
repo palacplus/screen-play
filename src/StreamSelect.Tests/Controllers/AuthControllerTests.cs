@@ -28,12 +28,12 @@ public class AuthControllerTests
     public async Task RegisterUserAsync_ShouldReturnCreated_WhenUserIsRegistered()
     {
         // Arrange
-        var LoginRequest = new LoginRequest() { Email = "user@example.com", Password = "password" };
+        var loginRequest = new LoginRequest() { Email = "user@example.com", Password = "password" };
         var authResponse = new AuthResponse { Token = "access-token"};
-        _authService.RegisterAsync(LoginRequest, AppRole.User).Returns(authResponse);
+        _authService.RegisterAsync(loginRequest, AppRole.User).Returns(authResponse);
 
         // Act
-        var result = await _controller.RegisterUserAsync(LoginRequest);
+        var result = await _controller.RegisterUserAsync(loginRequest);
 
         // Assert
         var createdResult = result.Result as CreatedAtActionResult;
@@ -46,13 +46,13 @@ public class AuthControllerTests
     public async Task RegisterUserAsync_ShouldReturnInternalError_WhenRegistrationFails()
     {
         // Arrange
-        var LoginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
+        var loginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
         _authService
-            .RegisterAsync(LoginRequest, AppRole.User)
+            .RegisterAsync(loginRequest, AppRole.User)
             .Returns(Task.FromException<AuthResponse>(new Exception("Registration failed")));
 
         // Act
-        var result = await _controller.RegisterUserAsync(LoginRequest);
+        var result = await _controller.RegisterUserAsync(loginRequest);
 
         // Assert
         var objectResult = result.Result as ObjectResult;
@@ -65,12 +65,12 @@ public class AuthControllerTests
     public async Task LoginAsync_ShouldReturnOk_WhenLoginIsSuccessful()
     {
         // Arrange
-        var LoginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
+        var loginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
         var authResponse = new AuthResponse { Token = "sample-token" };
-        _authService.LoginAsync(LoginRequest).Returns(authResponse);
+        _authService.LoginAsync(loginRequest).Returns(authResponse);
 
         // Act
-        var result = await _controller.LoginAsync(LoginRequest);
+        var result = await _controller.LoginAsync(loginRequest);
 
         // Assert
         var okResult = result.Result as OkObjectResult;
@@ -83,12 +83,12 @@ public class AuthControllerTests
     public async Task LoginAsync_ShouldReturnUnauthorized_WhenLoginFails()
     {
         // Arrange
-        var LoginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
+        var loginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
         var authResponse = new AuthResponse { Token = null, ErrorMessage = "Invalid credentials" };
-        _authService.LoginAsync(LoginRequest).Returns(authResponse);
+        _authService.LoginAsync(loginRequest).Returns(authResponse);
 
         // Act
-        var result = await _controller.LoginAsync(LoginRequest);
+        var result = await _controller.LoginAsync(loginRequest);
 
         // Assert
         var unauthorizedResult = result.Result as UnauthorizedObjectResult;
