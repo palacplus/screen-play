@@ -164,7 +164,7 @@ public class AuthController : ControllerBase
         {
             if (authorization == null || authorization.StartsWith("Bearer ") == false)
             {
-                return Unauthorized("Invalid access token");
+                return Unauthorized("Missing Bearer token");
             }
             var token = authorization.Substring("Bearer ".Length).Trim();
             var tokenInfo = new TokenInfo
@@ -176,7 +176,7 @@ public class AuthController : ControllerBase
             var response = await _service.RefreshTokenAsync(tokenInfo);
             if (response.Token == null)
             {
-                return Unauthorized(response.ErrorMessage);
+                return Unauthorized(response);
             }
             return Ok(response);
         }

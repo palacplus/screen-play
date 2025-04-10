@@ -1,5 +1,5 @@
 export type User = {
     email: string;
-    token: string;
-    createdAt: Date;
+    accessToken: string;
+    refreshToken: string;
 }

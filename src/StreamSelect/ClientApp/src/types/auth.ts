@@ -1,18 +1,24 @@
+import { z } from "zod";
+
 export type AuthResponse = {
-    token: string | null;
-    refreshToken: string | null;
+    accessToken: string;
+    refreshToken: string;
     expiration: Date;
     errorMessage: string | null;
 }
 
-export type LoginRequest = {
+export type TokenRequest = {
     email: string;
-    password: string;
-    rememberMe: boolean;
+    refreshToken: string;
 }
 
-export type LoginRequest = {
-    email: string;
-    password: string;
-    confirmPassword: string;
-}
+export const LoginSchema = z.object({
+    email: z.string().email("Invalid email address"),
+    password: z.string().min(8, "Password must be at least 8 characters long"),
+    confirmPassword: z.string().min(6, "Password must be at least 8 characters long"),
+}).refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords don't match",
+    path: ['confirmPassword'], // Indicate which field the error belongs to
+});
+
+export type LoginRequest = z.infer<typeof LoginSchema>;
