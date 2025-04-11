@@ -70,11 +70,8 @@ public class AuthController : ControllerBase
             var response = await RegisterUserWithRoleAsync(request);
             if (response.Token == null)
             {
-                _logger.LogError("User not found {email}", request.Email);
                 return BadRequest(response.ErrorMessage);
             }
-
-            _logger.LogInformation("New User registered {user}", request.Email);
             return CreatedAtAction(nameof(RegisterUserAsync), response);
         }
         catch (Exception ex)
@@ -93,6 +90,8 @@ public class AuthController : ControllerBase
         {
             var payload = await GoogleJsonWebSignature.ValidateAsync(request.Credential);
             var loginRequest = new ExternalLoginRequest(payload);
+
+            _logger.LogInformation(loginRequest.IsExternalLogin.ToString());
 
             var user = await _service.GetUserByEmailAsync(loginRequest.Email);
             if (user != null)
@@ -121,6 +120,10 @@ public class AuthController : ControllerBase
             _logger.LogError("Invalid JWT token: {error}", ex.Message);
             return BadRequest("Invalid JWT token");
         }
+        catch (InvalidOperationException ex)
+        {
+            return NotFound(ex.Message);
+        }
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
@@ -143,6 +146,10 @@ public class AuthController : ControllerBase
             }
             _logger.LogInformation("User logged in {email}", request.Email);
             return Ok(response);
+        }
+        catch (InvalidOperationException ex)
+        {
+            return Unauthorized(ex.Message);
         }
         catch (Exception ex)
         {
@@ -176,7 +183,7 @@ public class AuthController : ControllerBase
             var response = await _service.RefreshTokenAsync(tokenInfo);
             if (response.Token == null)
             {
-                return Unauthorized(response);
+                return Unauthorized(response.ErrorMessage);
             }
             return Ok(response);
         }
@@ -195,10 +202,9 @@ public class AuthController : ControllerBase
             var principal = User.FindFirst(ClaimTypes.Email);
             if (principal == null)
             {
-                return Unauthorized("User not found");
+                return Unauthorized("User not found!");
             }
             await _service.LogoutAsync(principal.Value);
-            ;
             return Ok();
         }
         catch (Exception ex)

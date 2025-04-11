@@ -1,9 +1,8 @@
 import { z } from "zod";
 
 export type AuthResponse = {
-    accessToken: string;
+    token: string;
     refreshToken: string;
-    expiration: Date;
     errorMessage: string | null;
 }
 
@@ -15,7 +14,7 @@ export type TokenRequest = {
 export const LoginSchema = z.object({
     email: z.string().email("Invalid email address"),
     password: z.string().min(8, "Password must be at least 8 characters long"),
-    confirmPassword: z.string().min(6, "Password must be at least 8 characters long"),
+    confirmPassword: z.string(),
 }).refine((data) => data.password === data.confirmPassword, {
     message: "Passwords don't match",
     path: ['confirmPassword'], // Indicate which field the error belongs to

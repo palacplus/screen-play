@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import { Component } from "react";
 import {
   Collapse,
   Navbar,
@@ -8,14 +8,17 @@ import {
   NavLink,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import { LoginMenu } from "./api-authorization/LoginMenu";
-import { NavDropdownMenu } from "./NavDropdownMenu";
+// import { NavDropdownMenu } from "./NavDropdownMenu";
 import "./NavMenu.css";
 
-export class NavMenu extends Component {
+interface NavMenuState {
+  collapsed: boolean;
+}
+
+export class NavMenu extends Component<{}, NavMenuState> {
   static displayName = NavMenu.name;
 
-  constructor(props) {
+  constructor(props: {}) {
     super(props);
 
     this.toggleNavbar = this.toggleNavbar.bind(this);
@@ -48,7 +51,6 @@ export class NavMenu extends Component {
             navbar
           >
             <ul className="navbar-nav flex-grow">
-              <LoginMenu></LoginMenu>
               <NavItem>
                 <NavLink tag={Link} className="text-light" to="/search">
                   <span className="material-symbols-outlined">
@@ -56,7 +58,7 @@ export class NavMenu extends Component {
                   </span>
                 </NavLink>
               </NavItem>
-              <NavDropdownMenu></NavDropdownMenu>
+              {/* <NavDropdownMenu></NavDropdownMenu> */}
             </ul>
           </Collapse>
         </Navbar>

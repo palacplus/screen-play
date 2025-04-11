@@ -1,9 +1,20 @@
-import React, { Component } from "react";
-import { Dropdown, DropdownToggle, DropdownMenu, DropdownItem, NavItem, NavLink } from "reactstrap";
+import { Component } from "react";
+import {
+  Dropdown,
+  DropdownToggle,
+  DropdownMenu,
+  DropdownItem,
+  NavItem,
+  NavLink,
+} from "reactstrap";
 import { Link } from "react-router-dom";
 
-export class NavDropdownMenu extends Component {
-  constructor(props) {
+interface NavDropdownMenuState {
+  dropdownOpen: boolean;
+}
+
+export class NavDropdownMenu extends Component<{}, NavDropdownMenuState> {
+  constructor(props: {}) {
     super(props);
     this.toggle = this.toggle.bind(this);
     this.state = {
@@ -19,6 +30,7 @@ export class NavDropdownMenu extends Component {
 
   render() {
     const { dropdownOpen } = this.state;
+    // TODO: use the app routes here
     const items = [
       { Name: "Search", Route: "/search" },
       { Name: "Queue", Route: "/queue" },
@@ -36,7 +48,11 @@ export class NavDropdownMenu extends Component {
             {items.map((item, index) => (
               <DropdownItem key={index}>
                 <NavItem>
-                  <NavLink tag={Link} className="dropdown-text-light" to={item.Route}>
+                  <NavLink
+                    tag={Link}
+                    className="dropdown-text-light"
+                    to={item.Route}
+                  >
                     {item.Name}
                   </NavLink>
                 </NavItem>

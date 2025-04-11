@@ -63,7 +63,6 @@ builder
         opts.ClientId = googleAuthConfig.ClientId;
         opts.ClientSecret = googleAuthConfig.ClientSecret;
         opts.SignInScheme = IdentityConstants.ExternalScheme;
-        opts.CallbackPath = "/api/auth/external-login";
         opts.SaveTokens = true;
     });
 

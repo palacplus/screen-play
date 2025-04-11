@@ -1,23 +1,23 @@
-import { Component } from 'react';
+import { Component, Key } from 'react';
 import { Route, Routes } from 'react-router-dom';
-import AppRoutes from './AppRoutes';
-import AuthorizeRoute from './components/api-authorization/AuthorizeRoute';
 import { Layout } from './components/Layout';
-import './custom.css';
+import LoginPage from './pages/LoginPage';
+import AuthProvider from './components/AuthProvider';
+import './index.css';
 
-export default class App extends Component {
-  static displayName = App.name;
-
-  render() {
+export default function App() {
     return (
       <Layout>
         <Routes>
-          {AppRoutes.map((route, index) => {
-            const { element, requireAuth, ...rest } = route;
-            return <Route key={index} {...rest} element={requireAuth ? <AuthorizeRoute {...rest} element={element} /> : element} />;
-          })}
+          {/* <Route path="/" element={<Home />} /> */}
+          {/* // <Route path="/fetch-data" element={<FetchData />} /> */}
+          {/* <Route path="/search" element={<SearchWrapped />}>
+            <Route path=":imdbId" element={<SearchResultWrapped />} />
+          </Route> */}
+          {/* <Route path="/queue" element={<Queue />} /> */}
+          <Route path="/login" element={<AuthProvider><LoginPage /></AuthProvider>} />
+          {/* <Route path="*" element={<NotFound />} /> */}
         </Routes>
       </Layout>
     );
-  }
 }

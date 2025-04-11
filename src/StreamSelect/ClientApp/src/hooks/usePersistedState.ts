@@ -1,16 +1,22 @@
-import { useState } from "react";
-import { useEffect } from "react";
-import { getItem, setItem } from "../utils/localStorage";
+import { useState, useEffect } from 'react';
 
-export function usePersistedState<T>(key: string, initialValue: T): [T, (value: T) => void] {
-    const [value, setValue] = useState<T>(() => {
-        const item = getItem(key);
-        return (item as T) || initialValue;
-    });
-
-    useEffect(() => {
-        setItem(key, value);
-    }, [value]);
-
-    return [value, setValue] as const;
+export function usePersistedState<Type>(key: string, initialState: Type | (() => Type)): [Type, React.Dispatch<React.SetStateAction<Type>>] {
+  // read key from local storage if not found use default value
+  const [value, setValue] = useState<Type>(() => {
+    const storedValue = localStorage.getItem(key);
+    if (storedValue === null) {
+      if (typeof initialState === 'function') {
+        return (initialState as () => Type)();
+      } else {
+        return initialState;
+      }
+    } else {
+      return JSON.parse(storedValue);
+    }
+  });
+  // update local storage when value changes
+  useEffect(() => {
+    localStorage.setItem(key, JSON.stringify(value));
+  }, [value, key]);
+  return [value, setValue];
 }

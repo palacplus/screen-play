@@ -1,0 +1,113 @@
+
+import { GoogleOAuthProvider } from "@react-oauth/google";
+import { useState } from "react";
+import LoginForm from "../components/LoginForm";
+import SignUpForm from "../components/SignUpForm";
+import { LoginSchema, LoginRequest } from "../types/auth";
+import { ZodFormattedError } from "zod";
+import { AuthContextProps, useAuth } from "../components/AuthProvider";
+
+import "./LoginPage.css";
+
+export default function LoginPage() {
+  const [activeForm, setActiveForm] = useState("login");
+  const initialFormData = {
+    email: "",
+    password: "",
+    confirmPassword: "",
+  }
+  const [formData, setFormData] = useState<LoginRequest>(initialFormData);
+  const [formErrors, setFormErrors] = useState<ZodFormattedError<LoginRequest> | null>(null);
+  const authContext: AuthContextProps = useAuth();
+
+  function handleReset() {
+    console.log(authContext.error)
+    if (formErrors || authContext.error) {
+      setFormData(initialFormData)
+      setFormErrors(null)
+      authContext.setError(null)
+    }
+  }
+
+  function handleSubmit(event: React.FormEvent) {
+    event.preventDefault();
+    const result = LoginSchema.safeParse(formData);
+    if (result.success) {
+      if (activeForm === "login") {
+        authContext.handleLogin(result.data);
+      }
+      else {
+        authContext.handleRegister(result.data)
+      }
+      setFormErrors(null);
+    } else {
+      console.log('Form data is invalid. Errors:', result.error.flatten());
+      authContext.setError(null)
+      setFormErrors(result.error.format());
+    }
+  };
+
+  function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const { name, value } = event.target;
+    setFormData((prevState) => ({
+      ...prevState,
+      [name]: value,
+    }));
+    if (activeForm === "login" && name === "password") {
+      setFormData((prevState) => ({
+        ...prevState,
+        confirmPassword: value
+      }))
+    }
+  }
+
+  function switchForm(event: React.MouseEvent) {
+    event.preventDefault();
+    const loginContainer = document.getElementById("login-container");
+    if (loginContainer) {
+      if (activeForm === "signup") {
+        setActiveForm("login");
+        loginContainer.classList.remove("active");
+      } else {
+        setActiveForm("signup");
+        loginContainer.classList.add("active");
+      }
+    }
+    setFormData(initialFormData)
+  }
+
+  return (
+    <div className="login-container" id="login-container">
+      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}>
+        <SignUpForm data={formData} errors={formErrors}
+          onInputChange={handleInputChange}
+          onSubmit={handleSubmit}
+          onReset={handleReset}
+          authContext={authContext}
+        />
+        <LoginForm data={formData} errors={formErrors}
+          onInputChange={handleInputChange}
+          onSubmit={handleSubmit}
+          onReset={handleReset}
+          authContext={authContext}
+        />
+      </GoogleOAuthProvider>
+      <div className="toggle-container">
+        <div className="toggle">
+          <div className="toggle-panel toggle-left">
+            <h1>Have an Account?</h1>
+            <button className="hidden" id="login" onClick={switchForm}>
+              Sign In
+            </button>
+          </div>
+          <div className="toggle-panel toggle-right">
+            <h1>New Here?</h1>
+            <button className="hidden" id="register" onClick={switchForm}>
+              Sign Up
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}

@@ -1,79 +1,60 @@
 
-import { useState } from "react";
-import { GoogleOAuthProvider } from "@react-oauth/google";
-import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
-import { set, ZodError } from "zod";
-import { useAuth } from "./AuthProvider";
-import { LoginSchema, LoginRequest } from "../types/auth";
-
-export default function SignUpForm() {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [confirmPassword, setConfirmPassword] = useState('');
-    const [errors, setErrors] = useState<ZodError | null>();
-    const { token, currentUser, handleLogin, handleLogout, handleExternalLogin } = useAuth();
+import { GoogleLogin } from "@react-oauth/google";
+import { FormErrors } from "./FormErrors";
+import LoginFormProps from "../types/form"
 
 
-    function handleSubmit(event: React.FormEvent) {
-        event.preventDefault();
-
-        const formData: LoginRequest = { email, password, confirmPassword };
-        const result = LoginSchema.safeParse(formData);
-
-        if (result.success) {
-            setErrors(null);
-            // Here you would typically send the form data to your backend
-        } else {
-            console.log('Form data is invalid. Errors:', result.error);
-            setErrors(result.error);
-        }
+export default function SignUpForm(props: LoginFormProps) {
+    const inputStyle = {
+        backgroundColor: props.authContext.error || props.errors ? 'red' : '',
+        opacity: props.authContext.error || props.errors ? 0.3 : 1.0
+      };
+    const textStyle = {
+        color: props.authContext.error || props.errors ? 'red' : ''
     };
-
     return (
         <div className="form-container sign-up">
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={props.onSubmit}>
                 <h1>Create Account</h1>
                 <div className="social-icons">
-                    <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}>
-                        <GoogleLogin
-                            onSuccess={(credentialResponse: CredentialResponse) => {
-                                handleExternalLogin(credentialResponse);
-                            }}
-                            onError={() => {
-                                console.log("Google Login Failed");
-                            }}
-                            text="signup_with"
-                        />
-                    </GoogleOAuthProvider>
+                    <GoogleLogin
+                        onSuccess={props.authContext.handleExternalLogin}
+                        onError={() => {console.log("Google Login Failed");}}
+                        text="signup_with"
+                    />
                 </div>
-                {/* {this.state.validationErrors.Email ? (
-                    this.state.validationErrors.Email.map((error, idx) => <span key={idx}>{error}</span>)
-                ) : (
-                    <span className="message">or use your email for registration</span>
-                )} */}
-                <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} />
-                {/* {this.state.validationErrors.Password &&
-                    this.state.validationErrors.Password.map((error, idx) => <span key={idx}>{error}</span>)} */}
+                <input 
+                    name="email" 
+                    type="email" 
+                    placeholder="Email" 
+                    value={props.data.email} 
+                    onChange={props.onInputChange} 
+                    style={inputStyle} 
+                    // onFocus={props.onReset}
+                />
+                <FormErrors errors={props.errors?.email?._errors} />
                 <input
+                    name="password"
                     type="password"
                     placeholder="Password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={props.data.password}
+                    onChange={props.onInputChange}
+                    style={inputStyle}
+                    // onFocus={props.onReset}
                 />
-                {/* {this.state.validationErrors.ConfirmPassword &&
-                    this.state.validationErrors.ConfirmPassword.map((error, idx) => <span key={idx}>{error}</span>)} */}
-                {errors?.formErrors.fieldErrors.inputValue && (
-                    <p className="error">{errors.formErrors.fieldErrors.inputValue.join(', ')}</p>
-                )}
-                <input
-                    type="password"
-                    placeholder="Confirm Password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
+                <FormErrors errors={props.errors?.password?._errors} />
+                <input 
+                    name="confirmPassword" 
+                    type="password" 
+                    placeholder="Confirm Password" 
+                    value={props.data.confirmPassword} 
+                    onChange={props.onInputChange} 
+                    style={inputStyle}
+                    // onFocus={props.onReset}
                 />
-                <button type="submit">
-                    Sign Up
-                </button>
+                <FormErrors errors={props.errors?.confirmPassword?._errors} />
+                <FormErrors errors={props.authContext.error ? [props.authContext.error] : []} />
+                <button type="submit">Sign Up</button>
             </form>
         </div>
     );
