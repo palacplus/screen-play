@@ -5,7 +5,8 @@ import LoginForm from "../components/LoginForm";
 import SignUpForm from "../components/SignUpForm";
 import { LoginSchema, LoginRequest } from "../types/auth";
 import { ZodFormattedError } from "zod";
-import { AuthContextProps, useAuth } from "../components/AuthProvider";
+import { useAuth } from "../components/AuthProvider";
+import { AuthContextProps } from "../types/auth";
 
 import "./LoginPage.css";
 
@@ -18,14 +19,14 @@ export default function LoginPage() {
   }
   const [formData, setFormData] = useState<LoginRequest>(initialFormData);
   const [formErrors, setFormErrors] = useState<ZodFormattedError<LoginRequest> | null>(null);
-  const authContext: AuthContextProps = useAuth();
+  const auth: AuthContextProps = useAuth();
 
   function handleReset() {
-    console.log(authContext.error)
-    if (formErrors || authContext.error) {
+    console.log(auth.error)
+    if (formErrors || auth.error) {
       setFormData(initialFormData)
       setFormErrors(null)
-      authContext.setError(null)
+      auth.setError(null)
     }
   }
 
@@ -34,15 +35,15 @@ export default function LoginPage() {
     const result = LoginSchema.safeParse(formData);
     if (result.success) {
       if (activeForm === "login") {
-        authContext.handleLogin(result.data);
+        auth.handleLogin(result.data);
       }
       else {
-        authContext.handleRegister(result.data)
+        auth.handleRegister(result.data)
       }
       setFormErrors(null);
     } else {
       console.log('Form data is invalid. Errors:', result.error.flatten());
-      authContext.setError(null)
+      auth.setError(null)
       setFormErrors(result.error.format());
     }
   };
@@ -83,13 +84,13 @@ export default function LoginPage() {
           onInputChange={handleInputChange}
           onSubmit={handleSubmit}
           onReset={handleReset}
-          authContext={authContext}
+          authContext={auth}
         />
         <LoginForm data={formData} errors={formErrors}
           onInputChange={handleInputChange}
           onSubmit={handleSubmit}
           onReset={handleReset}
-          authContext={authContext}
+          authContext={auth}
         />
       </GoogleOAuthProvider>
       <div className="toggle-container">

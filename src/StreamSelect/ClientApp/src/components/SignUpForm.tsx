@@ -9,11 +9,8 @@ export default function SignUpForm(props: LoginFormProps) {
         backgroundColor: props.authContext.error || props.errors ? 'red' : '',
         opacity: props.authContext.error || props.errors ? 0.3 : 1.0
       };
-    const textStyle = {
-        color: props.authContext.error || props.errors ? 'red' : ''
-    };
     return (
-        <div className="form-container sign-up">
+        <div className="form-container sign-up">s
             <form onSubmit={props.onSubmit}>
                 <h1>Create Account</h1>
                 <div className="social-icons">
@@ -30,7 +27,7 @@ export default function SignUpForm(props: LoginFormProps) {
                     value={props.data.email} 
                     onChange={props.onInputChange} 
                     style={inputStyle} 
-                    // onFocus={props.onReset}
+                    onFocus={props.onReset}
                 />
                 <FormErrors errors={props.errors?.email?._errors} />
                 <input
@@ -40,7 +37,7 @@ export default function SignUpForm(props: LoginFormProps) {
                     value={props.data.password}
                     onChange={props.onInputChange}
                     style={inputStyle}
-                    // onFocus={props.onReset}
+                    onFocus={props.onReset}
                 />
                 <FormErrors errors={props.errors?.password?._errors} />
                 <input 
@@ -50,7 +47,7 @@ export default function SignUpForm(props: LoginFormProps) {
                     value={props.data.confirmPassword} 
                     onChange={props.onInputChange} 
                     style={inputStyle}
-                    // onFocus={props.onReset}
+                    onFocus={props.onReset}
                 />
                 <FormErrors errors={props.errors?.confirmPassword?._errors} />
                 <FormErrors errors={props.authContext.error ? [props.authContext.error] : []} />

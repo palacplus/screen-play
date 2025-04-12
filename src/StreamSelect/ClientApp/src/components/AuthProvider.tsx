@@ -12,23 +12,13 @@ import { refreshToken, login, logout, externalLogin, register } from '../service
 import { LoginRequest, TokenRequest } from '../types/auth';
 import { usePersistedState } from '../hooks/usePersistedState';
 import { User } from '../types/user';
+import { AuthContextProps } from '../types/auth';
 
 declare module 'axios' {
   export interface InternalAxiosRequestConfig {
     _retry?: boolean;
   }
 }
-
-export type AuthContextProps = {
-  error?: string | null;
-  token?: string | null;
-  currentUser?: User | null;
-  handleLogin: (request: LoginRequest) => Promise<void>;
-  handleLogout: () => Promise<void>;
-  handleRegister: (request: LoginRequest) => Promise<void>;
-  handleExternalLogin: (credentialResponse: CredentialResponse) => Promise<void>;
-  setError: React.Dispatch<React.SetStateAction<string | null | undefined>>;
-};
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 
@@ -66,7 +56,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             } as TokenRequest;
 
             const resp = await refreshToken(refreshTokenRequest);
-
             setToken(resp[1].token);
 
             originalRequest.headers.Authorization = `Bearer ${resp[1].token}`;

@@ -1,6 +1,6 @@
 import { ZodFormattedError } from "zod";
 import { LoginRequest } from "./auth";
-import { AuthContextProps } from "@/components/AuthProvider";
+import { AuthContextProps } from "./auth";
 
 export default interface LoginFormProps {
   data: LoginRequest,
