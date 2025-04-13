@@ -34,18 +34,16 @@ html {
   width: 100%;
 }
 
-#brand-x {
-  font-family: "Paytone One", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 35px;
-  color: #ffb92a;
+.logo-image {
+  height: 15vh; /* Adjust height as needed */
+  width: auto; /* Maintain aspect ratio */
+  display: block; /* Ensure the image is displayed as a block element */
 }
 
 .material-symbols-outlined {
   font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 40;
   font-size: 28px;
-  margin-top: 5%;
+  margin-top: 0%;
   pointer-events: none;
 }
 

@@ -1,6 +1,7 @@
 
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import LoginForm from "../components/LoginForm";
 import SignUpForm from "../components/SignUpForm";
 import { LoginSchema, LoginRequest } from "../types/auth";
@@ -20,9 +21,15 @@ export default function LoginPage() {
   const [formData, setFormData] = useState<LoginRequest>(initialFormData);
   const [formErrors, setFormErrors] = useState<ZodFormattedError<LoginRequest> | null>(null);
   const auth: AuthContextProps = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (auth.token) {
+      navigate("/home");
+    }
+  }, [auth.token, navigate]);
 
   function handleReset() {
-    console.log(auth.error)
     if (formErrors || auth.error) {
       setFormData(initialFormData)
       setFormErrors(null)
@@ -78,7 +85,7 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-container" id="login-container">
+    <div className="login" id="login-container">
       <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}>
         <SignUpForm data={formData} errors={formErrors}
           onInputChange={handleInputChange}
@@ -97,13 +104,13 @@ export default function LoginPage() {
         <div className="toggle">
           <div className="toggle-panel toggle-left">
             <h1>Have an Account?</h1>
-            <button className="hidden" id="login" onClick={switchForm}>
+            <button data-testid="login-toggle" className="hidden" id="login" onClick={switchForm}>
               Sign In
             </button>
           </div>
           <div className="toggle-panel toggle-right">
             <h1>New Here?</h1>
-            <button className="hidden" id="register" onClick={switchForm}>
+            <button data-testid="register-toggle" className="hidden" id="register" onClick={switchForm}>
               Sign Up
             </button>
           </div>

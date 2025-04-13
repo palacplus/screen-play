@@ -21,13 +21,13 @@ code {
   border-color: #1861ac;
 }
 
-@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@300;500;600;700&display=swap");
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  font-family: "Poppins", sans-serif;
+  font-family: "Rubik", sans-serif;
   --bs-border-width: 0;
   --bs-navbar-color: white;
   --bs-navbar-hover-color: white;
@@ -38,5 +38,11 @@ code {
 
 body {
   height: 100vh;
-  background: linear-gradient(#1c1917 50%, #ffb92a 50%);
+  background: linear-gradient(#1c1917 90%, #FF8700 10%);
+}
+
+main {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

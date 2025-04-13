@@ -13,7 +13,7 @@ export class Layout extends Component<LayoutProps> {
     return (
       <div>
         <NavMenu />
-        <Container tag="main">
+        <Container tag="main" className='main'>
           {this.props.children}
         </Container>
       </div>

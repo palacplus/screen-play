@@ -30,7 +30,21 @@ public class AuthController : ControllerBase
         _adminEmail = adminOptions.Value.Email;
     }
 
-    [HttpDelete("delete-user")]
+    [HttpGet("user")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetUserAsync([FromQuery] string email)
+    {
+        var user = await _service.GetUserByEmailAsync(email);
+        if (user == null)
+        {
+            _logger.LogError("User not found {email}", email);
+            return NotFound("User not found");
+        }
+        return Ok(user);
+    }
+
+    [HttpDelete("user")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteUserAsync([FromQuery] string email)

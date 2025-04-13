@@ -3,6 +3,7 @@
 
 # Editor
 *.editorconfig
+*.config
 
 # User-specific files
 *.suo

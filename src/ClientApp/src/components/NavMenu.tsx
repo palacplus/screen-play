@@ -8,7 +8,7 @@ import {
   NavLink,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-// import { NavDropdownMenu } from "./NavDropdownMenu";
+import LogoImage from "./Logo";
 import "./NavMenu.css";
 
 interface NavMenuState {
@@ -41,8 +41,8 @@ export class NavMenu extends Component<{}, NavMenuState> {
           container
           light
         >
-          <NavbarBrand tag={Link} to="/" className="nav-title">
-            Clima<span id="brand-x">X</span>
+          <NavbarBrand tag={Link} to="/home" className="nav-title">
+            <LogoImage/>
           </NavbarBrand>
           <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
           <Collapse
