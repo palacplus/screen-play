@@ -1,12 +1,14 @@
 import logo from '../assets/logo.svg';
 
-
-const LogoImage: React.FC = () => {
+export default function LogoImage() {
   return (
-    <div>
-      <img src={logo} className="logo-image" />
-    </div>
+    <img
+      src={logo}
+      alt="ScreenPlay Logo"
+      style={{
+        height: "100px", // Set the desired height
+        width: "auto",   // Maintain aspect ratio
+      }}
+    />
   );
-};
-
-export default LogoImage;
+}

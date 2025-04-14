@@ -9,9 +9,9 @@ import { useAuth } from "../components/AuthProvider";
 import { AuthContextProps } from "../types/auth";
 import LoadingOverlay from "../components/LoadingOverlay";
 
-import "./LoginPage.css";
+import "./LoginPanel.css";
 
-export default function LoginPage() {
+export default function LoginPanel() {
   const [activeForm, setActiveForm] = useState("login");
   const initialFormData = {
     email: "",

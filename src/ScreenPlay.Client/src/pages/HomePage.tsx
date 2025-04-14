@@ -1,20 +1,100 @@
+import About from "../components/About";
+import LoginPanel from "./LoginPanel";
+import LibraryMetrics from "../components/LibraryMetrics";
+
 export default function HomePage() {
+  const posters = [
+    {
+      imageUrl:
+        "https://www.movieposters.com/cdn/shop/files/backtofuture.mpw_480x.progressive.jpg?v=1708444122",
+      title: "Back To The Future",
+      description: "A time-traveling adventure.",
+      addedDate: "2025-04-01",
+    },
+    {
+      imageUrl:
+        "https://www.movieposters.com/cdn/shop/files/jurassicpark.mpw_480x.progressive.jpg?v=1708444122",
+      title: "Jurassic Park",
+      description: "Dinosaurs run wild.",
+      addedDate: "2025-03-15",
+    },
+    {
+      imageUrl:
+        "https://www.movieposters.com/cdn/shop/files/inception.mpw.123395_9e0000d1-bc7f-400a-b488-15fa9e60a10c_480x.progressive.jpg?v=1708527589",
+      title: "Inception",
+      description: "A mind-bending thriller.",
+      addedDate: "2025-04-10",
+    },
+    {
+      imageUrl:
+        "https://www.movieposters.com/cdn/shop/files/Matrix.mpw.102176_bb2f6cc5-4a16-4512-881b-f855ead3c8ec_480x.progressive.jpg?v=1708703624",
+      title: "The Matrix",
+      description: "A sci-fi classic.",
+      addedDate: "2025-03-01",
+    },
+  ];
+
+  const libraryMetrics = {
+    totalMovies: posters.length,
+    activeUsers: 1200,
+    totalHoursWatched: 4500,
+    totalRatings: 3200,
+    topTitles: ["Inception", "Back To The Future", "Jurassic Park"],
+  };
+
   return (
-    <div>
-      <h1>Hello, world!</h1>
-      <p>Welcome to your new single-page application, built with:</p>
-      <ul>
-        <li><a href='https://get.asp.net/'>ASP.NET Core</a> and <a href='https://msdn.microsoft.com/en-us/library/67ef8sbd.aspx'>C#</a> for cross-platform server-side code</li>
-        <li><a href='https://facebook.github.io/react/'>React</a> for client-side code</li>
-        <li><a href='http://getbootstrap.com/'>Bootstrap</a> for layout and styling</li>
-      </ul>
-      <p>To help you get started, we have also set up:</p>
-      <ul>
-        <li><strong>Client-side navigation</strong>. For example, click <em>Counter</em> then <em>Back</em> to return here.</li>
-        <li><strong>Development server integration</strong>. In development mode, the development server from <code>create-react-app</code> runs in the background automatically, so your client-side resources are dynamically built on demand and the page refreshes when you modify any file.</li>
-        <li><strong>Efficient production builds</strong>. In production mode, development-time features are disabled, and your <code>dotnet publish</code> configuration produces minified, efficiently bundled JavaScript files.</li>
-      </ul>
-      <p>The <code>ClientApp</code> subdirectory is a standard React application based on the <code>create-react-app</code> template. If you open a command prompt in that directory, you can run <code>npm</code> commands such as <code>npm test</code> or <code>npm install</code>.</p>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "2rem",
+        width: "100%",
+        padding: "1rem",
+        boxSizing: "border-box",
+      }}
+    >
+      {/* Main Content */}
+      <div
+        style={{
+          display: "flex",
+          flexDirection: "row",
+          gap: "2rem",
+          width: "100%",
+        }}
+      >
+        {/* Left Side: About and Library Metrics */}
+        <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: "2rem" }}>
+          <About />
+          <LibraryMetrics {...libraryMetrics} />
+        </div>
+
+        {/* Right Side: Login Panel */}
+        <div style={{ flex: 1 }}>
+          <LoginPanel />
+        </div>
+      </div>
+
+      {/* GitHub Icon Link */}
+      <div
+        style={{
+          textAlign: "center",
+          marginTop: "5rem",
+        }}
+      >
+        <a
+          href="https://github.com/mike-palacio-nice/screen-play"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            textDecoration: "none",
+            color: "#1e293b",
+            fontSize: "1.5rem",
+          }}
+        >
+          <i className="fab fa-github" style={{ marginRight: "0.5rem" }}></i>
+          GitHub
+        </a>
+      </div>
     </div>
   );
 }

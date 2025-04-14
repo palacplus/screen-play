@@ -10,6 +10,7 @@ import {
 import { Link } from "react-router-dom";
 import LogoImage from "./Logo";
 import "./NavMenu.css";
+import { NavDropdownMenu } from "./NavDropdownMenu";
 
 interface NavMenuState {
   collapsed: boolean;
@@ -42,7 +43,7 @@ export class NavMenu extends Component<{}, NavMenuState> {
           light
         >
           <NavbarBrand tag={Link} to="/home" className="nav-title">
-            <LogoImage/>
+            <LogoImage />
           </NavbarBrand>
           <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
           <Collapse
@@ -50,15 +51,24 @@ export class NavMenu extends Component<{}, NavMenuState> {
             isOpen={!this.state.collapsed}
             navbar
           >
-            <ul className="navbar-nav flex-grow">
-              <NavItem>
+            <ul className="navbar-nav flex-grow align-items-center">
+              <NavItem style={{ display: "flex", alignItems: "center" }}>
+                {/* Search Text Box */}
+                <input
+                  type="text"
+                  placeholder="Search movies..."
+                  className="form-control"
+                  style={{
+                    width: "200px",
+                    marginRight: "10px", // Small gap between the search box and the icon
+                  }}
+                />
+                {/* NavLink Icon */}
                 <NavLink tag={Link} className="text-light" to="/search">
-                  <span className="material-symbols-outlined">
-                    video_search
-                  </span>
+                  <span className="material-symbols-outlined">video_search</span>
                 </NavLink>
               </NavItem>
-              {/* <NavDropdownMenu></NavDropdownMenu> */}
+              <NavDropdownMenu></NavDropdownMenu>
             </ul>
           </Collapse>
         </Navbar>

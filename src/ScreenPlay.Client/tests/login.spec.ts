@@ -1,7 +1,7 @@
 import { test, expect, request, Page } from "@playwright/test";
 import { getClassList } from "./helpers";
 
-const location = "/login";
+const location = "/home";
 
 test.describe("Login Form", () => {
   test.beforeEach(async ({ page }) => {
@@ -102,7 +102,7 @@ test.describe("Registration Form", () => {
     test('should register user successfully', async ({ page }) => {
       await test.step('should register user with valid input', async () => {
         // TODO: This will redirect to home page for now but will eventually redirect to dashboard
-        await registerAndValidate(page, testEmail, testPassword, testPassword, 'Hello, world');
+        await registerAndValidate(page, testEmail, testPassword, testPassword, 'Success!');
       });
       await test.step('should reject second attempt with the same input', async () => {
         await page.goto(location);
@@ -114,7 +114,7 @@ test.describe("Registration Form", () => {
         await page.getByTestId(`login-email-input`).fill(testEmail);
         await page.getByTestId(`login-pwd-input`).fill(testPassword);
         await page.getByTestId(`login-button`).click();
-        await expect(page.getByText('Hello, world!').nth(0)).toBeVisible();
+        await expect(page.getByText('Hello, Friend!').nth(0)).toBeVisible();
       });
     });
 

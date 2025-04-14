@@ -2,7 +2,6 @@ import { render, screen, act } from "@testing-library/react";
 import axios from "axios";
 import MockAdapter from "axios-mock-adapter";
 import AuthProvider, { useAuth } from "../AuthProvider";
-import { LoginRequest, TokenRequest } from "../../types/auth";
 import { CredentialResponse } from "@react-oauth/google";
 
 const mockAxios = new MockAdapter(axios);

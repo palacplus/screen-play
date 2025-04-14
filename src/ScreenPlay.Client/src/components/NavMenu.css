@@ -4,6 +4,10 @@
   word-break: break-all;
 }
 
+.mb-3 {
+  margin-bottom: 0 !important;
+}
+
 html {
   font-size: 14px;
 }
@@ -26,6 +30,12 @@ html {
   color: white;
 }
 
+.nav-title img {
+  width: 150px; /* Adjust the width */
+  height: auto; /* Maintain aspect ratio */
+  margin-top: -35px; /* Adjust vertical alignment if needed */
+}
+
 .navbar-nav {
   display: flex;
   align-items: center;
@@ -35,7 +45,7 @@ html {
 }
 
 .logo-image {
-  height: 15vh; /* Adjust height as needed */
+  height: 12vh; /* Adjust height as needed */
   width: auto; /* Maintain aspect ratio */
   display: block; /* Ensure the image is displayed as a block element */
 }
