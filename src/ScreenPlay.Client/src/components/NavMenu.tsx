@@ -1,78 +1,60 @@
-import { Component } from "react";
-import {
-  Collapse,
-  Navbar,
-  NavbarBrand,
-  NavbarToggler,
-  NavItem,
-  NavLink,
-} from "reactstrap";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from "reactstrap";
+import { Link, useNavigate } from "react-router-dom";
 import LogoImage from "./Logo";
 import "./NavMenu.css";
 import { NavDropdownMenu } from "./NavDropdownMenu";
 
-interface NavMenuState {
-  collapsed: boolean;
-}
+export default function NavMenu() {
+  const [collapsed, setCollapsed] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const navigate = useNavigate();
 
-export class NavMenu extends Component<{}, NavMenuState> {
-  static displayName = NavMenu.name;
+  const toggleNavbar = () => {
+    setCollapsed(!collapsed);
+  };
 
-  constructor(props: {}) {
-    super(props);
+  const handleSearch = () => {
+    if (searchQuery.trim()) {
+      navigate(`/library?title=${encodeURIComponent(searchQuery)}`);
+    } else {
+      navigate("/library");
+    }
+  };
 
-    this.toggleNavbar = this.toggleNavbar.bind(this);
-    this.state = {
-      collapsed: true,
-    };
-  }
+  return (
+    <header>
+      <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
+        <NavbarBrand tag={Link} to="/home" className="nav-title">
+          <LogoImage />
+        </NavbarBrand>
+        <NavbarToggler onClick={toggleNavbar} className="mr-2" />
+        <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
+          <ul className="navbar-nav flex-grow align-items-center">
+            <NavItem className="nav-item-container">
+              {/* Go to Library Link */}
+              <NavLink tag={Link} to="/library" className="btn view-library-btn">
+                View Library
+              </NavLink>
 
-  toggleNavbar() {
-    this.setState({
-      collapsed: !this.state.collapsed,
-    });
-  }
-
-  render() {
-    return (
-      <header>
-        <Navbar
-          className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3"
-          container
-          light
-        >
-          <NavbarBrand tag={Link} to="/home" className="nav-title">
-            <LogoImage />
-          </NavbarBrand>
-          <NavbarToggler onClick={this.toggleNavbar} className="mr-2" />
-          <Collapse
-            className="d-sm-inline-flex flex-sm-row-reverse"
-            isOpen={!this.state.collapsed}
-            navbar
-          >
-            <ul className="navbar-nav flex-grow align-items-center">
-              <NavItem style={{ display: "flex", alignItems: "center" }}>
-                {/* Search Text Box */}
+              {/* Search Text Box with Button */}
+              <div className="search-container">
                 <input
                   type="text"
-                  placeholder="Search movies..."
-                  className="form-control"
-                  style={{
-                    width: "200px",
-                    marginRight: "10px", // Small gap between the search box and the icon
-                  }}
+                  placeholder="Search library..."
+                  className="form-control search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                {/* NavLink Icon */}
-                <NavLink tag={Link} className="text-light" to="/search">
+                <button className="btn search-btn" onClick={handleSearch}>
                   <span className="material-symbols-outlined">video_search</span>
-                </NavLink>
-              </NavItem>
-              <NavDropdownMenu></NavDropdownMenu>
-            </ul>
-          </Collapse>
-        </Navbar>
-      </header>
-    );
-  }
+                </button>
+              </div>
+            </NavItem>
+            <NavDropdownMenu />
+          </ul>
+        </Collapse>
+      </Navbar>
+    </header>
+  );
 }

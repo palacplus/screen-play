@@ -22,12 +22,25 @@ html {
 }
 
 @import url("https://fonts.googleapis.com/css2?family=Paytone+One&family=Rubik+Glitch&display=swap");
+
+/* Navbar styles */
+.navbar-expand-sm {
+  background-color: inherit; /* Inherit the background color from the body */
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Body styles (if not already defined) */
+body {
+  background-color: #f8f9fa; /* Example body background color */
+}
+
+/* Nav title */
 .nav-title {
-  font-family: "Paytone One", sans-serif;
-  font-weight: 400;
-  font-style: normal;
-  font-size: 40px;
-  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
 }
 
 .nav-title img {
@@ -36,12 +49,98 @@ html {
   margin-top: -35px; /* Adjust vertical alignment if needed */
 }
 
+/* Nav item container */
+.nav-item-container {
+  display: flex;
+  align-items: center;
+}
+
 .navbar-nav {
   display: flex;
   align-items: center;
   justify-content: right;
   gap: 10px;
   width: 100%;
+}
+
+/* View Library Button */
+.view-library-btn {
+  margin-right: 10px;
+  color: white;
+  background-color: #ff8700;
+  padding: 8px 12px; /* Reduced padding */
+  border-radius: 6px; /* Slightly smaller border radius */
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9rem; /* Reduced font size */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Slightly smaller shadow */
+  border: none;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.view-library-btn:hover,
+.view-library-btn:active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  background-color: #ff8700; /* Ensure the background color stays the same */
+}
+
+/* Search Container */
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 6px; /* Match the border radius of the View Library button */
+  overflow: hidden; /* Ensure the button and input are visually connected */
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  height: 38px; /* Match the height of the View Library button */
+}
+
+/* Search Input */
+.search-input {
+  border: none;
+  box-shadow: none;
+  padding: 5px 10px; /* Reduced padding */
+  width: 150px; /* Adjust width to make it smaller */
+  color: #333; /* Regular text color */
+  outline: none; /* Remove focus outline */
+  font-size: 0.9rem; /* Match font size with the button */
+}
+
+/* Placeholder styling for the search input */
+.search-input::placeholder {
+  color: #aaa; /* Grey color for placeholder text */
+  font-size: 0.9rem; /* Match font size with the input text */
+}
+
+/* Search Button */
+.search-btn {
+  color: white;
+  background-color: #ff8700;
+  padding: 5px 10px; /* Reduced padding to match the input */
+  border: none;
+  font-weight: bold;
+  font-size: 0.9rem; /* Match font size with the input */
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s;
+  border-radius: 0; /* Remove individual border radius */
+}
+
+.search-btn:hover,
+.search-btn:active {
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  background-color: #ff8700; /* Ensure the background color stays the same */
+}
+
+/* Search Button Icon */
+.search-btn .material-symbols-outlined {
+  color: white; /* Default color for the icon */
+}
+
+.search-btn:hover .material-symbols-outlined,
+.search-btn:active .material-symbols-outlined {
+  color: white; /* Ensure the icon color stays the same on hover and click */
 }
 
 .logo-image {
