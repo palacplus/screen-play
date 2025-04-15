@@ -5,10 +5,6 @@ export default function LogoImage() {
     <img
       src={logo}
       alt="ScreenPlay Logo"
-      style={{
-        height: "100px", // Set the desired height
-        width: "auto",   // Maintain aspect ratio
-      }}
     />
   );
 }

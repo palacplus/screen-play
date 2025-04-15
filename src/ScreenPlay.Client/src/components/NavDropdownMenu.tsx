@@ -1,4 +1,4 @@
-import { Component } from "react";
+import { useState } from "react";
 import {
   Dropdown,
   DropdownToggle,
@@ -8,59 +8,48 @@ import {
   NavLink,
 } from "reactstrap";
 import { Link } from "react-router-dom";
+import "./NavDropdownMenu.css"; // Add a CSS file for dropdown styling
 
-interface NavDropdownMenuState {
-  dropdownOpen: boolean;
-}
+export default function NavDropdownMenu() {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
 
-export class NavDropdownMenu extends Component<{}, NavDropdownMenuState> {
-  constructor(props: {}) {
-    super(props);
-    this.toggle = this.toggle.bind(this);
-    this.state = {
-      dropdownOpen: false,
-    };
-  }
+  const toggle = () => {
+    setDropdownOpen(!dropdownOpen);
+  };
 
-  toggle() {
-    this.setState({
-      dropdownOpen: !this.state.dropdownOpen,
-    });
-  }
+  const items = [
+    { Name: "Search", Route: "/search" },
+    { Name: "Queue", Route: "/queue" },
+    { Name: "Fetch Data", Route: "/fetch-data" },
+    { Name: "Login", Route: "/login" },
+  ];
 
-  render() {
-    const { dropdownOpen } = this.state;
-    // TODO: use the app routes here
-    const items = [
-      { Name: "Search", Route: "/search" },
-      { Name: "Queue", Route: "/queue" },
-      { Name: "Fetch Data", Route: "/fetch-data" },
-      { Name: "Login", Route: "/login" },
-    ];
-
-    return (
-      <div className="nav-dropdown">
-        <Dropdown isOpen={dropdownOpen} toggle={this.toggle}>
-          <DropdownToggle caret={false} onClick={this.toggle}>
-            <span className="material-symbols-outlined">menu</span>
-          </DropdownToggle>
-          <DropdownMenu>
-            {items.map((item, index) => (
-              <DropdownItem key={index}>
-                <NavItem>
-                  <NavLink
-                    tag={Link}
-                    className="dropdown-text-light"
-                    to={item.Route}
-                  >
-                    {item.Name}
-                  </NavLink>
-                </NavItem>
-              </DropdownItem>
-            ))}
-          </DropdownMenu>
-        </Dropdown>
-      </div>
-    );
-  }
+  return (
+    <div className="nav-dropdown">
+      <Dropdown isOpen={dropdownOpen} toggle={toggle}>
+        <DropdownToggle
+          caret={false}
+          onClick={toggle}
+          className="dropdown-toggle-btn"
+        >
+          <span className="material-symbols-outlined">menu</span>
+        </DropdownToggle>
+        <DropdownMenu className="dropdown-menu-custom">
+          {items.map((item, index) => (
+            <DropdownItem key={index} className="dropdown-item-custom">
+              <NavItem>
+                <NavLink
+                  tag={Link}
+                  className="dropdown-text-light"
+                  to={item.Route}
+                >
+                  {item.Name}
+                </NavLink>
+              </NavItem>
+            </DropdownItem>
+          ))}
+        </DropdownMenu>
+      </Dropdown>
+    </div>
+  );
 }

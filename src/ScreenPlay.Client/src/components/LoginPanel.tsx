@@ -1,13 +1,13 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import LoginForm from "../components/LoginForm";
-import SignUpForm from "../components/SignUpForm";
+import LoginForm from "./LoginForm";
+import SignUpForm from "./SignUpForm";
 import { LoginSchema, LoginRequest } from "../types/auth";
 import { ZodFormattedError } from "zod";
-import { useAuth } from "../components/AuthProvider";
+import { useAuth } from "./AuthProvider";
 import { AuthContextProps } from "../types/auth";
-import LoadingOverlay from "../components/LoadingOverlay";
+import LoadingOverlay from "./LoadingOverlay";
 
 import "./LoginPanel.css";
 

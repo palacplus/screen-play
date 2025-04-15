@@ -1,0 +1,99 @@
+/* Library Shelf Container */
+.library-shelf {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  padding: 1rem;
+  background-color: #1c1917; /* Dark background for the shelf */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Empty Library Message */
+.empty-library-message {
+  color: white;
+  text-align: center;
+  font-size: 1.2rem;
+  margin: 1rem 0;
+}
+
+/* Library Shelf Row Container */
+.library-shelf-row-container {
+  position: relative; /* Ensure scroll buttons are positioned relative to this container */
+  overflow: visible; /* Allow scroll buttons to be visible outside the container */
+}
+
+/* Genre Label */
+.genre-label {
+  position: absolute;
+  top: -1.5rem;
+  left: 1rem;
+  color: white;
+  font-size: 1.2rem;
+  font-weight: bold;
+}
+
+/* Library Shelf Row */
+.library-shelf-row {
+  display: flex;
+  flex-wrap: nowrap; /* Prevent wrapping of items */
+  overflow-x: hidden; /* Enable horizontal scrolling */
+  scroll-behavior: smooth; /* Smooth scrolling for button clicks */
+  gap: 1rem; /* Space between posters */
+  padding: 1rem 0;
+  justify-content: flex-start; /* Align items to the start of the row */
+  align-items: center; /* Vertically center posters */
+  min-width: 0; /* Prevent content from overflowing */
+  width: 100%; /* Ensure the row takes up the full width of the container */
+  box-sizing: border-box; /* Include padding and border in width calculations */
+  scrollbar-width: none; /* Hide scrollbar for Firefox */
+}
+
+.library-shelf-row::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome, Safari, and Edge */
+}
+
+/* Library Shelf Poster */
+.library-shelf-poster {
+  flex: 0 0 auto; /* Prevent shrinking */
+  width: 150px; /* Fixed width for posters */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Scroll Buttons */
+.scroll-buttons {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.scroll-button {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  background-color: rgba(0, 0, 0, 0.5);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 2rem;
+  height: 2rem;
+  cursor: pointer;
+  z-index: 10; /* Ensure buttons are above other elements */
+  display: flex; /* Ensure buttons are visible */
+  justify-content: center;
+  align-items: center;
+}
+
+.scroll-button.left {
+  left: -1rem; /* Position the left button slightly outside the container */
+}
+
+.scroll-button.right {
+  right: -1rem; /* Position the right button slightly outside the container */
+}
+
+.scroll-button:hover {
+  background-color: rgba(0, 0, 0, 0.8);
+}

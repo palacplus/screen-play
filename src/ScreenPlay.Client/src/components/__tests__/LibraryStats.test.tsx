@@ -1,8 +1,8 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import LibraryMetrics from "../LibraryMetrics";
+import LibraryStats from "../LibraryStats";
 
-describe("LibraryMetrics Component", () => {
+describe("LibraryStats Component", () => {
   const metrics = {
     totalMovies: 100,
     activeUsers: 50,
@@ -12,7 +12,7 @@ describe("LibraryMetrics Component", () => {
   };
 
   test("renders all metrics", () => {
-    render(<LibraryMetrics {...metrics} />);
+    render(<LibraryStats {...metrics} />);
     expect(screen.getByText("100")).toBeInTheDocument();
     expect(screen.getByText("Total Movies")).toBeInTheDocument();
     expect(screen.getByText("50")).toBeInTheDocument();
@@ -21,7 +21,7 @@ describe("LibraryMetrics Component", () => {
   });
 
   test("renders the top 3 titles", () => {
-    render(<LibraryMetrics {...metrics} />);
+    render(<LibraryStats {...metrics} />);
     metrics.topTitles.forEach((title) => {
       expect(screen.getByText(title)).toBeInTheDocument();
     });

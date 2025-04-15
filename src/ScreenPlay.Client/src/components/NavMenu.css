@@ -23,130 +23,129 @@ html {
 
 @import url("https://fonts.googleapis.com/css2?family=Paytone+One&family=Rubik+Glitch&display=swap");
 
-/* Navbar styles */
-.navbar-expand-sm {
-  background-color: inherit; /* Inherit the background color from the body */
-  border-bottom: 1px solid #ddd;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-/* Body styles (if not already defined) */
-body {
-  background-color: #f8f9fa; /* Example body background color */
-}
-
-/* Nav title */
-.nav-title {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #333;
-  text-decoration: none;
-}
-
-.nav-title img {
-  width: 150px; /* Adjust the width */
-  height: auto; /* Maintain aspect ratio */
-  margin-top: -35px; /* Adjust vertical alignment if needed */
-}
-
-/* Nav item container */
-.nav-item-container {
+header {
   display: flex;
+  justify-content: center;
   align-items: center;
+  width: 100%;
+  background-color: inherit;
+  padding: 10px 0;
+}
+
+.navbar-expand-sm {
+  width: 90%;
+  max-width: 90vw;
+  background-color: inherit;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+}
+
+body {
+  background-color: #f8f9fa;
 }
 
 .navbar-nav {
   display: flex;
   align-items: center;
-  justify-content: right;
-  gap: 10px;
+  justify-content: flex-end;
+  gap: 20px;
   width: 100%;
 }
 
-/* View Library Button */
-.view-library-btn {
+.nav-item-container {
+  display: flex;
+  align-items: center;
+}
+
+.nav-title img {
+  max-height: 100%;
+  height: 4.5em;
+  width: auto;
+}
+
+.nav-item-logo {
+  margin-right: auto;
+}
+
+.nav-btn {
   margin-right: 10px;
-  color: white;
-  background-color: #ff8700;
-  padding: 8px 12px; /* Reduced padding */
-  border-radius: 6px; /* Slightly smaller border radius */
+  color: #ff8700;
+  padding: 8px 12px;
+  border-radius: 6px;
   text-decoration: none;
   font-weight: bold;
-  font-size: 0.9rem; /* Reduced font size */
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Slightly smaller shadow */
+  font-size: 0.9rem;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
   border: none;
-  transition: transform 0.2s, box-shadow 0.2s;
+  transition: transform 0.1s, box-shadow 0.2s;
 }
 
-.view-library-btn:hover,
-.view-library-btn:active {
-  transform: scale(1.05);
+.nav-btn:hover,
+.nav-btn:active {
+  transform: scale(1.01);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  background-color: #ff8700; /* Ensure the background color stays the same */
+  background-color: #ff8700;
 }
 
-/* Search Container */
 .search-container {
   display: flex;
   align-items: center;
   background-color: white;
-  border-radius: 6px; /* Match the border radius of the View Library button */
-  overflow: hidden; /* Ensure the button and input are visually connected */
-  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  height: 38px; /* Match the height of the View Library button */
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  height: 38px;
 }
 
-/* Search Input */
 .search-input {
+  background-color: #eee;
   border: none;
   box-shadow: none;
-  padding: 5px 10px; /* Reduced padding */
-  width: 150px; /* Adjust width to make it smaller */
-  color: #333; /* Regular text color */
-  outline: none; /* Remove focus outline */
-  font-size: 0.9rem; /* Match font size with the button */
+  padding: 5px 10px;
+  width: 150px;
+  color: #333;
+  outline: none;
+  font-size: 0.9rem;
 }
 
-/* Placeholder styling for the search input */
 .search-input::placeholder {
-  color: #aaa; /* Grey color for placeholder text */
-  font-size: 0.9rem; /* Match font size with the input text */
+  color: #aaa;
+  font-size: 0.9rem;
 }
 
-/* Search Button */
 .search-btn {
   color: white;
   background-color: #ff8700;
-  padding: 5px 10px; /* Reduced padding to match the input */
+  padding: 5px 10px;
   border: none;
   font-weight: bold;
-  font-size: 0.9rem; /* Match font size with the input */
+  font-size: 0.9rem;
   cursor: pointer;
   transition: transform 0.2s, box-shadow 0.2s;
-  border-radius: 0; /* Remove individual border radius */
+  border-radius: 0;
 }
 
 .search-btn:hover,
 .search-btn:active {
   transform: scale(1.05);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  background-color: #ff8700; /* Ensure the background color stays the same */
+  background-color: #ff8700;
 }
 
-/* Search Button Icon */
 .search-btn .material-symbols-outlined {
-  color: white; /* Default color for the icon */
+  color: white;
 }
 
 .search-btn:hover .material-symbols-outlined,
 .search-btn:active .material-symbols-outlined {
-  color: white; /* Ensure the icon color stays the same on hover and click */
+  color: white;
 }
 
 .logo-image {
-  height: 12vh; /* Adjust height as needed */
-  width: auto; /* Maintain aspect ratio */
-  display: block; /* Ensure the image is displayed as a block element */
+  height: 12vh;
+  width: auto;
+  display: block;
 }
 
 .material-symbols-outlined {
@@ -154,34 +153,4 @@ body {
   font-size: 28px;
   margin-top: 0%;
   pointer-events: none;
-}
-
-.nav-dropdown .btn {
-  background-color: #1c1917;
-  border: none;
-}
-
-.nav-dropdown .btn:focus {
-  border: solid 0px #1c1917;
-  border-bottom: none;
-  background-color: #343d4d;
-  box-shadow: none;
-  box-shadow: 0 0 0 1px black;
-}
-
-.nav-dropdown .dropdown-menu {
-  background-color: #2c313a;
-  border: 1px black;
-  box-shadow: 0 0 0 1px black;
-}
-.nav-dropdown .dropdown-item:hover {
-  background-color: #343d4d;
-}
-
-.dropdown-text-light {
-  color: white;
-}
-
-.dropdown-text-light:hover {
-  color: white;
 }

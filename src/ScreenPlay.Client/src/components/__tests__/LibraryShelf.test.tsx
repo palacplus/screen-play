@@ -1,6 +1,6 @@
 import "@testing-library/jest-dom";
 import { render, screen } from "@testing-library/react";
-import LibraryShelf from "../LibrayShelf";
+import LibraryShelf from "../LibraryShelf";
 
 describe("LibraryShelf Component", () => {
   const posters = [

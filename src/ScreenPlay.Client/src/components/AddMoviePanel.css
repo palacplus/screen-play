@@ -1,0 +1,102 @@
+/* Add Movie Panel */
+.add-movie-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  width: 100%;
+  max-width: 100rem;
+  margin: 0 auto;
+  overflow: visible; /* Allow the panel to grow to fit its content */
+}
+
+/* Search Container */
+.new-search-container {
+  display: flex;
+  gap: 10px;
+  box-shadow: none;
+}
+
+.search-input {
+  flex: 1;
+  /* padding: 10px; */
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}
+
+.search-button {
+  padding: 10px 15px;
+  background-color: #ff8700;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.search-button:hover {
+  background-color: #e76e00;
+}
+
+/* Error Message */
+.error-message {
+  color: red;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+/* Movie Details */
+.movie-details {
+  display: flex;
+  flex-direction: row; /* Arrange content horizontally */
+  align-items: center; /* Align items vertically */
+  gap: 1rem; /* Add spacing between the poster and the text/buttons */
+  width: 100%;
+  padding: 1rem;
+  padding-top: 0;
+}
+
+/* Movie Poster */
+.movie-poster {
+  width: 50%; /* Reduce the width to make the image smaller */
+  max-width: 150px; /* Ensure the image doesn't exceed this size */
+  height: auto; /* Maintain aspect ratio */
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Movie Info */
+.movie-info {
+  flex: 1; /* Allow the text and buttons to take up the remaining space */
+  text-align: left; /* Align text to the left */
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem; /* Add spacing between text and buttons */
+}
+
+.add-button,
+.cancel-button {
+  padding: 8px 12px;
+  margin: 5px 0; /* Add vertical spacing between buttons */
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+.add-button {
+  background-color: #28a745;
+  color: white;
+}
+
+.add-button:hover {
+  background-color: #218838;
+}
+
+.cancel-button {
+  background-color: #dc3545;
+  color: white;
+}
+
+.cancel-button:hover {
+  background-color: #c82333;
+}

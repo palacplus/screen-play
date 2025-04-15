@@ -1,14 +1,12 @@
 import { useState } from "react";
 import Popup from "./Popup";
+import { Movie } from "@/types/library";
 
-export interface PosterProps {
-  imageUrl: string;
-  title: string;
-  description: string;
-  addedDate: string; // ISO date string (e.g., "2025-04-01")
+interface PosterProps {
+  movie: Movie;
 }
 
-export default function Poster({ imageUrl, title, description, addedDate }: PosterProps) {
+export default function Poster({ movie }: PosterProps) {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const togglePopup = () => {
@@ -18,10 +16,9 @@ export default function Poster({ imageUrl, title, description, addedDate }: Post
   // Calculate if the poster was added within the last 2 weeks
   const isRecentlyAdded = (() => {
     const now = new Date();
-    const added = new Date(addedDate);
     const twoWeeksAgo = new Date();
     twoWeeksAgo.setDate(now.getDate() - 14);
-    return added >= twoWeeksAgo;
+    return movie.addedDate >= twoWeeksAgo;
   })();
 
   return (
@@ -50,8 +47,8 @@ export default function Poster({ imageUrl, title, description, addedDate }: Post
 
       {/* Movie Cover Image */}
       <img
-        src={imageUrl}
-        alt={title}
+        src={movie.poster}
+        alt={movie.title}
         style={{
           width: "200px",
           height: "300px",
@@ -66,9 +63,9 @@ export default function Poster({ imageUrl, title, description, addedDate }: Post
       {/* Popup */}
       {isPopupVisible && (
         <Popup
-          imageUrl={imageUrl}
-          title={title}
-          description={description}
+          imageUrl={movie.poster}
+          title={movie.title}
+          description={movie.description}
           onClose={togglePopup}
         />
       )}

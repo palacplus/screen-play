@@ -3,7 +3,7 @@ import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from "
 import { Link, useNavigate } from "react-router-dom";
 import LogoImage from "./Logo";
 import "./NavMenu.css";
-import { NavDropdownMenu } from "./NavDropdownMenu";
+import NavDropdownMenu from "./NavDropdownMenu";
 
 export default function NavMenu() {
   const [collapsed, setCollapsed] = useState(true);
@@ -14,7 +14,8 @@ export default function NavMenu() {
     setCollapsed(!collapsed);
   };
 
-  const handleSearch = () => {
+  const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     if (searchQuery.trim()) {
       navigate(`/library?title=${encodeURIComponent(searchQuery)}`);
     } else {
@@ -24,21 +25,27 @@ export default function NavMenu() {
 
   return (
     <header>
-      <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container light>
-        <NavbarBrand tag={Link} to="/home" className="nav-title">
-          <LogoImage />
-        </NavbarBrand>
+      <Navbar className="navbar-expand-sm navbar-toggleable-sm ng-white border-bottom box-shadow mb-3" container={false} light={true}>
+        {/* NavbarBrand on the very left */}
         <NavbarToggler onClick={toggleNavbar} className="mr-2" />
         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
           <ul className="navbar-nav flex-grow align-items-center">
-            <NavItem className="nav-item-container">
-              {/* Go to Library Link */}
-              <NavLink tag={Link} to="/library" className="btn view-library-btn">
-                View Library
-              </NavLink>
+            <NavItem className="nav-item-logo">
+              <NavbarBrand tag={Link} to="/home" className="nav-title">
+                <LogoImage />
+              </NavbarBrand>
+            </NavItem>
 
-              {/* Search Text Box with Button */}
-              <div className="search-container">
+            {/* Go to Library Link */}
+            <NavItem className="nav-item-container">
+              <NavLink tag={Link} to="/library" className="btn nav-btn">
+                Movie Library
+              </NavLink>
+            </NavItem>
+
+            {/* Search Form */}
+            <NavItem className="nav-item-container">
+              <form className="search-container" onSubmit={handleSearchSubmit}>
                 <input
                   type="text"
                   placeholder="Search library..."
@@ -46,11 +53,10 @@ export default function NavMenu() {
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
-                <button className="btn search-btn" onClick={handleSearch}>
-                  <span className="material-symbols-outlined">video_search</span>
-                </button>
-              </div>
+              </form>
             </NavItem>
+
+            {/* Dropdown Menu */}
             <NavDropdownMenu />
           </ul>
         </Collapse>
