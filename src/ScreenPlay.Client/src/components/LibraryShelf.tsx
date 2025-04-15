@@ -1,6 +1,7 @@
+import { memo, useMemo, useRef, useEffect, useState } from "react";
+import Popup from "./Popup"; // Import the Popup component
 import { Movie } from "@/types/library";
 import Poster from "./Poster";
-import { memo, useMemo, useRef, useEffect, useState } from "react";
 import "./LibraryShelf.css";
 
 interface LibraryShelfProps {
@@ -12,9 +13,10 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
   const [overflowStates, setOverflowStates] = useState<{
     [genre: string]: { left: boolean; right: boolean };
   }>({});
+  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null); // State to track the selected movie
 
   // Group posters by the first genre
-  const groupedPosters = useMemo(() => {
+  const groupByGenre = useMemo(() => {
     const genreMap: { [genre: string]: Movie[] } = {};
     posters.forEach((movie) => {
       const firstGenre = movie.genre?.split(", ")[0]; // Use only the first genre
@@ -29,7 +31,7 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
   }, [posters]);
 
   // Create refs for each genre row
-  Object.keys(groupedPosters).forEach((genre) => {
+  Object.keys(groupByGenre).forEach((genre) => {
     if (!rowRefs.current[genre]) {
       rowRefs.current[genre] = null; // Initialize ref for each genre
     }
@@ -39,7 +41,7 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
   useEffect(() => {
     const updateOverflowStates = () => {
       const newOverflowStates: { [genre: string]: { left: boolean; right: boolean } } = {};
-      Object.keys(groupedPosters).forEach((genre) => {
+      Object.keys(groupByGenre).forEach((genre) => {
         const rowRef = rowRefs.current[genre];
         if (rowRef) {
           const { scrollLeft, scrollWidth, clientWidth } = rowRef;
@@ -59,18 +61,17 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
 
     updateOverflowStates();
 
-
     window.addEventListener("resize", updateOverflowStates);
     return () => {
       window.removeEventListener("resize", updateOverflowStates);
     };
-  }, [groupedPosters]);
+  }, [groupByGenre]);
 
   // Scroll row functionality
   const scrollRow = (genre: string, direction: "left" | "right") => {
     const rowRef = rowRefs.current[genre];
     if (rowRef) {
-      const scrollAmount = direction === "left" ? -200 : 200; // Adjust scroll amount as needed
+      const scrollAmount = direction === "left" ? -175 : 175; // Adjust scroll amount as needed
       rowRef.scrollBy({ left: scrollAmount, behavior: "smooth" });
 
       // Update overflow states after scrolling
@@ -89,7 +90,7 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
 
   return (
     <div className="library-shelf">
-      {Object.entries(groupedPosters).map(([genre, movies], genreIndex) => (
+      {Object.entries(groupByGenre).map(([genre, movies], genreIndex) => (
         <div key={genreIndex} className="library-shelf-row-container">
           {/* Genre Label */}
           <h3 className="genre-label">{genre}</h3>
@@ -109,7 +110,11 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
               }}
             >
               {movies.map((movie, index) => (
-                <div key={index} className="library-shelf-poster">
+                <div
+                  key={index}
+                  className="library-shelf-poster"
+                  onClick={() => setSelectedMovie(movie)} // Open popup on click
+                >
                   <MemoizedPoster movie={movie} />
                 </div>
               ))}
@@ -125,6 +130,15 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
           </div>
         </div>
       ))}
+
+      {/* Popup for Selected Movie */}
+      {selectedMovie && (
+        <Popup
+          movie={selectedMovie}
+          onClose={() => setSelectedMovie(null)} // Close popup
+        />
+      )}
+
       {posters.length === 0 && (
         <p className="empty-library-message">Oops! This library is empty.</p>
       )}

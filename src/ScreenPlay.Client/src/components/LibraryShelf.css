@@ -20,7 +20,7 @@
 /* Library Shelf Row Container */
 .library-shelf-row-container {
   position: relative; /* Ensure scroll buttons are positioned relative to this container */
-  overflow: visible; /* Allow scroll buttons to be visible outside the container */
+  overflow: visible;
 }
 
 /* Genre Label */
@@ -37,16 +37,35 @@
 .library-shelf-row {
   display: flex;
   flex-wrap: nowrap; /* Prevent wrapping of items */
-  overflow-x: hidden; /* Enable horizontal scrolling */
+  overflow-x: hidden;
+  overflow-y: hidden;
   scroll-behavior: smooth; /* Smooth scrolling for button clicks */
-  gap: 1rem; /* Space between posters */
-  padding: 1rem 0;
+  gap: 1.5rem; /* Space between posters */
   justify-content: flex-start; /* Align items to the start of the row */
   align-items: center; /* Vertically center posters */
   min-width: 0; /* Prevent content from overflowing */
   width: 100%; /* Ensure the row takes up the full width of the container */
   box-sizing: border-box; /* Include padding and border in width calculations */
   scrollbar-width: none; /* Hide scrollbar for Firefox */
+  width: 1260px;
+  padding-top: 2%;
+  padding-left: 2%;
+  padding-bottom: 2%;
+  position: relative; /* Ensure the shadow is positioned correctly */
+  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.3); /* Add shadow to the bottom of the row */
+  border-radius: 8px; /* Optional: Add rounded corners to the row */
+  background-color: #1c1917; /* Optional: Add a subtle background color for the shelf */
+}
+
+.library-shelf-row::after {
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 0;
+  width: 100%;
+  height: 10px;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
+  z-index: -1; /* Ensure the shadow appears behind the row */
 }
 
 .library-shelf-row::-webkit-scrollbar {
@@ -59,7 +78,13 @@
   width: 150px; /* Fixed width for posters */
   height: auto; /* Maintain aspect ratio */
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Increased shadow for posters */
+  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth animation for hover effect */
+}
+
+.library-shelf-poster:hover {
+  transform: translate(-10%, -5%); /* Move up and to the left */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6); /* Add a more prominent shadow on hover */
 }
 
 /* Scroll Buttons */
@@ -87,11 +112,11 @@
 }
 
 .scroll-button.left {
-  left: -1rem; /* Position the left button slightly outside the container */
+  left: -1.8rem; /* Position the left button slightly outside the container */
 }
 
 .scroll-button.right {
-  right: -1rem; /* Position the right button slightly outside the container */
+  right: -1.8rem; /* Position the right button slightly outside the container */
 }
 
 .scroll-button:hover {

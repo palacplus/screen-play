@@ -7,12 +7,6 @@ interface PosterProps {
 }
 
 export default function Poster({ movie }: PosterProps) {
-  const [isPopupVisible, setIsPopupVisible] = useState(false);
-
-  const togglePopup = () => {
-    setIsPopupVisible(!isPopupVisible);
-  };
-
   // Calculate if the poster was added within the last 2 weeks
   const isRecentlyAdded = (() => {
     const now = new Date();
@@ -57,18 +51,7 @@ export default function Poster({ movie }: PosterProps) {
           border: "3px solid #007bff",
           boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
         }}
-        onClick={togglePopup}
       />
-
-      {/* Popup */}
-      {isPopupVisible && (
-        <Popup
-          imageUrl={movie.poster}
-          title={movie.title}
-          description={movie.description}
-          onClose={togglePopup}
-        />
-      )}
     </div>
   );
 }

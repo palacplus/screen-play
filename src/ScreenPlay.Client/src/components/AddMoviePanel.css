@@ -4,42 +4,60 @@
   flex-direction: column;
   gap: 1rem;
   width: 100%;
-  max-width: 100rem;
+  max-width: 600px; /* Limit the width for a card-like design */
   margin: 0 auto;
-  overflow: visible; /* Allow the panel to grow to fit its content */
+  background-color: #1e293b; /* Dark slate background */
+  border-radius: 16px; /* Rounded corners */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Strong shadow for depth */
+  padding: 2rem;
+  color: #f1f5f9; /* Light text color for contrast */
+  overflow: hidden; /* Hide content during transitions */
+  min-height: 15rem; /* Increased minimum height */
+  transition: max-height 0.5s ease; /* Smooth expansion */
+}
+
+.add-movie-panel.expanded {
+  max-height: 100rem; /* Large enough to fit the expanded content */
 }
 
 /* Search Container */
 .new-search-container {
   display: flex;
   gap: 10px;
-  box-shadow: none;
 }
 
 .search-input {
   flex: 1;
-  /* padding: 10px; */
-  border: 1px solid #ddd;
-  border-radius: 4px;
+  padding: 10px;
+  border: 1px solid #94a3b8; /* Muted border color */
+  border-radius: 8px;
+  background-color: #334155; /* Darker input background */
+  color: #f1f5f9; /* Light text color */
+}
+
+.search-input::placeholder {
+  color: #94a3b8; /* Muted placeholder color */
 }
 
 .search-button {
   padding: 10px 15px;
-  background-color: #ff8700;
-  color: white;
+  background-color: #fbbf24; /* Accent color */
+  color: #1e293b; /* Dark text for contrast */
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .search-button:hover {
-  background-color: #e76e00;
+  background-color: #ffcc00; /* Lighter accent color on hover */
+  transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
 /* Error Message */
 .error-message {
-  color: red;
+  color: #ef4444; /* Red for errors */
   font-size: 0.9rem;
   text-align: center;
 }
@@ -61,7 +79,7 @@
   max-width: 150px; /* Ensure the image doesn't exceed this size */
   height: auto; /* Maintain aspect ratio */
   border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for the image */
 }
 
 /* Movie Info */
@@ -75,28 +93,31 @@
 
 .add-button,
 .cancel-button {
-  padding: 8px 12px;
+  padding: 10px 15px;
   margin: 5px 0; /* Add vertical spacing between buttons */
   border: none;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.2s ease;
 }
 
 .add-button {
-  background-color: #28a745;
+  background-color: #22c55e; /* Green for add */
   color: white;
 }
 
 .add-button:hover {
-  background-color: #218838;
+  background-color: #16a34a; /* Darker green on hover */
+  transform: scale(1.05); /* Slightly enlarge on hover */
 }
 
 .cancel-button {
-  background-color: #dc3545;
+  background-color: #ef4444; /* Red for cancel */
   color: white;
 }
 
 .cancel-button:hover {
-  background-color: #c82333;
+  background-color: #dc2626; /* Darker red on hover */
+  transform: scale(1.05); /* Slightly enlarge on hover */
 }

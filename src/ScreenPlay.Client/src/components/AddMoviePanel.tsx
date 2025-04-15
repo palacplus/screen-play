@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./AddMoviePanel.css";
 import { Movie } from "../types/library";
@@ -13,6 +13,7 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
   const [movie, setMovie] = useState<Movie | null>(null);
   const [error, setError] = useState<String | null>(null);
   const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) {
@@ -49,10 +50,11 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
           imdbRating: Number(response.data.imdbRating),
           imdbVotes: Number(response.data.imdbVotes.split(",").join("")),
           imdbID: response.data.imdbID,
-          boxOffice: response.data.boxOffice,
+          boxOffice: response.data.BoxOffice,
           addedDate: new Date(),
         });
         setError("");
+        setExpanded(true);
       } else {
         setError("Movie not found. Please try again.");
         setMovie(null);
@@ -76,15 +78,15 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
     setMovie(null);
     setSearchQuery("");
     setError(null);
+    setExpanded(false);
   };
 
   return (
-    <div className="shared-container add-movie-panel">
+    <div 
+    className={`add-movie-panel ${expanded ? "expanded" : ""}`}>
     <LoadingOverlay isLoading={loading} />
-      <div className="shared-header">
         <h3>Add a Movie</h3>
-      </div>
-      <div className="shared-body new-search-container">
+      <div className="new-search-container">
         <input
           type="text"
           placeholder="Search for a movie..."

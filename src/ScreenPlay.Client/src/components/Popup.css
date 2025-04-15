@@ -1,0 +1,292 @@
+/* Backdrop */
+.popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.7); /* Darker transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+/* Popup Content */
+.popup-content {
+  position: relative;
+  background-color: #1e293b; /* Dark slate background for a modern look */
+  padding: 2rem;
+  border-radius: 16px; /* Rounded corners for a card-like design */
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.5); /* Stronger shadow for depth */
+  max-width: 600px;
+  width: 90%;
+  text-align: center;
+  animation: popup-fade-in 0.3s ease-out; /* Animation for popup */
+  color: #f1f5f9; /* Light text color for contrast */
+}
+
+/* Animation for Popup */
+@keyframes popup-fade-in {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Close Button */
+.popup-close-btn {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  background-color: transparent;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #f1f5f9; /* Light color for contrast */
+  transition: color 0.2s ease;
+}
+
+.popup-close-btn:hover {
+  color: #ffcc00; /* Highlight color on hover */
+}
+
+/* Report Button */
+.popup-report-btn {
+  position: absolute;
+  top: 1rem;
+  right: 4rem;
+  background-color: #f87171; /* Red for attention */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.popup-report-btn:hover {
+  background-color: #ef4444; /* Darker red on hover */
+  transform: scale(1.05);
+}
+
+/* Popup Header */
+.popup-header {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.popup-image {
+  width: 120px;
+  height: 180px;
+  border-radius: 8px;
+  object-fit: cover;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); /* Subtle shadow for the image */
+}
+
+.popup-header-details {
+  text-align: left;
+}
+
+.popup-header-details h2 {
+  font-size: 1.5rem;
+  margin: 0;
+  color: #fbbf24; /* Accent color for the title */
+}
+
+.popup-genre {
+  font-size: 0.9rem;
+  color: #94a3b8; /* Muted text color for genre */
+}
+
+.popup-release-date,
+.popup-runtime {
+  font-size: 0.9rem;
+  color: #94a3b8; /* Muted text color */
+}
+
+/* Rated Field */
+.popup-rated .rated-icon {
+  display: inline-block;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  color: white;
+  background-color: #64748b; /* Default background */
+}
+
+.rated-pg {
+  background-color: #22c55e; /* Green for PG */
+}
+
+.rated-r {
+  background-color: #ef4444; /* Red for R */
+}
+
+.rated-pg13 {
+  background-color: #f59e0b; /* Orange for PG-13 */
+}
+
+/* Description */
+.popup-description {
+  margin: 1rem 0;
+  font-size: 1rem;
+  color: #e2e8f0; /* Light text color for readability */
+  line-height: 1.5;
+}
+
+/* Popup Body */
+.popup-body {
+  display: flex;
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.popup-description-section {
+  flex: 1;
+  text-align: left;
+}
+
+.popup-metadata {
+  flex: 1;
+  text-align: left;
+}
+
+/* Ratings Section */
+.popup-ratings {
+  margin-top: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.imdb-rating {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  color: #fbbf24; /* IMDb yellow */
+}
+
+.imdb-logo {
+  width: 40px;
+  height: auto;
+}
+
+.box-office {
+  font-size: 1rem;
+  color: #10b981; /* Green for box office value */
+}
+
+.box-office-value {
+  font-weight: bold;
+}
+
+/* Rating Section */
+.popup-rating {
+  margin-top: 1.5rem;
+}
+
+.popup-stars {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin: 0.5rem 0;
+}
+
+.popup-star {
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #64748b; /* Default muted star color */
+  transition: color 0.2s ease, transform 0.2s ease;
+}
+
+.popup-star.selected {
+  color: #fbbf24; /* Highlight selected stars with an accent color */
+}
+
+.popup-star:hover {
+  color: #ffcc00; /* Highlight stars on hover */
+  transform: scale(1.2); /* Slightly enlarge stars on hover */
+}
+
+.popup-rating-value {
+  font-size: 1rem;
+  color: #f1f5f9; /* Light text color for contrast */
+  margin-top: 0.5rem;
+}
+
+/* Button Styling */
+.popup-button {
+  background-color: #fbbf24; /* Accent color for buttons */
+  color: #1e293b; /* Dark text color for contrast */
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.popup-button:hover {
+  background-color: #ffcc00; /* Lighter accent color on hover */
+  transform: scale(1.05); /* Slightly enlarge button on hover */
+}
+
+/* Report Form */
+.popup-report-form {
+  text-align: center;
+}
+
+.popup-report-textarea {
+  width: 100%;
+  height: 100px;
+  margin: 1rem 0;
+  padding: 0.5rem;
+  border: 1px solid #94a3b8;
+  border-radius: 8px;
+  font-size: 1rem;
+  resize: none;
+}
+
+.popup-submit-btn {
+  background-color: #22c55e; /* Green for submit */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+  margin-right: 1rem;
+}
+
+.popup-submit-btn:disabled {
+  background-color: #94a3b8; /* Gray when disabled */
+  cursor: not-allowed;
+}
+
+.popup-cancel-btn {
+  background-color: #f87171; /* Red for cancel */
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+
+/* Confirmation Message */
+.popup-confirmation {
+  text-align: center;
+  font-size: 1.2rem;
+  color: #22c55e; /* Green for success */
+}

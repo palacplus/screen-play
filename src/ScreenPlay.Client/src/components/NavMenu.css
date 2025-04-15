@@ -80,12 +80,20 @@ body {
   border: none;
   transition: transform 0.1s, box-shadow 0.2s;
 }
-
-.nav-btn:hover,
-.nav-btn:active {
+.nav-btn:hover {
   transform: scale(1.01);
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
   background-color: #ff8700;
+}
+
+.nav-btn:focus {
+  color: #ff8700; /* Ensure text color is white when focused */
+  outline: none; /* Remove the default focus outline */
+}
+
+.nav-btn:focus:hover {
+  background-color: #ff8700; /* Ensure the button stays orange when both focused and hovered */
+  color: white; /* Ensure text color is white when both focused and hovered */
 }
 
 .search-container {
@@ -114,43 +122,8 @@ body {
   font-size: 0.9rem;
 }
 
-.search-btn {
-  color: white;
-  background-color: #ff8700;
-  padding: 5px 10px;
-  border: none;
-  font-weight: bold;
-  font-size: 0.9rem;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  border-radius: 0;
-}
-
-.search-btn:hover,
-.search-btn:active {
-  transform: scale(1.05);
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-  background-color: #ff8700;
-}
-
-.search-btn .material-symbols-outlined {
-  color: white;
-}
-
-.search-btn:hover .material-symbols-outlined,
-.search-btn:active .material-symbols-outlined {
-  color: white;
-}
-
 .logo-image {
   height: 12vh;
   width: auto;
   display: block;
-}
-
-.material-symbols-outlined {
-  font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 0, "opsz" 40;
-  font-size: 28px;
-  margin-top: 0%;
-  pointer-events: none;
 }

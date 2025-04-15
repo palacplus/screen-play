@@ -1,105 +1,150 @@
+import { Movie } from "@/types/library";
 import { useState } from "react";
+import "./Popup.css";
 
 interface PopupProps {
-  imageUrl: string;
-  title: string;
-  description: string;
+  movie: Movie;
   onClose: () => void;
 }
 
-export default function Popup({ imageUrl, title, description, onClose }: PopupProps) {
-  const [rating, setRating] = useState(0);
+export default function Popup({ movie, onClose }: PopupProps) {
+  const [rating, setRating] = useState<number | null>(null); // State for user rating
+  const [isReporting, setIsReporting] = useState(false); // State for toggling the report form
+  const [reportText, setReportText] = useState(""); // State for report input
+  const [showConfirmation, setShowConfirmation] = useState(false); // State for confirmation message
 
   const handleRating = (value: number) => {
     setRating(value);
   };
 
-  return (
-    <>
-      {/* Background Overlay */}
-      <div
-        onClick={onClose} // Close the popup when clicking outside
-        style={{
-          position: "fixed",
-          top: 0,
-          left: 0,
-          width: "100%",
-          height: "100%",
-          backgroundColor: "rgba(0, 0, 0, 0.5)", // Semi-transparent black
-          zIndex: 999,
-        }}
-      ></div>
+  const handleReportSubmit = () => {
+    setShowConfirmation(true);
+    setTimeout(() => {
+      setShowConfirmation(false);
+      setIsReporting(false);
+      setReportText("");
+    }, 2000); // Show confirmation for 2 seconds
+  };
 
-      {/* Popup Content */}
+  return (
+    <div
+      className="popup-backdrop"
+      onClick={onClose} // Close popup when clicking outside
+    >
       <div
-        style={{
-          position: "fixed", // Use fixed positioning for centering
-          top: "50%",
-          left: "50%",
-          transform: "translate(-50%, -50%)", // Center the popup
-          backgroundColor: "white",
-          padding: "1rem",
-          borderRadius: "8px",
-          boxShadow: "0 4px 8px rgba(0, 0, 0, 0.2)",
-          zIndex: 1000,
-          width: "500px",
-          display: "flex",
-          gap: "1rem",
-        }}
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the popup
+        className="popup-content animate-popup"
+        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
       >
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          style={{
-            position: "absolute",
-            top: "0.5rem",
-            right: "0.5rem",
-            backgroundColor: "transparent",
-            border: "none",
-            fontSize: "1.5rem",
-            cursor: "pointer",
-          }}
-        >
+        <button className="popup-close-btn" onClick={onClose}>
           &times;
         </button>
-
-        {/* Poster Image */}
-        <img
-          src={imageUrl}
-          alt={title}
-          style={{
-            width: "150px",
-            height: "225px",
-            borderRadius: "8px",
-            objectFit: "cover",
-          }}
-        />
-
-        {/* Title, Description, and Rating */}
-        <div style={{ flex: 1 }}>
-          <h2 style={{ margin: "0 0 1rem 0" }}>{title}</h2>
-          <p style={{ marginBottom: "1rem" }}>{description}</p>
-
-          {/* Interactive 5-Star Rating */}
-          <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-            {[1, 2, 3, 4, 5].map((star) => (
-              <span
-                key={star}
-                onClick={() => handleRating(star)}
-                style={{
-                  fontSize: "1.5rem",
-                  cursor: "pointer",
-                  color: star <= rating ? "#FFD700" : "#ccc", // Highlight selected stars
-                }}
-              >
-                ★
-              </span>
-            ))}
+        {!isReporting ? (
+          <>
+            <button
+              className="popup-report-btn"
+              onClick={() => setIsReporting(true)}
+            >
+              Report an Issue
+            </button>
+            <div className="popup-header">
+              <img className="popup-image" src={movie.poster} alt={movie.title} />
+              <div className="popup-header-details">
+                <h2>{movie.title}</h2>
+                <p className="popup-genre">{movie.genre}</p>
+                <p className="popup-release-date">Released: {movie.releaseDate}</p>
+                <p className="popup-runtime">Runtime: {movie.runtime}</p>
+                <div className="popup-rated">
+                  <span className={`rated-icon rated-${movie.rated?.toLowerCase()}`}>
+                    {movie.rated}
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div className="popup-body">
+              <div className="popup-description-section">
+                <h3>Description</h3>
+                <p className="popup-description">{movie.description}</p>
+              </div>
+              <div className="popup-metadata">
+                <p>
+                  <strong>Director:</strong> {movie.director}
+                </p>
+                <p>
+                  <strong>Writer:</strong> {movie.writer}
+                </p>
+                <p>
+                  <strong>Actors:</strong> {movie.actors?.join(", ")}
+                </p>
+                <p>
+                  <strong>Language:</strong> {movie.language}
+                </p>
+                <p>
+                  <strong>Country:</strong> {movie.country}
+                </p>
+                <p>
+                  <strong>Awards:</strong> {movie.awards}
+                </p>
+              </div>
+            </div>
+            <div className="popup-ratings">
+              <div className="imdb-rating">
+                <img
+                  src="/assets/imdb-logo.png"
+                  alt="IMDb"
+                  className="imdb-logo"
+                />
+                <span>{movie.imdbRating} / 10</span>
+              </div>
+              <div className="box-office">
+                <strong>Box Office:</strong>{" "}
+                <span className="box-office-value">{movie.boxOffice}</span>
+              </div>
+            </div>
+            <div className="popup-rating">
+              <h3>Rate this movie:</h3>
+              <div className="popup-stars">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <span
+                    key={star}
+                    onClick={() => handleRating(star)}
+                    className={`popup-star ${rating && star <= rating ? "selected" : ""}`}
+                  >
+                    ★
+                  </span>
+                ))}
+              </div>
+              {rating && <p className="popup-rating-value">You rated this {rating} / 5</p>}
+            </div>
+          </>
+        ) : showConfirmation ? (
+          <div className="popup-confirmation">
+            <p>Thank you for your report! We’ll review it shortly.</p>
           </div>
-          <p style={{ marginTop: "0.5rem" }}>Your Rating: {rating} / 5</p>
-        </div>
+        ) : (
+          <div className="popup-report-form">
+            <h3>Report an Issue</h3>
+            <textarea
+              className="popup-report-textarea"
+              value={reportText}
+              onChange={(e) => setReportText(e.target.value)}
+              placeholder="Describe the issue..."
+            ></textarea>
+            <button
+              className="popup-submit-btn"
+              onClick={handleReportSubmit}
+              disabled={!reportText.trim()}
+            >
+              Submit
+            </button>
+            <button
+              className="popup-cancel-btn"
+              onClick={() => setIsReporting(false)}
+            >
+              Cancel
+            </button>
+          </div>
+        )}
       </div>
-    </>
+    </div>
   );
 }
