@@ -94,7 +94,7 @@ export default function LoginPanel() {
   return (
     <div className="login" id="login-container">
       <LoadingOverlay isLoading={loading} />
-      <GoogleOAuthProvider clientId={process.env.REACT_APP_GOOGLE_CLIENT_ID || ""}>
+      <GoogleOAuthProvider clientId="1001545826720-tj9qj1r0uko12j8j5c0osfv9485vbgve">
         <SignUpForm
           data={formData}
           errors={formErrors}

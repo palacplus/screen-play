@@ -4,10 +4,10 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using ScreenPlay.Configuration;
-using ScreenPlay.Data;
-using ScreenPlay.Models;
-using ScreenPlay.Services;
+using ScreenPlay.Server.Configuration;
+using ScreenPlay.Server.Data;
+using ScreenPlay.Server.Models;
+using ScreenPlay.Server.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Configuration.AddEnvironmentVariables(prefix: "SP_");

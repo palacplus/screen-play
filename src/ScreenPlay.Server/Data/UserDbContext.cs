@@ -1,10 +1,10 @@
-﻿using ScreenPlay.Models;
+﻿using ScreenPlay.Server.Models;
 using Duende.IdentityServer.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 
-namespace ScreenPlay.Data;
+namespace ScreenPlay.Server.Data;
 
 public class UserDbContext : ApiAuthorizationDbContext<AppUser>
 {

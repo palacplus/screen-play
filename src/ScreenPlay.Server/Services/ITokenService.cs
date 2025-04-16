@@ -1,7 +1,7 @@
 using System.Security.Claims;
-using ScreenPlay.Models;
+using ScreenPlay.Server.Models;
 
-namespace ScreenPlay.Services
+namespace ScreenPlay.Server.Services
 {
     public interface ITokenService
     {

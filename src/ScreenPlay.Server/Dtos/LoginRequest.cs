@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 using Google.Apis.Auth;
 
-namespace ScreenPlay.Dtos;
+namespace ScreenPlay.Server.Dtos;
 
 public class LoginRequest
 {

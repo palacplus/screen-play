@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using ScreenPlay.Configuration;
-using ScreenPlay.Dtos;
-using ScreenPlay.Models;
-using ScreenPlay.Services;
+using ScreenPlay.Server.Configuration;
+using ScreenPlay.Server.Dtos;
+using ScreenPlay.Server.Models;
+using ScreenPlay.Server.Services;
 
-namespace ScreenPlay.Tests.Services;
+namespace ScreenPlay.Server.Tests.Services;
 
 public class AuthServiceTests
 {

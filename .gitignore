@@ -250,4 +250,4 @@ node_modules/
 appsettings.Development.json
 
 # React
-package-lock.json
+*package-lock.json

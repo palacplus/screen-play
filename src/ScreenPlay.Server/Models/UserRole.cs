@@ -1,4 +1,4 @@
-namespace ScreenPlay.Models;
+namespace ScreenPlay.Server.Models;
 
 public static class AppRole
 {

@@ -4,11 +4,11 @@ using System.Security.Cryptography;
 using System.Text;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using ScreenPlay.Configuration;
-using ScreenPlay.Data;
-using ScreenPlay.Models;
+using ScreenPlay.Server.Configuration;
+using ScreenPlay.Server.Data;
+using ScreenPlay.Server.Models;
 
-namespace ScreenPlay.Services;
+namespace ScreenPlay.Server.Services;
 
 public class TokenService : ITokenService
 {

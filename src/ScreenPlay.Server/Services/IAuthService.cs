@@ -1,8 +1,8 @@
 using Microsoft.AspNetCore.Identity;
-using ScreenPlay.Dtos;
-using ScreenPlay.Models;
+using ScreenPlay.Server.Dtos;
+using ScreenPlay.Server.Models;
 
-namespace ScreenPlay.Services
+namespace ScreenPlay.Server.Services
 {
     /// <summary>
     /// Registration Interface for add new user identities

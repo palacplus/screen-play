@@ -3,8 +3,8 @@
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>disable</Nullable>
-    <AssemblyName>ScreenPlay</AssemblyName>
-    <RootNamespace>ScreenPlay</RootNamespace>
+    <AssemblyName>ScreenPlay.Server</AssemblyName>
+    <RootNamespace>ScreenPlay.Server</RootNamespace>
     <TypeScriptCompileBlocked>true</TypeScriptCompileBlocked>
     <TypeScriptToolsVersion>Latest</TypeScriptToolsVersion>
     <IsPackable>false</IsPackable>

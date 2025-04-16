@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 
-namespace ScreenPlay.Models;
+namespace ScreenPlay.Server.Models;
 
 public class Movie
 {

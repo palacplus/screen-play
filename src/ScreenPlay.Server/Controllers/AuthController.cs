@@ -4,12 +4,12 @@ using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ScreenPlay.Configuration;
-using ScreenPlay.Dtos;
-using ScreenPlay.Models;
-using ScreenPlay.Services;
+using ScreenPlay.Server.Configuration;
+using ScreenPlay.Server.Dtos;
+using ScreenPlay.Server.Models;
+using ScreenPlay.Server.Services;
 
-namespace ScreenPlay.Controllers;
+namespace ScreenPlay.Server.Controllers;
 
 [Route("api/[controller]")]
 [ApiController]

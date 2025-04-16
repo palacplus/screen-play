@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
-using ScreenPlay.Models;
+using ScreenPlay.Server.Models;
 
-namespace ScreenPlay.Data;
+namespace ScreenPlay.Server.Data;
 
 public class AppDbContext : DbContext
 {

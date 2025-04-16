@@ -6,10 +6,10 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ScreenPlay.Data;
-using ScreenPlay.Models;
+using ScreenPlay.Server.Data;
+using ScreenPlay.Server.Models;
 
-namespace ScreenPlay.Controllers
+namespace ScreenPlay.Server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]

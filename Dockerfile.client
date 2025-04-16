@@ -1,0 +1,25 @@
+ARG PROJECT_NAME=ScreenPlay.Client
+
+# Build Stage
+FROM node:23-slim AS build
+ARG PROJECT_NAME
+
+WORKDIR /app
+COPY ./src/${PROJECT_NAME}/package*.json ./
+
+RUN npm install
+COPY ./src/${PROJECT_NAME} .
+RUN npm run build
+ 
+# Production Stage
+FROM nginx:stable-alpine AS runtime
+COPY --from=build /app/build /usr/share/nginx/html
+
+# Add an entrypoint to injext environment variables at runtime
+# COPY /deploy/env.sh /docker-entrypoint.d/env.sh
+# RUN chmod +x /docker-entrypoint.d/env.sh
+
+COPY /deploy/nginx.conf /etc/nginx/conf.d/default.conf
+
+EXPOSE 80
+CMD ["nginx", "-g", "daemon off;"]

@@ -24,7 +24,7 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
     try {
       const response = await axios.get("https://www.omdbapi.com/", {
         params: {
-          apikey: process.env.REACT_APP_OMDB_API_KEY,
+          apikey: "e11f806f",
           t: searchQuery,
         },
       });

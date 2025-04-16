@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ScreenPlay.Models;
+namespace ScreenPlay.Server.Models;
 
 public class TokenInfo
 {

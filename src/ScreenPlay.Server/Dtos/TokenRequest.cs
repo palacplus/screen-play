@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.Text.Json.Serialization;
 
-namespace ScreenPlay.Dtos;
+namespace ScreenPlay.Server.Dtos;
 /// <summary>
 /// Request model for refreshing tokens.
 /// </summary>

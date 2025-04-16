@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace ScreenPlay.Configuration;
+namespace ScreenPlay.Server.Configuration;
 
 public class AdminConfiguration
 {

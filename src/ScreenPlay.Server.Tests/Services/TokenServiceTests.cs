@@ -5,12 +5,12 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Duende.IdentityServer.EntityFramework.Options;
-using ScreenPlay.Configuration;
-using ScreenPlay.Data;
-using ScreenPlay.Models;
-using ScreenPlay.Services;
+using ScreenPlay.Server.Configuration;
+using ScreenPlay.Server.Data;
+using ScreenPlay.Server.Models;
+using ScreenPlay.Server.Services;
 
-namespace ScreenPlay.Tests.Services;
+namespace ScreenPlay.Server.Tests.Services;
 
 public class TokenServiceTests
 {

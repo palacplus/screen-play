@@ -2,13 +2,13 @@ using System.IdentityModel.Tokens.Jwt;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
-using ScreenPlay.Configuration;
-using ScreenPlay.Controllers;
-using ScreenPlay.Dtos;
-using ScreenPlay.Models;
-using ScreenPlay.Services;
+using ScreenPlay.Server.Configuration;
+using ScreenPlay.Server.Controllers;
+using ScreenPlay.Server.Dtos;
+using ScreenPlay.Server.Models;
+using ScreenPlay.Server.Services;
 
-namespace ScreenPlay.Tests.Controllers;
+namespace ScreenPlay.Server.Tests.Controllers;
 
 public class AuthControllerTests
 {

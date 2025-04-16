@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.AspNetCore.Mvc;
 
-namespace ScreenPlay.Controllers;
+namespace ScreenPlay.Server.Controllers;
 
 public class OidcConfigurationController : Controller
 {
