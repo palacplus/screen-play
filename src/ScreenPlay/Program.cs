@@ -108,8 +108,3 @@ app.MapRazorPages();
 app.MapFallbackToFile("index.html");
 
 app.Run();
-
-// foreach (var c in builder.Configuration.AsEnumerable())
-// {
-//     Console.WriteLine(c.Key + " = " + c.Value);
-// }
