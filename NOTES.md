@@ -16,6 +16,9 @@ dotnet ef migrations add [NameOfMigration] --context UserDbContext
 dotnet ef database update --context AppDbContext
 dotnet ef database update --context UserDbContext
 
+## Export Environment Variables
+export $(cat .env | xargs) && env
+
 
 ### KNOWN BUGS
 

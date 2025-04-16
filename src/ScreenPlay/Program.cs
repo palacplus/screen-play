@@ -10,6 +10,7 @@ using ScreenPlay.Models;
 using ScreenPlay.Services;
 
 var builder = WebApplication.CreateBuilder(args);
+builder.Configuration.AddEnvironmentVariables(prefix: "SP_");
 
 // Add services to the container.
 var connectionString =
@@ -107,3 +108,8 @@ app.MapRazorPages();
 app.MapFallbackToFile("index.html");
 
 app.Run();
+
+// foreach (var c in builder.Configuration.AsEnumerable())
+// {
+//     Console.WriteLine(c.Key + " = " + c.Value);
+// }

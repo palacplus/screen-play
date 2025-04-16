@@ -4,7 +4,7 @@ namespace ScreenPlay.Configuration;
 
 public class JwtConfiguration
 {
-    public const string ConfigSection = "Jwt";
+    public const string ConfigSection = "Authentication:Jwt";
 
     [Required]
     public string? Issuer { get; set; }

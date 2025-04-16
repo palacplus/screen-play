@@ -241,3 +241,10 @@ node_modules/
 /playwright-report/
 /blob-report/
 /playwright/.cache/
+
+# Environment
+.env
+.env.*
+
+## .NET Settings
+appsettings.Development.json
