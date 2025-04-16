@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ScreenPlay\ScreenPlay.csproj" />
+    <ProjectReference Include="..\ScreenPlay\ScreenPlay.Server.csproj" />
   </ItemGroup>
 
 </Project>
