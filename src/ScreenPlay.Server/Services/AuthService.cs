@@ -45,7 +45,7 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
-            _logger.LogError("No user exists with email: {email}", email);
+            _logger.LogWarning("No user exists with email: {email}", email);
             return null;
         }
         return user;
@@ -56,7 +56,7 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(email);
         if (user == null)
         {
-            _logger.LogError("No user exists with email: {email}", email);
+            _logger.LogWarning("No user exists with email: {email}", email);
             return false;
         }
         var result = await _userManager.DeleteAsync(user);

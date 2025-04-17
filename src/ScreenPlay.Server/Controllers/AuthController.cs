@@ -38,7 +38,6 @@ public class AuthController : ControllerBase
         var user = await _service.GetUserByEmailAsync(email);
         if (user == null)
         {
-            _logger.LogError("User not found {email}", email);
             return NotFound("User not found");
         }
         return Ok(user);
@@ -52,7 +51,6 @@ public class AuthController : ControllerBase
         var user = await _service.GetUserByEmailAsync(email);
         if (user == null)
         {
-            _logger.LogError("User not found {email}", email);
             return NotFound("User not found");
         }
         await _service.DeleteUserAsync(email);
