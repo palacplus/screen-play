@@ -4,10 +4,12 @@ import { Link, useNavigate } from "react-router-dom";
 import LogoImage from "./Logo";
 import "./NavMenu.css";
 import NavDropdownMenu from "./NavDropdownMenu";
+import LoadingOverlay from "./LoadingOverlay";
 
 export default function NavMenu() {
   const [collapsed, setCollapsed] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const toggleNavbar = () => {
@@ -16,11 +18,14 @@ export default function NavMenu() {
 
   const handleSearchSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setIsLoading(true);
     if (searchQuery.trim()) {
       navigate(`/library?title=${encodeURIComponent(searchQuery)}`);
     } else {
       navigate("/library");
     }
+    setSearchQuery("");
+    setIsLoading(false);
   };
 
   return (
@@ -45,7 +50,8 @@ export default function NavMenu() {
 
             {/* Search Form */}
             <NavItem className="nav-item-container">
-              <form className="search-container" onSubmit={handleSearchSubmit}>
+              <form className="search-container" onSubmit={handleSearchSubmit} aria-label="Search library">
+                <LoadingOverlay isLoading={false} />
                 <input
                   type="text"
                   placeholder="Search library..."

@@ -140,7 +140,7 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
       )}
 
       {posters.length === 0 && (
-        <p className="empty-library-message">Oops! This library is empty.</p>
+        <p className="empty-library-message">Not found.</p>
       )}
     </div>
   );

@@ -6,3 +6,6 @@ Dockerfile
 .gitignore
 .env
 *package-lock.json
+
+*__mocks__/
+*__tests__/

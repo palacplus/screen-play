@@ -4,8 +4,8 @@ import AddMoviePanel from "../components/AddMoviePanel";
 import { Movie } from "@/types/library";
 import LibraryShelf from "../components/LibraryShelf";
 import GitHubLink from "../components/GitHubLink";
-import LibraryStats from "../components/LibraryStats";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useSearchParams } from "react-router-dom";
 
 export default function LibraryPage() {
     const [posters, setPosters] = usePersistedState<Movie[]>("posters", []);
@@ -17,6 +17,7 @@ export default function LibraryPage() {
         topTitles: ["Inception", "Back To The Future", "Jurassic Park"],
     });
     const [isAddMovieOpen, setIsAddMovieOpen] = useState(false); // State to control popup visibility
+    const [searchParams] = useSearchParams(); // Hook to access query parameters
 
     const handleAddMovie = (movie: Movie) => {
         setPosters((prevPosters) => [...prevPosters, movie]);
@@ -36,6 +37,17 @@ export default function LibraryPage() {
             setIsAddMovieOpen(false);
         }
     };
+
+    const filteredPosters = useMemo(() => {
+        const title = searchParams.get("title")?.toLowerCase();
+        if (!title) {
+            return posters;
+        }
+        return posters.filter((poster) => {
+            const matchedTitle = title ? poster.title?.toLowerCase().includes(title) : true;
+            return matchedTitle;
+        });
+    }, [posters, searchParams]);
 
     return (
         <div className="page lib-page">
@@ -61,7 +73,8 @@ export default function LibraryPage() {
 
             <div className="main-content">
                 <div className="right-side">
-                    <LibraryShelf posters={posters} />
+                    {/* Pass filtered posters to LibraryShelf */}
+                    <LibraryShelf posters={filteredPosters} />
                 </div>
             </div>
             <GitHubLink />

@@ -4,7 +4,7 @@ export type Movie = {
     rated: string | null | undefined;
     releaseDate: string | null | undefined;
     runtime: string | null | undefined,
-    genre: string | null | undefined;
+    genre: string;
     director: string | null | undefined;
     writer: string | null | undefined;
     actors: string[] | null | undefined;

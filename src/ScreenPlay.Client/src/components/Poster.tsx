@@ -1,5 +1,3 @@
-import { useState } from "react";
-import Popup from "./Popup";
 import { Movie } from "@/types/library";
 
 interface PosterProps {

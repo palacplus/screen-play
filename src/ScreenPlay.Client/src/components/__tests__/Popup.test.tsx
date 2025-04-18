@@ -1,12 +1,39 @@
 import "@testing-library/jest-dom";
 import { render, screen, fireEvent } from "@testing-library/react";
 import Popup from "../Popup";
+import { Movie } from "@/types/library";
 
 describe("Popup Component", () => {
+    const movie: Movie = {
+      poster: "https://example.com/poster.jpg",
+      title: "Inception",
+      description: "A mind-bending thriller.",
+      addedDate: new Date("2025-04-01"),
+      releaseDate: "2010-07-16",
+      year: "2010",
+      rated: "PG-13",
+      runtime: "148 min",
+      genre: "Action, Adventure, Sci-Fi",
+      director: "Christopher Nolan",
+      writer: "Christopher Nolan",
+      actors: ["Leonardo DiCaprio", "Joseph Gordon-Levitt", "Elliot Page"],
+      language: "English",
+      country: "USA",
+      awards: "Oscar Nominated",
+      ratings: [
+        { source: "Internet Movie Database", value: "8.8/10" },
+        { source: "Rotten Tomatoes", value: "86%" },
+        { source: "Metacritic", value: "74/100" },
+      ],
+      metascore: 74,
+      imdbRating: 8.8,
+      imdbVotes: 2000000,
+      imdbID: "tt1375666",
+      boxOffice: "$836,836,967",
+    };
+
   const props = {
-    imageUrl: "https://example.com/poster.jpg",
-    title: "Inception",
-    description: "A mind-bending thriller.",
+    movie,
     onClose: jest.fn(),
   };
 

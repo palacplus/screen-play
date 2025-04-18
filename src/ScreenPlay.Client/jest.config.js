@@ -7,7 +7,10 @@ module.exports = {
   transform: {
     ".(ts|tsx)": "ts-jest"
   },
-
+  moduleNameMapper: {
+    "\\.(css|less)$": "<rootDir>/jest/__mocks__/styleMock.ts",
+    "\\.(svg|png|jpg|jpeg|gif)$": "<rootDir>/jest/__mocks__/fileMock.ts",
+  },
   coveragePathIgnorePatterns: [
     "/node_modules/",
     "/coverage",
