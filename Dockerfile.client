@@ -1,14 +1,14 @@
-ARG PROJECT_NAME=ScreenPlay.Client
+ARG PROJECT_NAME=frontend
 
 # Build Stage
 FROM node:23-slim AS build
 ARG PROJECT_NAME
 
 WORKDIR /app
-COPY ./src/${PROJECT_NAME}/package*.json ./
+COPY ./${PROJECT_NAME}/package*.json ./
 
 RUN npm install
-COPY ./src/${PROJECT_NAME} .
+COPY ./${PROJECT_NAME} .
 RUN npm run build
  
 # Production Stage

@@ -52,7 +52,7 @@ export default function LoginPanel() {
         }
         setFormErrors(null);
       } else {
-        console.log("Form data is invalid. Errors:", result.error.flatten());
+        console.error("Form data is invalid. Errors:", result.error.flatten());
         auth.setError(null);
         setFormErrors(result.error.format());
       }

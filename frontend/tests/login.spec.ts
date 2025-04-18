@@ -95,7 +95,6 @@ test.describe("Registration Form", () => {
           params : { email: testEmail },
       });
       const body = await response.text();
-      console.log("Delete user response: ", body);
       expect(response.ok()|| response.status() == 404).toBeTruthy();
     });
 

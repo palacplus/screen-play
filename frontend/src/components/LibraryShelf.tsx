@@ -45,17 +45,12 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
         const rowRef = rowRefs.current[genre];
         if (rowRef) {
           const { scrollLeft, scrollWidth, clientWidth } = rowRef;
-
-          // Debugging: Log scrollWidth and clientWidth
-          console.log(`Genre: ${genre}, scrollWidth: ${scrollWidth}, clientWidth: ${clientWidth}`);
-
           newOverflowStates[genre] = {
             left: scrollLeft > 0, // Overflow on the left
             right: scrollLeft + clientWidth < scrollWidth, // Overflow on the right
           };
         }
       });
-      console.log("Updated overflow states:", newOverflowStates); // Debugging
       setOverflowStates(newOverflowStates);
     };
 

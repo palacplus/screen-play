@@ -19,17 +19,5 @@ dotnet ef database update --context UserDbContext
 ## Export Environment Variables
 export $(cat .env | xargs) && env
 
-
-### KNOWN BUGS
-
-Search
-    - Invalid search does not display error message
-    - Add title button flashes loading on click due to slow check animation
-    - add title button doesnt reset on new search
-    - search error (the simple plan) does nothing
-
-Queue
-    - Unable to Load Queue message displays in black text
-
-### TODO
-- update the landing page to display a blockbuster like shelf
+## Run playwright tests
+npx playwright test --ui
