@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ScreenPlay.Server.Configuration;
 using ScreenPlay.Server.Data;
@@ -26,6 +27,7 @@ builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 builder.Services.BindAndValidateOnStart<AdminConfiguration>(AdminConfiguration.ConfigSection);
 builder.Services.BindAndValidateOnStart<JwtConfiguration>(JwtConfiguration.ConfigSection);
 builder.Services.BindAndValidateOnStart<GoogleAuthConfiguration>(GoogleAuthConfiguration.ConfigSection);
+builder.Services.BindAndValidateOnStart<RadarrConfiguration>(RadarrConfiguration.ConfigSection);
 
 // Authentication
 builder
@@ -93,6 +95,7 @@ builder.Services.AddSwaggerGen();
 // Other Services
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+builder.Services.AddHttpClient<IRadarrClient, RadarrClient>();
 
 var app = builder.Build();
 

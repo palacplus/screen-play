@@ -1,10 +1,10 @@
-﻿using Microsoft.AspNetCore.Identity;
-
-namespace ScreenPlay.Server.Models;
+﻿namespace ScreenPlay.Server.Models;
 
 public class Movie
 {
     public int Id { get; set; }
+    public string? ImdbId { get; set; }
+    public string? TmdbId { get; set; }
     public string? Title { get; set; }
     public int Year { get; set; }
     public string? Genre { get; set; }
