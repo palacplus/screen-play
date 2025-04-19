@@ -90,10 +90,11 @@ public class AuthServiceTests
         var appUser = new AppUser { Email = loginRequest.Email };
 
         _httpContextAccessor.HttpContext = null;
-        _userManager.CreateAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+        _userManager.CreateAsync(Arg.Any<AppUser>()).Returns(IdentityResult.Success);
         _userManager.SetEmailAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
         _roleManager.RoleExistsAsync(Arg.Any<string>()).Returns(false);
         _roleManager.CreateAsync(Arg.Any<IdentityRole>()).Returns(IdentityResult.Success);
+        _userManager.AddPasswordAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
         _userManager.FindByEmailAsync(Arg.Any<string>()).Returns(appUser);
         _userManager.AddToRoleAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
         _signInManager
@@ -113,7 +114,8 @@ public class AuthServiceTests
         result.Should().NotBeNull();
         result.Token.Should().NotBeNullOrEmpty();
         result.RefreshToken.Should().NotBeNullOrEmpty();
-        await _userManager.Received(1).CreateAsync(Arg.Any<AppUser>(), loginRequest.Password);
+        await _userManager.Received(1).CreateAsync(Arg.Any<AppUser>());
+        await _userManager.Received(1).AddPasswordAsync(Arg.Any<AppUser>(), loginRequest.Password);
         await _userManager.Received(1).SetEmailAsync(Arg.Any<AppUser>(), loginRequest.Email);
         await _roleManager.Received(1).RoleExistsAsync("User");
         await _roleManager.Received(1).CreateAsync(Arg.Is<IdentityRole>(r => r.Name == "User"));
