@@ -1,4 +1,4 @@
-using System.Net.Http;
+using System.Text.Json;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.EntityFrameworkCore;
 using ScreenPlay.Server.Data;
@@ -26,6 +26,7 @@ public class MovieSyncService : BackgroundService
         _radarrClient = radarrClient;
         _logger = logger;
         _httpClient = httpClient;
+        _httpClient.BaseAddress = new Uri("https://www.omdbapi.com");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -65,8 +66,8 @@ public class MovieSyncService : BackgroundService
         var dbMovies = await FetchDatabaseMoviesAsync(dbContext, cancellationToken);
 
         await AddNewMoviesAsync(dbContext, radarrMovies, dbMovies);
-        await MarkRemovedMoviesAsync(dbContext, radarrMovies, dbMovies, cancellationToken);
-        await UpdateIncompleteMoviesAsync(dbContext, cancellationToken);
+        MarkRemovedMovies(dbContext, radarrMovies, dbMovies);
+        await UpdateIncompleteMoviesAsync(dbContext, dbMovies, cancellationToken);
 
         await dbContext.SaveChangesAsync(cancellationToken);
         _logger.LogInformation("Movie database sync completed.");
@@ -110,12 +111,7 @@ public class MovieSyncService : BackgroundService
         }
     }
 
-    private async Task MarkRemovedMoviesAsync(
-        AppDbContext dbContext,
-        IEnumerable<MovieDto> radarrMovies,
-        List<Movie> dbMovies,
-        CancellationToken cancellationToken
-    )
+    private void MarkRemovedMovies(AppDbContext dbContext, IEnumerable<MovieDto> radarrMovies, List<Movie> dbMovies)
     {
         var radarrTmdbIds = radarrMovies.Select(m => m.TmdbId).ToHashSet();
         var removedMovies = dbMovies.Where(m => !radarrTmdbIds.Contains(m.TmdbId)).ToList();
@@ -130,11 +126,13 @@ public class MovieSyncService : BackgroundService
         dbContext.Movies.UpdateRange(removedMovies);
     }
 
-    private async Task UpdateIncompleteMoviesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    private async Task UpdateIncompleteMoviesAsync(
+        AppDbContext dbContext,
+        List<Movie> dbMovies,
+        CancellationToken cancellationToken
+    )
     {
-        var incompleteMovies = await dbContext
-            .Movies.Where(m => !m.IsComplete && !m.IsDeleted)
-            .ToListAsync(cancellationToken);
+        var incompleteMovies = dbMovies.Where(m => !m.IsComplete).ToList();
 
         _logger.LogInformation("Found {Count} incomplete movies to update.", incompleteMovies.Count);
 
@@ -146,13 +144,13 @@ public class MovieSyncService : BackgroundService
                 if (updatedMovie != null)
                 {
                     movie.EnrichWith(updatedMovie.ToMovie());
-                    movie.UpdateIsComplete();
+                    movie.Update();
                     _logger.LogDebug("Updated movie: {Title} (IMDb ID: {ImdbId})", movie.Title, movie.ImdbId);
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogWarning(ex, "Failed to update movie: {ImdbId}", movie.ImdbId);
+                _logger.LogError(ex, "Failed to update movie: {ImdbId}", movie.ImdbId);
             }
         }
 
@@ -167,14 +165,13 @@ public class MovieSyncService : BackgroundService
             return null;
         }
 
-        var baseUrl = "https://www.omdbapi.com";
         var queryParams = new Dictionary<string, string> { { "i", imdbId }, { "apikey", "e11f806f" } };
-        var requestUrl = QueryHelpers.AddQueryString(baseUrl, queryParams);
+        var requestUrl = QueryHelpers.AddQueryString(_httpClient.BaseAddress.ToString(), queryParams);
 
         var response = await _httpClient.GetAsync(requestUrl, cancellationToken);
         if (!response.IsSuccessStatusCode)
         {
-            _logger.LogWarning("Failed to fetch data from OMDB for IMDb ID: {ImdbId}", imdbId);
+            _logger.LogError("Failed to fetch data from OMDB for IMDb ID: {ImdbId}", imdbId);
             return null;
         }
 

@@ -59,7 +59,7 @@ public class Movie
         private set => _isComplete = value;
     }
 
-    public void UpdateIsComplete()
+    public void Update()
     {
         IsComplete =
             !string.IsNullOrWhiteSpace(Title)
@@ -80,6 +80,7 @@ public class Movie
             && !string.IsNullOrWhiteSpace(Language)
             && !string.IsNullOrWhiteSpace(Country)
             && !string.IsNullOrWhiteSpace(BoxOffice);
+        UpdatedDate = DateTime.UtcNow;
     }
 }
 

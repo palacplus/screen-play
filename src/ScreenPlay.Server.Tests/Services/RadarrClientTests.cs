@@ -1,14 +1,12 @@
 using System.Net;
 using System.Net.Http;
 using System.Text.Json;
-using FluentAssertions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
-using NSubstitute;
 using ScreenPlay.Server.Configuration;
 using ScreenPlay.Server.Dtos;
 using ScreenPlay.Server.Services;
-using Xunit;
+using ScreenPlay.Server.Tests.Helpers;
 
 namespace ScreenPlay.Tests.Services;
 
@@ -107,23 +105,5 @@ public class RadarrClientTests
         await act.Should()
             .ThrowAsync<ArgumentNullException>()
             .WithMessage("Value cannot be null. (Parameter 'payload')");
-    }
-}
-
-public class MockHttpMessageHandler : HttpMessageHandler
-{
-    private HttpResponseMessage _response;
-
-    public void SetupResponse(HttpStatusCode statusCode, string content)
-    {
-        _response = new HttpResponseMessage { StatusCode = statusCode, Content = new StringContent(content) };
-    }
-
-    protected override Task<HttpResponseMessage> SendAsync(
-        HttpRequestMessage request,
-        CancellationToken cancellationToken
-    )
-    {
-        return Task.FromResult(_response);
     }
 }

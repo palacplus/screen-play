@@ -118,16 +118,16 @@ public class TokenServiceTests
             ExpiredAt = DateTime.UtcNow.AddDays(-1)
         };
 
-        _userDbContext.ChangeTracker.Clear();
-        _userDbContext.Tokens.RemoveRange(_userDbContext.Tokens);
-        _userDbContext.Tokens.Add(tokenInfo);
-        await _userDbContext.SaveChangesAsync();
+        _dbContext.ChangeTracker.Clear();
+        _dbContext.Tokens.RemoveRange(_dbContext.Tokens);
+        _dbContext.Tokens.Add(tokenInfo);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         await _tokenService.SetRefreshTokenForUserAsync(user, refreshToken);
 
         // Assert
-        var storedTokenInfo = await _userDbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);
+        var storedTokenInfo = await _dbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);
         storedTokenInfo.Should().NotBeNull();
         storedTokenInfo.Username.Should().Be(user.Email);
         storedTokenInfo.RefreshToken.Should().Be(refreshToken);
@@ -148,10 +148,10 @@ public class TokenServiceTests
             ExpiredAt = DateTime.UtcNow.AddDays(1)
         };
 
-        _userDbContext.ChangeTracker.Clear();
-        _userDbContext.Tokens.RemoveRange(_userDbContext.Tokens);
-        _userDbContext.Tokens.Add(tokenInfo);
-        await _userDbContext.SaveChangesAsync();
+        _dbContext.ChangeTracker.Clear();
+        _dbContext.Tokens.RemoveRange(_dbContext.Tokens);
+        _dbContext.Tokens.Add(tokenInfo);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = _tokenService.ValidateRefreshToken(user, refreshToken);
@@ -174,10 +174,10 @@ public class TokenServiceTests
             ExpiredAt = DateTime.UtcNow.AddDays(-1)
         };
 
-        _userDbContext.ChangeTracker.Clear();
-        _userDbContext.Tokens.RemoveRange(_userDbContext.Tokens);
-        _userDbContext.Tokens.Add(tokenInfo);
-        await _userDbContext.SaveChangesAsync();
+        _dbContext.ChangeTracker.Clear();
+        _dbContext.Tokens.RemoveRange(_dbContext.Tokens);
+        _dbContext.Tokens.Add(tokenInfo);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         var result = _tokenService.ValidateRefreshToken(user, refreshToken);
@@ -200,16 +200,16 @@ public class TokenServiceTests
             ExpiredAt = DateTime.UtcNow.AddDays(1)
         };
 
-        _userDbContext.ChangeTracker.Clear();
-        _userDbContext.Tokens.RemoveRange(_userDbContext.Tokens);
-        _userDbContext.Tokens.Add(tokenInfo);
-        await _userDbContext.SaveChangesAsync();
+        _dbContext.ChangeTracker.Clear();
+        _dbContext.Tokens.RemoveRange(_dbContext.Tokens);
+        _dbContext.Tokens.Add(tokenInfo);
+        await _dbContext.SaveChangesAsync();
 
         // Act
         await _tokenService.RevokeTokensAsync(user);
 
         // Assert
-        var storedTokenInfo = await _userDbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);
+        var storedTokenInfo = await _dbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);
         storedTokenInfo.Should().BeNull();
     }
 }

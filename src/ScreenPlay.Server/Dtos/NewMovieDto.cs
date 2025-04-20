@@ -10,7 +10,7 @@ public class NewMovieDto
     public string Title { get; set; }
 
     [Required]
-    [Range(1900, 2500, ErrorMessage = "Year must be between 1900 and 2100.")]
+    [Range(1900, 2500, ErrorMessage = "Year must be between 1900 and 2500.")]
     public string? Year { get; set; }
 
     [Required]
@@ -52,10 +52,10 @@ public class NewMovieDto
         return new Movie
         {
             Title = this.Title,
-            Year = int.TryParse(this.Year, out var year) ? year : 0,
+            Year = int.TryParse(this.Year, out var year) ? year : default,
             Rated = this.Rated,
-            ReleaseDate = DateTime.TryParse(this.Released, out var releaseDate) ? releaseDate : null,
-            Runtime = int.TryParse(this.Runtime?.Replace(" min", ""), out var runtime) ? runtime : 0,
+            ReleaseDate = DateTime.TryParse(this.Released, out var releaseDate) ? releaseDate : default,
+            Runtime = int.TryParse(this.Runtime?.Replace(" min", ""), out var runtime) ? runtime : default,
             Genres = this.Genre?.Split(", ").ToList(),
             Director = this.Director,
             Writers = this.Writer?.Split(", ").ToList(),
@@ -74,13 +74,20 @@ public class NewMovieDto
                 {
                     Source = "imdb",
                     Value = this.ImdbRating ?? 0.0,
-                    Votes = long.Parse(this.ImdbVotes, NumberStyles.AllowThousands, CultureInfo.InvariantCulture),
+                    Votes = long.TryParse(
+                        this.ImdbVotes,
+                        NumberStyles.AllowThousands,
+                        CultureInfo.InvariantCulture,
+                        out var votes
+                    )
+                        ? votes
+                        : default,
                     Type = "user",
                 },
                 new Rating
                 {
                     Source = "metacritic",
-                    Value = double.TryParse(this.Metascore, out var metascore) ? metascore : 0.0,
+                    Value = double.TryParse(this.Metascore, out var metascore) ? metascore : default,
                     Type = "user",
                 },
             },
