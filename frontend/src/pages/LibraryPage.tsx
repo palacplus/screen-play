@@ -1,36 +1,38 @@
 import { usePersistedState } from "../hooks/usePersistedState";
 import "./LibraryPage.css";
 import AddMoviePanel from "../components/AddMoviePanel";
-import { Movie } from "@/types/library";
+import { MoviePartial } from "@/types/library";
 import LibraryShelf from "../components/LibraryShelf";
 import GitHubLink from "../components/GitHubLink";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { getAllMovies } from "../services/api/library";
 
 export default function LibraryPage() {
-    const [posters, setPosters] = usePersistedState<Movie[]>("posters", []);
-    const [stats, setStats] = useState({
-        totalMovies: posters.length,
-        activeUsers: 1200,
-        totalHoursWatched: 4500,
-        totalRatings: 3200,
-        topTitles: ["Inception", "Back To The Future", "Jurassic Park"],
-    });
-    const [isAddMovieOpen, setIsAddMovieOpen] = useState(false); // State to control popup visibility
-    const [searchParams] = useSearchParams(); // Hook to access query parameters
+    const [posters, setPosters] = usePersistedState<MoviePartial[]>("posters", []);
+    const [isAddMovieOpen, setIsAddMovieOpen] = useState(false);
+    const [searchParams] = useSearchParams();
+    const [loading, setLoading] = useState(false);
 
-    const handleAddMovie = (movie: Movie) => {
+    const handleAddMovie = (movie: MoviePartial) => {
         setPosters((prevPosters) => [...prevPosters, movie]);
-        setIsAddMovieOpen(false); // Close the popup after adding a movie
+        setIsAddMovieOpen(false);
     };
 
-    // Update stats whenever the posters array changes
     useEffect(() => {
-        setStats((prevStats) => ({
-            ...prevStats,
-            totalMovies: posters.length,
-        }));
-    }, [posters]);
+        const fetchMovies = async () => {
+            setLoading(true);
+            try {
+                const movies = await getAllMovies();
+                setPosters(movies);
+            } catch (error) {
+                console.error("Failed to fetch movies:", error);
+            }
+            setLoading(false);
+        };
+
+        fetchMovies();
+    }, []);
 
     const handlePopupClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if ((e.target as HTMLElement).classList.contains("popup-backdrop")) {
@@ -51,19 +53,16 @@ export default function LibraryPage() {
 
     return (
         <div className="page lib-page">
-            {/* Add Movie Button */}
             <button
                 className="add-movie-btn"
                 onClick={() => setIsAddMovieOpen(true)}
             >
                 +
             </button>
-
-            {/* Add Movie Popup */}
             {isAddMovieOpen && (
                 <div
                     className="popup-backdrop"
-                    onClick={handlePopupClick} // Close popup on outside click
+                    onClick={handlePopupClick}
                 >
                     <div className="popup-content add-movie-popup">
                         <AddMoviePanel onAddMovie={handleAddMovie} />
@@ -73,7 +72,6 @@ export default function LibraryPage() {
 
             <div className="main-content">
                 <div className="right-side">
-                    {/* Pass filtered posters to LibraryShelf */}
                     <LibraryShelf posters={filteredPosters} />
                 </div>
             </div>

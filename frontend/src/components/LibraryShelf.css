@@ -78,13 +78,11 @@
   width: 150px; /* Fixed width for posters */
   height: auto; /* Maintain aspect ratio */
   border-radius: 8px;
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4); /* Increased shadow for posters */
   transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth animation for hover effect */
 }
 
 .library-shelf-poster:hover {
   transform: translate(-10%, -5%); /* Move up and to the left */
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.6); /* Add a more prominent shadow on hover */
 }
 
 /* Scroll Buttons */

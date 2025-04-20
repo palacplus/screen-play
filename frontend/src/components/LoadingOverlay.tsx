@@ -11,7 +11,6 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
         const parentElement = overlayRef.current?.parentElement;
 
         if (parentElement) {
-            // Save a copy of the original styles
             const originalStyles = {
                 filter: parentElement.style.filter,
                 pointerEvents: parentElement.style.pointerEvents,
@@ -20,7 +19,6 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
                 boxShadow: parentElement.style.boxShadow,
             };
 
-            // Apply styles when loading
             if (isLoading) {
                 parentElement.style.filter = "blur(1.5px)";
                 parentElement.style.pointerEvents = "none";
@@ -29,7 +27,6 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
                 parentElement.style.boxShadow = "0 0 10px rgba(0, 0, 0, 0.3)";
             }
 
-            // Cleanup function to restore original styles
             return () => {
                 parentElement.style.filter = originalStyles.filter;
                 parentElement.style.pointerEvents = originalStyles.pointerEvents;
@@ -48,7 +45,7 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "rgba(255, 255, 255, 0.8)", // Slightly opaque background for sharper contrast
+        backgroundColor: "rgba(255, 255, 255, 0.8)",
         zIndex: 1000,
     };
 
@@ -66,7 +63,7 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
         top: "50%",
         left: "50%",
         transform: "translate(-50%, -50%)",
-        zIndex: 1001, // Ensure it is above the blurred background
+        zIndex: 1001,
     };
 
     return (
@@ -78,7 +75,6 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
     );
 }
 
-// Add CSS for spinner animation
 const style = document.createElement("style");
 style.innerHTML = `
 @keyframes spin {

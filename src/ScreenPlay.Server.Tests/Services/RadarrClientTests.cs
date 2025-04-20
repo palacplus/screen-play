@@ -43,17 +43,17 @@ public class RadarrClientTests
     }
 
     [Fact]
-    public async Task PostMovieAsync_ShouldReturnMovieResponse_WhenRequestIsSuccessful()
+    public async Task SearchMovieAsync_ShouldReturnMovieDto_WhenRequestIsSuccessful()
     {
         // Arrange
-        var addMovieRequest = new AddMovieRequest(12345);
+        var SearchMovieRequest = new SearchMovieRequest(12345);
 
-        var movieResponse = new MovieResponse { Title = "Inception", TmdbId = 12345 };
+        var movieResponse = new MovieDto { Title = "Inception", TmdbId = 12345 };
 
         _httpMessageHandlerMock.SetupResponse(HttpStatusCode.OK, JsonSerializer.Serialize(movieResponse));
 
         // Act
-        var result = await _radarrClient.PostMovieAsync(addMovieRequest);
+        var result = await _radarrClient.SearchMovieAsync(SearchMovieRequest);
 
         // Assert
         result.Should().NotBeNull();
@@ -62,11 +62,11 @@ public class RadarrClientTests
     }
 
     [Fact]
-    public async Task GetMovieByImdbIdAsync_ShouldReturnMovieResponse_WhenRequestIsSuccessful()
+    public async Task GetMovieByImdbIdAsync_ShouldReturnMovieDto_WhenRequestIsSuccessful()
     {
         // Arrange
         var imdbId = "tt1375666";
-        var movieResponse = new MovieResponse { Title = "Inception", TmdbId = 12345 };
+        var movieResponse = new MovieDto { Title = "Inception", TmdbId = 12345 };
 
         _httpMessageHandlerMock.SetupResponse(HttpStatusCode.OK, JsonSerializer.Serialize(movieResponse));
 
@@ -95,13 +95,13 @@ public class RadarrClientTests
     }
 
     [Fact]
-    public async Task PostMovieAsync_ShouldThrowException_WhenPayloadIsNull()
+    public async Task SearchMovieAsync_ShouldThrowException_WhenPayloadIsNull()
     {
         // Arrange
-        AddMovieRequest payload = null;
+        SearchMovieRequest payload = null;
 
         // Act
-        Func<Task> act = async () => await _radarrClient.PostMovieAsync(payload);
+        Func<Task> act = async () => await _radarrClient.SearchMovieAsync(payload);
 
         // Assert
         await act.Should()

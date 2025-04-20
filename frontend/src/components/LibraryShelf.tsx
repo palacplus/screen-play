@@ -1,11 +1,11 @@
 import { memo, useMemo, useRef, useEffect, useState } from "react";
-import Popup from "./Popup"; // Import the Popup component
-import { Movie } from "@/types/library";
+import Popup from "./Popup";
+import { Movie, MoviePartial } from "@/types/library";
 import Poster from "./Poster";
 import "./LibraryShelf.css";
 
 interface LibraryShelfProps {
-  posters: Movie[];
+  posters: MoviePartial[];
 }
 
 export default function LibraryShelf({ posters }: LibraryShelfProps) {
@@ -13,13 +13,12 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
   const [overflowStates, setOverflowStates] = useState<{
     [genre: string]: { left: boolean; right: boolean };
   }>({});
-  const [selectedMovie, setSelectedMovie] = useState<Movie | null>(null); // State to track the selected movie
+  const [selectedMovie, setSelectedMovie] = useState<MoviePartial | null>(null);
 
-  // Group posters by the first genre
   const groupByGenre = useMemo(() => {
-    const genreMap: { [genre: string]: Movie[] } = {};
+    const genreMap: { [genre: string]: MoviePartial[] } = {};
     posters.forEach((movie) => {
-      const firstGenre = movie.genre?.split(", ")[0]; // Use only the first genre
+      const firstGenre = movie.genre?.split(", ")[0];
       if (firstGenre) {
         if (!genreMap[firstGenre]) {
           genreMap[firstGenre] = [];
@@ -30,14 +29,14 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
     return genreMap;
   }, [posters]);
 
-  // Create refs for each genre row
-  Object.keys(groupByGenre).forEach((genre) => {
-    if (!rowRefs.current[genre]) {
-      rowRefs.current[genre] = null; // Initialize ref for each genre
-    }
-  });
+  useEffect(() => {
+    Object.keys(groupByGenre).forEach((genre) => {
+      if (!rowRefs.current[genre]) {
+        rowRefs.current[genre] = null;
+      }
+    });
+  }, [groupByGenre]);
 
-  // Check for overflow in each row
   useEffect(() => {
     const updateOverflowStates = () => {
       const newOverflowStates: { [genre: string]: { left: boolean; right: boolean } } = {};
@@ -46,8 +45,8 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
         if (rowRef) {
           const { scrollLeft, scrollWidth, clientWidth } = rowRef;
           newOverflowStates[genre] = {
-            left: scrollLeft > 0, // Overflow on the left
-            right: scrollLeft + clientWidth < scrollWidth, // Overflow on the right
+            left: scrollLeft > 0,
+            right: scrollLeft + clientWidth < scrollWidth,
           };
         }
       });
@@ -62,14 +61,12 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
     };
   }, [groupByGenre]);
 
-  // Scroll row functionality
   const scrollRow = (genre: string, direction: "left" | "right") => {
     const rowRef = rowRefs.current[genre];
     if (rowRef) {
-      const scrollAmount = direction === "left" ? -175 : 175; // Adjust scroll amount as needed
+      const scrollAmount = direction === "left" ? -500 : 500;
       rowRef.scrollBy({ left: scrollAmount, behavior: "smooth" });
 
-      // Update overflow states after scrolling
       setTimeout(() => {
         const { scrollLeft, scrollWidth, clientWidth } = rowRef;
         setOverflowStates((prev) => ({
@@ -79,7 +76,7 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
             right: scrollLeft + clientWidth < scrollWidth,
           },
         }));
-      }, 300); // Delay to allow smooth scrolling to complete
+      }, 300);
     }
   };
 
@@ -87,7 +84,6 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
     <div className="library-shelf">
       {Object.entries(groupByGenre).map(([genre, movies], genreIndex) => (
         <div key={genreIndex} className="library-shelf-row-container">
-          {/* Genre Label */}
           <h3 className="genre-label">{genre}</h3>
           <div className="scroll-buttons">
             {overflowStates[genre]?.left && (
@@ -108,7 +104,7 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
                 <div
                   key={index}
                   className="library-shelf-poster"
-                  onClick={() => setSelectedMovie(movie)} // Open popup on click
+                  onClick={() => setSelectedMovie(movie)}
                 >
                   <MemoizedPoster movie={movie} />
                 </div>
@@ -126,16 +122,15 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
         </div>
       ))}
 
-      {/* Popup for Selected Movie */}
       {selectedMovie && (
         <Popup
           movie={selectedMovie}
-          onClose={() => setSelectedMovie(null)} // Close popup
+          onClose={() => setSelectedMovie(null)}
         />
       )}
 
       {posters.length === 0 && (
-        <p className="empty-library-message">Not found.</p>
+        <p className="empty-library-message">No movies found.</p>
       )}
     </div>
   );

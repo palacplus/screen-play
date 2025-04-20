@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import { CredentialResponse } from '@react-oauth/google';
 
 import { User } from '../../types/user';
@@ -11,10 +11,9 @@ export async function externalLogin(credentialResponse: CredentialResponse) {
     const user: User = {
         // TODO: get email from credentialResponse
         email: "google",
-        accessToken: authResponse.token,
         refreshToken: authResponse.refreshToken,
     };
-    return [response.status, user] as const;
+    return [response.status, user, authResponse.token] as const;
 }
 
 export async function register(request: LoginRequest) {
@@ -22,10 +21,9 @@ export async function register(request: LoginRequest) {
     const authResponse = (await response.data) as AuthResponse;
     const user: User = {
         email: request.email,
-        accessToken: authResponse.token,
         refreshToken: authResponse.refreshToken,
     };
-    return [response.status, user] as const;
+    return [response.status, user, authResponse.token] as const;
 }
 
 export async function refreshToken(request: TokenRequest) {
@@ -39,10 +37,9 @@ export async function login(request: LoginRequest) {
     const authResponse = (await response.data) as AuthResponse;
     const user: User = {
         email: request.email,
-        accessToken: authResponse.token,
         refreshToken: authResponse.refreshToken,
     };
-    return [response.status, user] as const;
+    return [response.status, user, authResponse.token] as const;
 }
 
 export async function logout() {

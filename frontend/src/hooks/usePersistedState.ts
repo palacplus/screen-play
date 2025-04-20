@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
 
 export function usePersistedState<Type>(key: string, initialState: Type | (() => Type)): [Type, React.Dispatch<React.SetStateAction<Type>>] {
-  // read key from local storage if not found use default value
   const [value, setValue] = useState<Type>(() => {
     const storedValue = localStorage.getItem(key);
     if (storedValue === null) {
@@ -14,7 +13,7 @@ export function usePersistedState<Type>(key: string, initialState: Type | (() =>
       return JSON.parse(storedValue);
     }
   });
-  // update local storage when value changes
+
   useEffect(() => {
     localStorage.setItem(key, JSON.stringify(value));
   }, [value, key]);

@@ -14,7 +14,7 @@ namespace ScreenPlay.Server.Tests.Services;
 
 public class TokenServiceTests
 {
-    private readonly UserDbContext _userDbContext;
+    private readonly AppDbContext _dbContext;
     private readonly JwtConfiguration _jwtConfig;
     private readonly TokenService _tokenService;
 
@@ -27,9 +27,9 @@ public class TokenServiceTests
             Audience = "test_audience",
             ExpirationMinutes = 60
         };
-        var dbContextOptions = new DbContextOptionsBuilder<UserDbContext>().UseInMemoryDatabase("UserDatabase").Options;
-        _userDbContext = new UserDbContext(dbContextOptions, Options.Create(new OperationalStoreOptions()));
-        _tokenService = new TokenService(_userDbContext, Options.Create(_jwtConfig));
+        var dbContextOptions = new DbContextOptionsBuilder<AppDbContext>().UseInMemoryDatabase("UserDatabase").Options;
+        _dbContext = new AppDbContext(dbContextOptions, Options.Create(new OperationalStoreOptions()));
+        _tokenService = new TokenService(_dbContext, Options.Create(_jwtConfig));
     }
 
     [Fact]

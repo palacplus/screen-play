@@ -1,8 +1,8 @@
 namespace ScreenPlay.Server.Dtos;
 
-public class AddMovieRequest
+public class SearchMovieRequest
 {
-    public AddMovieRequest(int tmdbId)
+    public SearchMovieRequest(int tmdbId)
     {
         TmdbId = tmdbId;
     }
@@ -11,10 +11,10 @@ public class AddMovieRequest
     public int QualityProfileId { get; set; } = 1;
     public bool Monitored { get; set; } = true;
     public string MinimumAvailability { get; set; } = "announced";
-    public AddMovieOptions AddOptions { get; set; } = new AddMovieOptions();
+    public SearchOptions AddOptions { get; set; } = new SearchOptions();
 }
 
-public class AddMovieOptions
+public class SearchOptions
 {
     public bool SearchForMovie { get; set; } = true;
 }

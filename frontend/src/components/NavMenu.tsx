@@ -5,11 +5,13 @@ import LogoImage from "./Logo";
 import "./NavMenu.css";
 import NavDropdownMenu from "./NavDropdownMenu";
 import LoadingOverlay from "./LoadingOverlay";
+import { useAuth } from "./AuthProvider";
 
 export default function NavMenu() {
   const [collapsed, setCollapsed] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const auth = useAuth();
   const navigate = useNavigate();
 
   const toggleNavbar = () => {
@@ -42,26 +44,28 @@ export default function NavMenu() {
             </NavItem>
 
             {/* Go to Library Link */}
-            <NavItem className="nav-item-container">
-              <NavLink tag={Link} to="/library" className="btn nav-btn">
-                Movie Library
-              </NavLink>
-            </NavItem>
+            {auth.currentUser && (
+              <>
+                <NavItem className="nav-item-container">
+                  <NavLink tag={Link} to="/library" className="btn nav-btn">
+                    View Library
+                  </NavLink>
+                </NavItem>
 
-            {/* Search Form */}
-            <NavItem className="nav-item-container">
-              <form className="search-container" onSubmit={handleSearchSubmit} aria-label="Search library">
-                <LoadingOverlay isLoading={false} />
-                <input
-                  type="text"
-                  placeholder="Search library..."
-                  className="form-control search-input"
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                />
-              </form>
-            </NavItem>
-
+                <NavItem className="nav-item-container">
+                  <form className="search-container" onSubmit={handleSearchSubmit} aria-label="Search library">
+                    <LoadingOverlay isLoading={false} />
+                    <input
+                      type="text"
+                      placeholder="Search library..."
+                      className="form-control search-input"
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                    />
+                  </form>
+                </NavItem>
+              </>
+            )}
             {/* Dropdown Menu */}
             <NavDropdownMenu />
           </ul>

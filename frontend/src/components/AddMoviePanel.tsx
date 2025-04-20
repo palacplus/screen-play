@@ -1,16 +1,17 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./AddMoviePanel.css";
-import { Movie } from "../types/library";
+import { MoviePartial } from "../types/library";
 import LoadingOverlay from "./LoadingOverlay";
+import { addNewMovie } from "../services/api/library";
 
 interface AddMoviePanelProps {
-  onAddMovie: (movie: Movie) => void;
+  onAddMovie: (movie: MoviePartial) => void;
 }
 
 export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
   const [searchQuery, setSearchQuery] = useState("");
-  const [movie, setMovie] = useState<Movie | null>(null);
+  const [movie, setMovie] = useState<MoviePartial | null>(null);
   const [error, setError] = useState<String | null>(null);
   const [loading, setLoading] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -34,21 +35,21 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
           title: response.data.Title,
           year: response.data.Year,
           rated: response.data.Rated,
-          releaseDate: response.data.Released,
+          released: response.data.Released,
           runtime: response.data.Runtime,
           genre: response.data.Genre,
           director: response.data.Director,
           writer: response.data.Writer,
-          actors: response.data.Actors.split(","),
-          description: response.data.Plot,
+          actors: response.data.Actors,
+          plot: response.data.Plot,
           language: response.data.Language,
           country: response.data.Country,
           awards: response.data.Awards,
           poster: response.data.Poster,
           ratings: response.data.Ratings,
-          metascore: Number(response.data.Metascore),
-          imdbRating: Number(response.data.imdbRating),
-          imdbVotes: Number(response.data.imdbVotes.split(",").join("")),
+          metascore: response.data.Metascore,
+          imdbRating: response.data.imdbRating,
+          imdbVotes: response.data.imdbVotes,
           imdbID: response.data.imdbID,
           boxOffice: response.data.BoxOffice,
           addedDate: new Date(),
@@ -67,10 +68,20 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
     setLoading(false);
   };
 
-  const handleAddMovie = () => {
+  const handleAddMovie = async () => {
     if (movie) {
-      onAddMovie(movie);
-      resetForm();
+      setLoading(true);
+      try {
+        await addNewMovie(movie);
+        onAddMovie(movie);
+        setError("");
+      } catch (err) {
+        console.error(err);
+        setError("An error occurred while adding the movie. Please try again.");
+      } finally {
+        setLoading(false);
+        resetForm();
+      }
     }
   };
 

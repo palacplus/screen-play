@@ -86,8 +86,6 @@ public class AuthService : IAuthService
         {
             return GetFailureResponse(result);
         }
-
-        _logger.LogInformation("User created a new account with password.");
         result = await _userManager.SetEmailAsync(user, request.Email);
         if (!result.Succeeded)
         {
@@ -123,7 +121,6 @@ public class AuthService : IAuthService
 
     public async Task<AuthResponse> LoginAsync(LoginRequest request)
     {
-        // Clear the existing external cookie to ensure a clean login process
         var context = _httpContextAccessor.HttpContext;
         if (context != null)
         {
@@ -133,7 +130,6 @@ public class AuthService : IAuthService
         var result = await SignInAsync(request);
         if (result.Succeeded)
         {
-            _logger.LogInformation("User logged in.");
             var user = await _userManager.FindByEmailAsync(request.Email);
             var tokenInfo = await GetUserTokensAsync(user);
             return new AuthResponse { Token = tokenInfo.AccessToken, RefreshToken = tokenInfo.RefreshToken };
@@ -175,7 +171,6 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(email);
         await _tokenService.RevokeTokensAsync(user);
         await _signInManager.SignOutAsync();
-        _logger.LogInformation("User logged out.");
     }
 
     private AppUser CreateUser(string email)

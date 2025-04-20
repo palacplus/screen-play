@@ -1,0 +1,183 @@
+using System.Net.Http;
+using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.EntityFrameworkCore;
+using ScreenPlay.Server.Data;
+using ScreenPlay.Server.Dtos;
+using ScreenPlay.Server.Extensions;
+using ScreenPlay.Server.Models;
+
+namespace ScreenPlay.Server.Services;
+
+public class MovieSyncService : BackgroundService
+{
+    private readonly IServiceProvider _serviceProvider;
+    private readonly IRadarrClient _radarrClient;
+    private readonly ILogger<MovieSyncService> _logger;
+    private readonly HttpClient _httpClient;
+
+    public MovieSyncService(
+        IServiceProvider serviceProvider,
+        IRadarrClient radarrClient,
+        ILogger<MovieSyncService> logger,
+        HttpClient httpClient
+    )
+    {
+        _serviceProvider = serviceProvider;
+        _radarrClient = radarrClient;
+        _logger = logger;
+        _httpClient = httpClient;
+    }
+
+    protected override async Task ExecuteAsync(CancellationToken stoppingToken)
+    {
+        _logger.LogInformation("MovieSyncService is starting.");
+
+        while (!stoppingToken.IsCancellationRequested)
+        {
+            try
+            {
+                await SyncMoviesAsync(stoppingToken);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "An error occurred while syncing movies.");
+            }
+            await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
+        }
+
+        _logger.LogInformation("MovieSyncService is stopping.");
+    }
+
+    private async Task SyncMoviesAsync(CancellationToken cancellationToken)
+    {
+        _logger.LogInformation("Starting movie database sync...");
+
+        var radarrMovies = await FetchRadarrMoviesAsync();
+        if (!radarrMovies.Any())
+        {
+            _logger.LogWarning("No movies found in Radarr.");
+            return;
+        }
+
+        using var scope = _serviceProvider.CreateScope();
+        var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+
+        var dbMovies = await FetchDatabaseMoviesAsync(dbContext, cancellationToken);
+
+        await AddNewMoviesAsync(dbContext, radarrMovies, dbMovies);
+        await MarkRemovedMoviesAsync(dbContext, radarrMovies, dbMovies, cancellationToken);
+        await UpdateIncompleteMoviesAsync(dbContext, cancellationToken);
+
+        await dbContext.SaveChangesAsync(cancellationToken);
+        _logger.LogInformation("Movie database sync completed.");
+    }
+
+    private async Task<IEnumerable<MovieDto>> FetchRadarrMoviesAsync()
+    {
+        try
+        {
+            var radarrMovies = await _radarrClient.GetMoviesAsync();
+            return radarrMovies ?? Enumerable.Empty<MovieDto>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to fetch movies from Radarr.");
+            return Enumerable.Empty<MovieDto>();
+        }
+    }
+
+    private async Task<List<Movie>> FetchDatabaseMoviesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    {
+        return await dbContext.Movies.Where(m => !m.IsDeleted).ToListAsync(cancellationToken);
+    }
+
+    private async Task AddNewMoviesAsync(
+        AppDbContext dbContext,
+        IEnumerable<MovieDto> radarrMovies,
+        List<Movie> dbMovies
+    )
+    {
+        var existingTmdbIds = dbMovies.Select(m => m.TmdbId).ToHashSet();
+
+        foreach (var radarrMovie in radarrMovies)
+        {
+            if (!existingTmdbIds.Contains(radarrMovie.TmdbId))
+            {
+                var movie = radarrMovie.ToMovie();
+                dbContext.Movies.Add(movie);
+                _logger.LogInformation("Added new movie: {Title} (TMDb ID: {TmdbId})", movie.Title, movie.TmdbId);
+            }
+        }
+    }
+
+    private async Task MarkRemovedMoviesAsync(
+        AppDbContext dbContext,
+        IEnumerable<MovieDto> radarrMovies,
+        List<Movie> dbMovies,
+        CancellationToken cancellationToken
+    )
+    {
+        var radarrTmdbIds = radarrMovies.Select(m => m.TmdbId).ToHashSet();
+        var removedMovies = dbMovies.Where(m => !radarrTmdbIds.Contains(m.TmdbId)).ToList();
+
+        foreach (var movie in removedMovies)
+        {
+            movie.IsDeleted = true;
+            movie.DeletedDate = DateTime.UtcNow;
+            _logger.LogInformation("Marking movie as deleted: {Title} (TMDb ID: {TmdbId})", movie.Title, movie.TmdbId);
+        }
+
+        dbContext.Movies.UpdateRange(removedMovies);
+    }
+
+    private async Task UpdateIncompleteMoviesAsync(AppDbContext dbContext, CancellationToken cancellationToken)
+    {
+        var incompleteMovies = await dbContext
+            .Movies.Where(m => !m.IsComplete && !m.IsDeleted)
+            .ToListAsync(cancellationToken);
+
+        _logger.LogInformation("Found {Count} incomplete movies to update.", incompleteMovies.Count);
+
+        foreach (var movie in incompleteMovies)
+        {
+            try
+            {
+                var updatedMovie = await FetchMovieDetailsFromOmdbAsync(movie.ImdbId, cancellationToken);
+                if (updatedMovie != null)
+                {
+                    movie.EnrichWith(updatedMovie.ToMovie());
+                    movie.UpdateIsComplete();
+                    _logger.LogDebug("Updated movie: {Title} (IMDb ID: {ImdbId})", movie.Title, movie.ImdbId);
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to update movie: {ImdbId}", movie.ImdbId);
+            }
+        }
+
+        dbContext.Movies.UpdateRange(incompleteMovies);
+    }
+
+    private async Task<NewMovieDto?> FetchMovieDetailsFromOmdbAsync(string imdbId, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrWhiteSpace(imdbId))
+        {
+            _logger.LogWarning("Invalid IMDb ID: {ImdbId}", imdbId);
+            return null;
+        }
+
+        var baseUrl = "https://www.omdbapi.com";
+        var queryParams = new Dictionary<string, string> { { "i", imdbId }, { "apikey", "e11f806f" } };
+        var requestUrl = QueryHelpers.AddQueryString(baseUrl, queryParams);
+
+        var response = await _httpClient.GetAsync(requestUrl, cancellationToken);
+        if (!response.IsSuccessStatusCode)
+        {
+            _logger.LogWarning("Failed to fetch data from OMDB for IMDb ID: {ImdbId}", imdbId);
+            return null;
+        }
+
+        return await response.Content.ReadFromJsonAsync<NewMovieDto>(cancellationToken);
+    }
+}

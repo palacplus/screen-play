@@ -8,7 +8,6 @@ const localStorageMock: Storage = {
 };
 global.localStorage = localStorageMock;
 
-// Mock the request issued by the react app to get the client configuration parameters.
 window.fetch = () => {
   return Promise.resolve(new Response(JSON.stringify({
     "authority": "https://localhost:7079",

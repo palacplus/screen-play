@@ -3,10 +3,7 @@ import { FormErrors } from "./FormErrors";
 import LoginFormProps from "../types/form";
 
 export default function LoginForm(props: LoginFormProps) {
-    const inputStyle = {
-        backgroundColor: props.authContext.error || props.errors ? 'red' : '',
-        opacity: props.authContext.error || props.errors ? 0.3 : 1.0
-    };
+    const inputClassName = props.authContext.error || props.errors ? "error" : "";
 
     return (
         <div className="form-container sign-in">
@@ -15,7 +12,7 @@ export default function LoginForm(props: LoginFormProps) {
                     <>
                         <h1>Hello, Friend!</h1>
                         <span className="message">You are signed in</span>
-                        <button onReset={props.authContext.handleLogout} type="reset">Sign Out</button>
+                        <button onClick={props.authContext.handleLogout} type="reset">Sign Out</button>
                     </>
                 )}
                 {!props.authContext.token && (
@@ -24,7 +21,7 @@ export default function LoginForm(props: LoginFormProps) {
                         <div className="social-icons">
                             <GoogleLogin
                                 onSuccess={props.authContext.handleExternalLogin}
-                                onError={() => { console.log("Login Failed"); }}
+                                onError={() => { console.error("Login Failed"); }}
                             />
                         </div>
                         <input
@@ -34,7 +31,7 @@ export default function LoginForm(props: LoginFormProps) {
                             placeholder="Email"
                             value={props.data.email}
                             onChange={props.onInputChange}
-                            style={inputStyle}
+                            className={inputClassName}
                             onClick={props.onReset}
                         />
                         <FormErrors errors={props.errors?.email?._errors} />
@@ -45,7 +42,7 @@ export default function LoginForm(props: LoginFormProps) {
                             placeholder="Password"
                             value={props.data.password}
                             onChange={props.onInputChange}
-                            style={inputStyle}
+                            className={inputClassName}
                             onClick={props.onReset}
                         />
                         <FormErrors errors={props.errors?.password?._errors} />

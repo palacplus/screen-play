@@ -13,11 +13,11 @@ namespace ScreenPlay.Server.Services;
 public class TokenService : ITokenService
 {
     private readonly JwtConfiguration _jwtConfig;
-    private readonly UserDbContext _userDbContext;
+    private readonly AppDbContext _dbContext;
 
-    public TokenService(UserDbContext userDbContext, IOptions<JwtConfiguration> jwtOptions)
+    public TokenService(AppDbContext dbContext, IOptions<JwtConfiguration> jwtOptions)
     {
-        _userDbContext = userDbContext;
+        _dbContext = dbContext;
         _jwtConfig = jwtOptions.Value;
     }
 
@@ -96,7 +96,7 @@ public class TokenService : ITokenService
 
     public async Task<TokenInfo> SetRefreshTokenForUserAsync(AppUser user, string refreshToken)
     {
-        var tokenInfo = _userDbContext.Tokens.FirstOrDefault(a => a.Username == user.Email);
+        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.Username == user.Email);
 
         if (tokenInfo == null)
         {
@@ -106,7 +106,7 @@ public class TokenService : ITokenService
                 RefreshToken = refreshToken,
                 ExpiredAt = DateTime.UtcNow.AddDays(1)
             };
-            _userDbContext.Tokens.Add(ti);
+            _dbContext.Tokens.Add(ti);
         }
         else
         {
@@ -114,13 +114,13 @@ public class TokenService : ITokenService
             tokenInfo.ExpiredAt = DateTime.UtcNow.AddDays(1);
         }
 
-        await _userDbContext.SaveChangesAsync();
-        return _userDbContext.Tokens.First(a => a.Username == user.Email);
+        await _dbContext.SaveChangesAsync();
+        return _dbContext.Tokens.First(a => a.Username == user.Email);
     }
 
     public bool ValidateRefreshToken(AppUser user, string refreshToken)
     {
-        var tokenInfo = _userDbContext.Tokens.FirstOrDefault(a =>
+        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a =>
             a.RefreshToken == refreshToken && a.Username == user.Email
         );
         if (tokenInfo == null)
@@ -134,11 +134,11 @@ public class TokenService : ITokenService
 
     public async Task RevokeTokensAsync(AppUser user)
     {
-        var tokenInfo = _userDbContext.Tokens.FirstOrDefault(a => a.Username == user.Email);
+        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.Username == user.Email);
         if (tokenInfo != null)
         {
-            _userDbContext.Tokens.Remove(tokenInfo);
-            await _userDbContext.SaveChangesAsync();
+            _dbContext.Tokens.Remove(tokenInfo);
+            await _dbContext.SaveChangesAsync();
         }
     }
 }

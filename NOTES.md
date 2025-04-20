@@ -8,13 +8,13 @@ dotnet-aspnet-codegenerator controller -name MoviesController -async -api -m Mov
 ## Add a new database migration
 
 dotnet ef migrations add [NameOfMigration] --context AppDbContext
-dotnet ef migrations add [NameOfMigration] --context UserDbContext
-
 
 ## Update database from migration
 
-dotnet ef database update --context AppDbContext
-dotnet ef database update --context UserDbContext
+dotnet ef database update
+
+## Drop database
+dotnet ef database drop
 
 ## Export Environment Variables
 export $(cat .env | xargs) && env

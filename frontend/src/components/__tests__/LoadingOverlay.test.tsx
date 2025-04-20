@@ -40,8 +40,6 @@ describe("LoadingOverlay Component", () => {
 
         const parent = container.querySelector("[data-testid='parent']");
         expect(parent).toHaveStyle("filter: blur(1.5px)");
-
-        // Rerender with isLoading set to false
         rerender(
             <div data-testid="parent">
                 <LoadingOverlay isLoading={false} />

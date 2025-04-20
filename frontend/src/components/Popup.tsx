@@ -1,17 +1,17 @@
-import { Movie } from "@/types/library";
+import { MoviePartial } from "@/types/library";
 import { useState } from "react";
 import "./Popup.css";
 
 interface PopupProps {
-  movie: Movie;
+  movie: MoviePartial;
   onClose: () => void;
 }
 
 export default function Popup({ movie, onClose }: PopupProps) {
-  const [rating, setRating] = useState<number | null>(null); // State for user rating
-  const [isReporting, setIsReporting] = useState(false); // State for toggling the report form
-  const [reportText, setReportText] = useState(""); // State for report input
-  const [showConfirmation, setShowConfirmation] = useState(false); // State for confirmation message
+  const [rating, setRating] = useState<number | null>(null);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportText, setReportText] = useState("");
+  const [showConfirmation, setShowConfirmation] = useState(false);
 
   const handleRating = (value: number) => {
     setRating(value);
@@ -23,27 +23,18 @@ export default function Popup({ movie, onClose }: PopupProps) {
       setShowConfirmation(false);
       setIsReporting(false);
       setReportText("");
-    }, 2000); // Show confirmation for 2 seconds
+    }, 2000);
   };
 
   return (
-    <div
-      className="popup-backdrop"
-      onClick={onClose} // Close popup when clicking outside
-    >
-      <div
-        className="popup-content animate-popup"
-        onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside
-      >
+    <div className="popup-backdrop" onClick={onClose}>
+      <div className="popup-content animate-popup" onClick={(e) => e.stopPropagation()}>
         <button className="popup-close-btn" onClick={onClose}>
           &times;
         </button>
         {!isReporting ? (
           <>
-            <button
-              className="popup-report-btn"
-              onClick={() => setIsReporting(true)}
-            >
+            <button className="popup-report-btn" onClick={() => setIsReporting(true)}>
               Report an Issue
             </button>
             <div className="popup-header">
@@ -51,7 +42,7 @@ export default function Popup({ movie, onClose }: PopupProps) {
               <div className="popup-header-details">
                 <h2>{movie.title}</h2>
                 <p className="popup-genre">{movie.genre}</p>
-                <p className="popup-release-date">Released: {movie.releaseDate}</p>
+                <p className="popup-release-date">Released: {movie.released}</p>
                 <p className="popup-runtime">Runtime: {movie.runtime}</p>
                 <div className="popup-rated">
                   <span className={`rated-icon rated-${movie.rated?.toLowerCase()}`}>
@@ -63,7 +54,7 @@ export default function Popup({ movie, onClose }: PopupProps) {
             <div className="popup-body">
               <div className="popup-description-section">
                 <h3>Description</h3>
-                <p className="popup-description">{movie.description}</p>
+                <p className="popup-description">{movie.plot}</p>
               </div>
               <div className="popup-metadata">
                 <p>
@@ -73,7 +64,7 @@ export default function Popup({ movie, onClose }: PopupProps) {
                   <strong>Writer:</strong> {movie.writer}
                 </p>
                 <p>
-                  <strong>Actors:</strong> {movie.actors?.join(", ")}
+                  <strong>Actors:</strong> {movie.actors}
                 </p>
                 <p>
                   <strong>Language:</strong> {movie.language}
@@ -88,11 +79,7 @@ export default function Popup({ movie, onClose }: PopupProps) {
             </div>
             <div className="popup-ratings">
               <div className="imdb-rating">
-                <img
-                  src="/assets/imdb-logo.png"
-                  alt="IMDb"
-                  className="imdb-logo"
-                />
+                <img src="/assets/imdb-logo.png" alt="IMDb" className="imdb-logo" />
                 <span>{movie.imdbRating} / 10</span>
               </div>
               <div className="box-office">
@@ -136,10 +123,7 @@ export default function Popup({ movie, onClose }: PopupProps) {
             >
               Submit
             </button>
-            <button
-              className="popup-cancel-btn"
-              onClick={() => setIsReporting(false)}
-            >
+            <button className="popup-cancel-btn" onClick={() => setIsReporting(false)}>
               Cancel
             </button>
           </div>

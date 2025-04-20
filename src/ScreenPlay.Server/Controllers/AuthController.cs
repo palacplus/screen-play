@@ -84,6 +84,7 @@ public class AuthController : ControllerBase
             {
                 return BadRequest(response.ErrorMessage);
             }
+            _logger.LogInformation("User registered {email}", request.Email);
             return CreatedAtAction(nameof(RegisterUserAsync), response);
         }
         catch (Exception ex)
@@ -143,6 +144,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("login")]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -170,7 +172,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost("refresh-token")]
-    [Authorize]
+    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status422UnprocessableEntity)]
@@ -197,6 +199,7 @@ public class AuthController : ControllerBase
             {
                 return Unauthorized(response.ErrorMessage);
             }
+            _logger.LogInformation("User refreshed token {email}", request.Email);
             return Ok(response);
         }
         catch (Exception ex)
@@ -217,6 +220,7 @@ public class AuthController : ControllerBase
                 return Unauthorized("User not found!");
             }
             await _service.LogoutAsync(principal.Value);
+            _logger.LogInformation("User logged out {email}", principal.Value);
             return Ok();
         }
         catch (Exception ex)

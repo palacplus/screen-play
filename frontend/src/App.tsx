@@ -10,8 +10,8 @@ export default function App() {
     return (
       <Layout>
         <Routes>
-          <Route path="/home" element={<AuthProvider><HomePage /></AuthProvider>} />
-          <Route path="/library" element={<AuthProvider><LibraryPage /></AuthProvider>} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="/library" element={<LibraryPage />} />
           {/* // <Route path="/fetch-data" element={<FetchData />} /> */}
           {/* <Route path="/search" element={<SearchWrapped />}>
             <Route path=":imdbId" element={<SearchResultWrapped />} />

@@ -5,3 +5,10 @@ export enum AuthEndpoints {
     LOGOUT = "api/auth/logout",
     REFRESH_TOKEN = "api/auth/refresh-token",
 }
+
+export enum LibraryEndpoints {
+    GET_ALL_MOVIES = "api/movies",
+    GET_MOVIE = "api/movies/:id",
+    ADD_MOVIE = "api/movies/queue",
+    GET_STATS = "api/movies/stats",
+}

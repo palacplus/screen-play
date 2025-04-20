@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
-namespace StreamSelect.Migrations.UserDb
+namespace ScreenPlay.Server.Migrations
 {
     /// <inheritdoc />
     public partial class Initial : Migration
@@ -86,6 +87,59 @@ namespace StreamSelect.Migrations.UserDb
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Keys", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Movies",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ImdbId = table.Column<string>(type: "text", nullable: false),
+                    TmdbId = table.Column<int>(type: "integer", nullable: false),
+                    Title = table.Column<string>(type: "text", nullable: true),
+                    Year = table.Column<int>(type: "integer", nullable: false),
+                    Description = table.Column<string>(type: "text", nullable: true),
+                    Rated = table.Column<string>(type: "text", nullable: true),
+                    FileName = table.Column<string>(type: "text", nullable: true),
+                    OriginalTitle = table.Column<string>(type: "text", nullable: true),
+                    Language = table.Column<string>(type: "text", nullable: true),
+                    SortTitle = table.Column<string>(type: "text", nullable: true),
+                    SizeOnDisk = table.Column<long>(type: "bigint", nullable: false),
+                    Status = table.Column<string>(type: "text", nullable: true),
+                    ReleaseDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    YouTubeTrailerId = table.Column<string>(type: "text", nullable: true),
+                    Studio = table.Column<string>(type: "text", nullable: true),
+                    Path = table.Column<string>(type: "text", nullable: true),
+                    QualityProfileId = table.Column<int>(type: "integer", nullable: false),
+                    HasFile = table.Column<bool>(type: "boolean", nullable: false),
+                    Monitored = table.Column<bool>(type: "boolean", nullable: false),
+                    MinimumAvailability = table.Column<string>(type: "text", nullable: true),
+                    IsAvailable = table.Column<bool>(type: "boolean", nullable: false),
+                    FolderName = table.Column<string>(type: "text", nullable: true),
+                    Runtime = table.Column<int>(type: "integer", nullable: false),
+                    CleanTitle = table.Column<string>(type: "text", nullable: true),
+                    TitleSlug = table.Column<string>(type: "text", nullable: true),
+                    RootFolderPath = table.Column<string>(type: "text", nullable: true),
+                    Genres = table.Column<List<string>>(type: "text[]", nullable: true),
+                    Tags = table.Column<List<string>>(type: "text[]", nullable: true),
+                    Added = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    Popularity = table.Column<double>(type: "double precision", nullable: false),
+                    Director = table.Column<string>(type: "text", nullable: true),
+                    Actors = table.Column<List<string>>(type: "text[]", nullable: true),
+                    Writers = table.Column<List<string>>(type: "text[]", nullable: true),
+                    Country = table.Column<string>(type: "text", nullable: true),
+                    Awards = table.Column<string>(type: "text", nullable: true),
+                    BoxOffice = table.Column<string>(type: "text", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
+                    DeletedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    UpdatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    CreatedDate = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsComplete = table.Column<bool>(type: "boolean", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Movies", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -230,6 +284,50 @@ namespace StreamSelect.Migrations.UserDb
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Images",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MovieId = table.Column<int>(type: "integer", nullable: false),
+                    CoverType = table.Column<string>(type: "text", nullable: false),
+                    RemoteUrl = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Images", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Images_Movies_MovieId",
+                        column: x => x.MovieId,
+                        principalTable: "Movies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Ratings",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "integer", nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    MovieId = table.Column<int>(type: "integer", nullable: false),
+                    Source = table.Column<string>(type: "text", nullable: false),
+                    Votes = table.Column<long>(type: "bigint", nullable: false),
+                    Value = table.Column<double>(type: "double precision", nullable: false),
+                    Type = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Ratings", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_Ratings_Movies_MovieId",
+                        column: x => x.MovieId,
+                        principalTable: "Movies",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
                 table: "AspNetRoleClaims",
@@ -279,6 +377,11 @@ namespace StreamSelect.Migrations.UserDb
                 column: "Expiration");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Images_MovieId",
+                table: "Images",
+                column: "MovieId");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Keys_Use",
                 table: "Keys",
                 column: "Use");
@@ -302,6 +405,11 @@ namespace StreamSelect.Migrations.UserDb
                 name: "IX_PersistedGrants_SubjectId_SessionId_Type",
                 table: "PersistedGrants",
                 columns: new[] { "SubjectId", "SessionId", "Type" });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Ratings_MovieId",
+                table: "Ratings",
+                column: "MovieId");
         }
 
         /// <inheritdoc />
@@ -326,10 +434,16 @@ namespace StreamSelect.Migrations.UserDb
                 name: "DeviceCodes");
 
             migrationBuilder.DropTable(
+                name: "Images");
+
+            migrationBuilder.DropTable(
                 name: "Keys");
 
             migrationBuilder.DropTable(
                 name: "PersistedGrants");
+
+            migrationBuilder.DropTable(
+                name: "Ratings");
 
             migrationBuilder.DropTable(
                 name: "Tokens");
@@ -339,6 +453,9 @@ namespace StreamSelect.Migrations.UserDb
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Movies");
         }
     }
 }

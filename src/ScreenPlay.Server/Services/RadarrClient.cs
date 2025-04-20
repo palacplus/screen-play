@@ -10,8 +10,9 @@ namespace ScreenPlay.Server.Services;
 
 public interface IRadarrClient
 {
-    Task<MovieResponse> PostMovieAsync(AddMovieRequest payload);
-    Task<MovieResponse> GetMovieByImdbIdAsync(string imdbId);
+    Task<MovieDto> SearchMovieAsync(SearchMovieRequest payload);
+    Task<MovieDto> GetMovieByImdbIdAsync(string imdbId);
+    Task<IEnumerable<MovieDto>> GetMoviesAsync();
 }
 
 public class RadarrClient : IRadarrClient
@@ -31,10 +32,21 @@ public class RadarrClient : IRadarrClient
         _retryPolicy = Policy
             .Handle<HttpRequestException>()
             .Or<TaskCanceledException>()
-            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
+            .WaitAndRetryAsync(
+                3, 
+                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
+                onRetryAsync: async (exception, timeSpan, context) =>
+                {
+                    _logger.LogWarning(
+                        "Error occurred while calling Radarr API: {Exception}. Retrying in {TimeSpan} seconds.",
+                        exception.Message,
+                        timeSpan.TotalSeconds
+                    );
+                }
+            );
     }
 
-    public async Task<MovieResponse> PostMovieAsync(AddMovieRequest payload)
+    public async Task<MovieDto> SearchMovieAsync(SearchMovieRequest payload)
     {
         if (payload == null) throw new ArgumentNullException(nameof(payload));
 
@@ -45,28 +57,36 @@ public class RadarrClient : IRadarrClient
         {
             var response = await _httpClient.PostAsync("/api/v3/movie", content);
             response.EnsureSuccessStatusCode();
-
-            response.EnsureSuccessStatusCode();
-            var movie = await response.Content.ReadFromJsonAsync<MovieResponse>();
+            var movie = await response.Content.ReadFromJsonAsync<MovieDto>();
             return movie;
         });
     }
 
-    public async Task<MovieResponse> GetMovieByImdbIdAsync(string imdbId)
+    public async Task<MovieDto> GetMovieByImdbIdAsync(string imdbId)
     {
         if (string.IsNullOrWhiteSpace(imdbId))
             throw new ArgumentException("IMDb ID cannot be null or empty.", nameof(imdbId));
         var requestUrl = $"/api/v3/movie/lookup/imdb?imdbId={Uri.EscapeDataString(imdbId)}";
-        _logger.LogInformation("Requesting movie {requestUrl}", requestUrl);
 
         return await _retryPolicy.ExecuteAsync(async () =>
         {
             var response = await _httpClient.GetAsync(requestUrl);
 
             response.EnsureSuccessStatusCode();
-            var movie = await response.Content.ReadFromJsonAsync<MovieResponse>();
+            var movie = await response.Content.ReadFromJsonAsync<MovieDto>();
 
             return movie;
+        });
+    }
+
+    public async Task<IEnumerable<MovieDto>> GetMoviesAsync()
+    {
+        return await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var response = await _httpClient.GetAsync("/api/v3/movie");
+            response.EnsureSuccessStatusCode();
+            var movies = await response.Content.ReadFromJsonAsync<IEnumerable<MovieDto>>();
+            return movies;
         });
     }
 }

@@ -16,7 +16,7 @@ export default function SignUpForm(props: LoginFormProps) {
                     <>
                         <h1>Success!</h1>
                         <span className="message">You are signed in</span>
-                        <button onReset={props.authContext.handleLogout} type="reset">Sign Out</button>
+                        <button onClick={props.authContext.handleLogout} type="reset">Sign Out</button>
                     </>
                 )}
                 {!props.authContext.token && (
@@ -25,7 +25,7 @@ export default function SignUpForm(props: LoginFormProps) {
                         <div className="social-icons">
                             <GoogleLogin
                                 onSuccess={props.authContext.handleExternalLogin}
-                                onError={() => { console.log("Google Login Failed"); }}
+                                onError={() => { console.error("Google Login Failed"); }}
                                 text="signup_with"
                             />
                         </div>

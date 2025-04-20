@@ -1,13 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ScreenPlay.Server.Data;
 using ScreenPlay.Server.Dtos;
+using ScreenPlay.Server.Extensions;
 using ScreenPlay.Server.Models;
 using ScreenPlay.Server.Services;
 
@@ -34,7 +30,13 @@ public class MoviesController : ControllerBase
         {
             return NotFound();
         }
-        return await _context.Movies.ToListAsync();
+        var movies = await _context
+            .Movies.Where(m => !m.IsDeleted)
+            .Include(m => m.Ratings)
+            .Include(m => m.Images)
+            .ToListAsync();
+
+        return movies;
     }
 
     [HttpGet("{id}")]
@@ -44,7 +46,11 @@ public class MoviesController : ControllerBase
         {
             return NotFound();
         }
-        var movie = await _context.Movies.FindAsync(id);
+        var movie = await _context
+            .Movies.Where(m => !m.IsDeleted)
+            .Include(m => m.Ratings)
+            .Include(m => m.Images)
+            .FirstOrDefaultAsync(m => m.Id == id);
 
         if (movie == null)
         {
@@ -54,7 +60,30 @@ public class MoviesController : ControllerBase
         return movie;
     }
 
+    [HttpGet("imdbid/{imdbId}")]
+    [AllowAnonymous]
+    public async Task<ActionResult<Movie>> GetMovieWithImdbId(string imdbId)
+    {
+        if (_context.Movies == null)
+        {
+            return NotFound();
+        }
+        var movie = await _context
+            .Movies.Where(m => !m.IsDeleted)
+            .Include(m => m.Ratings)
+            .Include(m => m.Images)
+            .FirstOrDefaultAsync(m => m.ImdbId == imdbId);
+
+        if (movie == null)
+        {
+            return NotFound();
+        }
+
+        return Ok(movie);
+    }
+
     [HttpPut("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PutMovie(int id, Movie movie)
     {
         if (id != movie.Id)
@@ -97,6 +126,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> DeleteMovie(int id)
     {
         if (_context.Movies == null)
@@ -115,25 +145,69 @@ public class MoviesController : ControllerBase
         return NoContent();
     }
 
-    [HttpPost("{imdbId}/queue")]
-    public async Task<IActionResult> AddMovieToQueue(string imdbId)
+    [HttpPost("queue")]
+    public async Task<IActionResult> AddMovieToQueue([FromBody] NewMovieDto dto)
     {
-        // TODO: Find the movie by ID to make sure it does not exist in the database
-        // var movie = await _context.Movies.FirstOrDefaultAsync(m => m.ImdbId == imdbId.ToString());
-
-        var movie = await _radarrClient.GetMovieByImdbIdAsync(imdbId.ToString());
-        if (movie == null)
+        if (_context.Movies == null)
         {
-            return NotFound($"Movie with ID {imdbId} not found.");
+            return Problem("Entity set 'AppDbContext.Movies'  is null.");
+        }
+        var movie = await _context.Movies.FirstOrDefaultAsync(m => m.ImdbId == dto.ImdbID);
+        if (movie != null)
+        {
+            return BadRequest("Movie already exists.");
         }
 
-        var addMovieRequest = new AddMovieRequest(movie.TmdbId);
-        movie = await _radarrClient.PostMovieAsync(addMovieRequest);
-        if (movie == null)
+        var movieResponse = await _radarrClient.GetMovieByImdbIdAsync(dto.ImdbID);
+        if (movieResponse == null)
+        {
+            return NotFound($"Movie with ID {dto.ImdbID} not found.");
+        }
+        if (movieResponse.TmdbId == 0)
+        {
+            return BadRequest("Movie does not have a TMDB ID.");
+        }
+        var request = new SearchMovieRequest(movieResponse.TmdbId);
+        movieResponse = await _radarrClient.SearchMovieAsync(request);
+        if (movieResponse == null)
         {
             return BadRequest("Failed to add movie to queue.");
         }
-        return Ok(movie);
+
+        var validationErrors = movieResponse.Validate();
+
+        if (validationErrors.Any())
+        {
+            return BadRequest(validationErrors);
+        }
+
+        movie = movieResponse.ToMovie();
+        movie.EnrichWith(dto.ToMovie());
+
+        _context.Movies.Add(movie);
+        await _context.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(AddMovieToQueue), new { id = movie.Id }, movie);
+    }
+
+    [HttpGet("stats")]
+    [AllowAnonymous]
+    public async Task<ActionResult<StatsDto>> GetStats()
+    {
+        if (_context.Movies == null)
+        {
+            return NotFound();
+        }
+
+        var movies = await _context.Movies.ToListAsync();
+        var stats = new StatsDto
+        {
+            MovieCount = _context.Movies.Count(),
+            UserCount = _context.Users.Count(),
+            RatingsCount = _context.Ratings.Count(),
+        };
+
+        return Ok(stats);
     }
 
     private bool MovieExists(int id)

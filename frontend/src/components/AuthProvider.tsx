@@ -2,7 +2,6 @@ import {
   createContext,
   PropsWithChildren,
   useContext,
-  useEffect,
   useState,
   useLayoutEffect,
 } from 'react';
@@ -13,6 +12,7 @@ import { LoginRequest, TokenRequest } from '../types/auth';
 import { usePersistedState } from '../hooks/usePersistedState';
 import { User } from '../types/user';
 import { AuthContextProps } from '../types/auth';
+import { useNavigate } from 'react-router-dom';
 
 declare module 'axios' {
   export interface InternalAxiosRequestConfig {
@@ -25,12 +25,16 @@ const AuthContext = createContext<AuthContextProps | undefined>(undefined);
 type AuthProviderProps = PropsWithChildren;
 
 export default function AuthProvider({ children }: AuthProviderProps) {
-  const [token, setToken] = useState<string | null>();
+  const [token, setToken] = usePersistedState<string | null>("token", null);
   const [currentUser, setCurrentUser] = usePersistedState<User | null>('user', null);
   const [error, setError] = useState<string | null>();
+  const nav = useNavigate();
 
   useLayoutEffect(() => {
     const authInterceptor = axios.interceptors.request.use((config) => {
+      if (config.url?.includes('http')) {
+        return config;
+      }
       config.headers.Authorization =
         !config._retry && token
           ? `Bearer ${token}`
@@ -48,6 +52,14 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
+        // TODO: ensure forbidden status when token is expired
+
+        if (error.response.status == 401 && window.location.pathname !== '/home') {
+          nav('/home');
+          setToken(null);
+          setCurrentUser(null);
+        }
+
         if (error.response.status === 403) {
           try {
             const refreshTokenRequest = {
@@ -80,9 +92,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   async function handleLogin(request: LoginRequest) {
     try {
       const response = await login(request);
-      const user = response[1];
-      setToken(user.accessToken);
-      setCurrentUser(user);
+      setToken(response[2]);
+      setCurrentUser(response[1]);
     } catch (error: any) {
       setError(error.response.data);
       setToken(null);
@@ -93,9 +104,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   async function handleRegister(request: LoginRequest) {
     try {
       const response = await register(request);
-      const user = response[1];
-      setToken(user.accessToken);
-      setCurrentUser(user);
+      setToken(response[2]);
+      setCurrentUser(response[1]);
     } catch (error: any) {
       setError(error.response.data);
       setToken(null);
@@ -117,8 +127,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     try {
       const response = await externalLogin(credentialResponse);
       const user = response[1];
-      setToken(user.accessToken);
-      setCurrentUser(user);
+      setToken(response[2]);
+      setCurrentUser(response[1]);
     } catch (error: any) {
       setError(error.response.data);
       setToken(null);

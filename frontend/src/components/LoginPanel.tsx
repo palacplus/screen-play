@@ -90,7 +90,7 @@ export default function LoginPanel() {
     }
     setFormData(initialFormData);
   }
-
+  // TODO: Logout function is not working
   return (
     <div className="login" id="login-container">
       <LoadingOverlay isLoading={loading} />

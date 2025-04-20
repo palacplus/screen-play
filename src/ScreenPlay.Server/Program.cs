@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ScreenPlay.Server.Configuration;
 using ScreenPlay.Server.Data;
@@ -19,7 +18,6 @@ builder.Logging.ClearProviders().AddConsole();
 var connectionString =
     builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Connection string 'DefaultConnection' not found.");
-builder.Services.AddDbContext<UserDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
@@ -33,10 +31,10 @@ builder.Services.BindAndValidateOnStart<RadarrConfiguration>(RadarrConfiguration
 builder
     // TODO: Enable RequiredConfirmedAccount
     .Services.AddIdentity<AppUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddEntityFrameworkStores<UserDbContext>()
+    .AddEntityFrameworkStores<AppDbContext>()
     .AddDefaultTokenProviders()
     .Services.AddIdentityServer()
-    .AddApiAuthorization<AppUser, UserDbContext>()
+    .AddApiAuthorization<AppUser, AppDbContext>()
     .Services.AddAuthentication(options =>
     {
         options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -96,10 +94,10 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddHttpClient<IRadarrClient, RadarrClient>();
+builder.Services.AddHostedService<MovieSyncService>();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
     app.UseMigrationsEndPoint();
