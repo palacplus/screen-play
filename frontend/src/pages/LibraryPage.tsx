@@ -55,6 +55,7 @@ export default function LibraryPage() {
         <div className="page lib-page">
             <button
                 className="add-movie-btn"
+                data-testid="add-movie-btn"
                 onClick={() => setIsAddMovieOpen(true)}
             >
                 +

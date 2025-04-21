@@ -83,7 +83,6 @@ public class MoviesController : ControllerBase
     }
 
     [HttpPut("{id}")]
-    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> PutMovie(int id, Movie movie)
     {
         if (id != movie.Id)
@@ -126,8 +125,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpDelete("{id}")]
-    [Authorize(Roles = "Admin")]
-    public async Task<IActionResult> DeleteMovie(int id)
+    public async Task<IActionResult> DeleteMovie(int id, [FromQuery] bool deleteFiles = false)
     {
         if (_context.Movies == null)
         {
@@ -139,10 +137,25 @@ public class MoviesController : ControllerBase
             return NotFound();
         }
 
-        _context.Movies.Remove(movie);
+        if (deleteFiles)
+        {
+            var movieFromClient = await _radarrClient.GetMovieAsync(movie.TmdbId);
+            if (movieFromClient == null)
+            {
+                return NotFound($"Movie with ID {movie.TmdbId} not found in Radarr.");
+            }
+            await _radarrClient.DeleteMovieAsync(movieFromClient.Id);
+            _context.Movies.Remove(movie);
+            await _context.SaveChangesAsync();
+            return Ok($"Movie with ID {id} deleted successfully.");
+        }
+
+        movie.IsDeleted = true;
+        movie.Update();
+        _context.Entry(movie).State = EntityState.Modified;
         await _context.SaveChangesAsync();
 
-        return NoContent();
+        return Ok($"Movie with ID {id} marked as deleted.");
     }
 
     [HttpPost("queue")]
@@ -152,13 +165,13 @@ public class MoviesController : ControllerBase
         {
             return Problem("Entity set 'AppDbContext.Movies'  is null.");
         }
-        var movie = await _context.Movies.FirstOrDefaultAsync(m => m.ImdbId == dto.ImdbID);
+        var movie = await _context.Movies.FirstOrDefaultAsync(m => m.ImdbId == dto.ImdbID && !m.IsDeleted);
         if (movie != null)
         {
             return BadRequest("Movie already exists.");
         }
 
-        var movieResponse = await _radarrClient.GetMovieByImdbIdAsync(dto.ImdbID);
+        var movieResponse = await _radarrClient.LookupMovieByImdbIdAsync(dto.ImdbID);
         if (movieResponse == null)
         {
             return NotFound($"Movie with ID {dto.ImdbID} not found.");

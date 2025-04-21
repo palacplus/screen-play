@@ -11,8 +11,10 @@ namespace ScreenPlay.Server.Services;
 public interface IRadarrClient
 {
     Task<MovieDto> SearchMovieAsync(SearchMovieRequest payload);
-    Task<MovieDto> GetMovieByImdbIdAsync(string imdbId);
+    Task<MovieDto> LookupMovieByImdbIdAsync(string imdbId);
     Task<IEnumerable<MovieDto>> GetMoviesAsync();
+    Task<MovieDto> GetMovieAsync(int tmdbId);
+    Task DeleteMovieAsync(int id);
 }
 
 public class RadarrClient : IRadarrClient
@@ -33,7 +35,7 @@ public class RadarrClient : IRadarrClient
             .Handle<HttpRequestException>()
             .Or<TaskCanceledException>()
             .WaitAndRetryAsync(
-                3, 
+                3,
                 retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
                 onRetryAsync: async (exception, timeSpan, context) =>
                 {
@@ -48,7 +50,8 @@ public class RadarrClient : IRadarrClient
 
     public async Task<MovieDto> SearchMovieAsync(SearchMovieRequest payload)
     {
-        if (payload == null) throw new ArgumentNullException(nameof(payload));
+        if (payload == null)
+            throw new ArgumentNullException(nameof(payload));
 
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
@@ -56,13 +59,23 @@ public class RadarrClient : IRadarrClient
         return await _retryPolicy.ExecuteAsync(async () =>
         {
             var response = await _httpClient.PostAsync("/api/v3/movie", content);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "SearchMovieAsync failed with status code {StatusCode}: {ErrorContent}",
+                    response.StatusCode,
+                    errorContent
+                );
+                response.EnsureSuccessStatusCode();
+            }
+
             var movie = await response.Content.ReadFromJsonAsync<MovieDto>();
             return movie;
         });
     }
 
-    public async Task<MovieDto> GetMovieByImdbIdAsync(string imdbId)
+    public async Task<MovieDto> LookupMovieByImdbIdAsync(string imdbId)
     {
         if (string.IsNullOrWhiteSpace(imdbId))
             throw new ArgumentException("IMDb ID cannot be null or empty.", nameof(imdbId));
@@ -71,10 +84,18 @@ public class RadarrClient : IRadarrClient
         return await _retryPolicy.ExecuteAsync(async () =>
         {
             var response = await _httpClient.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "GetMovieByImdbIdAsync failed with status code {StatusCode}: {ErrorContent}",
+                    response.StatusCode,
+                    errorContent
+                );
+                response.EnsureSuccessStatusCode();
+            }
 
-            response.EnsureSuccessStatusCode();
             var movie = await response.Content.ReadFromJsonAsync<MovieDto>();
-
             return movie;
         });
     }
@@ -84,9 +105,59 @@ public class RadarrClient : IRadarrClient
         return await _retryPolicy.ExecuteAsync(async () =>
         {
             var response = await _httpClient.GetAsync("/api/v3/movie");
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "GetMoviesAsync failed with status code {StatusCode}: {ErrorContent}",
+                    response.StatusCode,
+                    errorContent
+                );
+                response.EnsureSuccessStatusCode();
+            }
+
             var movies = await response.Content.ReadFromJsonAsync<IEnumerable<MovieDto>>();
             return movies;
+        });
+    }
+
+    public async Task<MovieDto> GetMovieAsync(int tmdbId)
+    {
+        var requestUrl = $"/api/v3/movie?tmdbid={tmdbId}";
+        return await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var response = await _httpClient.GetAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "GetMovieAsync failed with status code {StatusCode}: {ErrorContent}",
+                    response.StatusCode,
+                    errorContent
+                );
+                response.EnsureSuccessStatusCode();
+            }
+            var movies = await response.Content.ReadFromJsonAsync<IEnumerable<MovieDto>>();
+            return movies.FirstOrDefault(m => m.TmdbId == tmdbId);
+        });
+    }
+
+    public async Task DeleteMovieAsync(int id)
+    {
+        var requestUrl = $"/api/v3/movie/{id}?deleteFiles=true";
+        await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var response = await _httpClient.DeleteAsync(requestUrl);
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "DeleteMovieAsync failed with status code {StatusCode}: {ErrorContent}",
+                    response.StatusCode,
+                    errorContent
+                );
+            }
+            response.EnsureSuccessStatusCode();
         });
     }
 }

@@ -32,7 +32,6 @@ export default function LoginPanel() {
 
   function handleReset() {
     if (formErrors || auth.error) {
-      setFormData(initialFormData);
       setFormErrors(null);
       auth.setError(null);
     }

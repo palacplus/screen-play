@@ -4,7 +4,6 @@ import LoginFormProps from "../types/form";
 
 export default function LoginForm(props: LoginFormProps) {
     const inputClassName = props.authContext.error || props.errors ? "error" : "";
-
     return (
         <div className="form-container sign-in">
             <form>

@@ -29,7 +29,7 @@ export default function Popup({ movie, onClose }: PopupProps) {
   return (
     <div className="popup-backdrop" onClick={onClose}>
       <div className="popup-content animate-popup" onClick={(e) => e.stopPropagation()}>
-        <button className="popup-close-btn" onClick={onClose}>
+        <button className="popup-close-btn" onClick={onClose} aria-label="Close">
           &times;
         </button>
         {!isReporting ? (

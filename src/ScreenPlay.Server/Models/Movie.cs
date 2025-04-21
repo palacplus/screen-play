@@ -46,8 +46,6 @@ public class Movie
     public string Country { get; set; }
     public string Awards { get; set; }
     public string BoxOffice { get; set; }
-
-    [JsonIgnore]
     public bool IsDeleted { get; set; } = false;
     public DateTime? DeletedDate { get; set; }
     public DateTime UpdatedDate { get; set; } = DateTime.UtcNow;

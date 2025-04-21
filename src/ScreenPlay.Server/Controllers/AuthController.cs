@@ -10,7 +10,7 @@ using ScreenPlay.Server.Models;
 using ScreenPlay.Server.Services;
 
 namespace ScreenPlay.Server.Controllers;
-
+//TODO: Configure Roles and Permissions
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase

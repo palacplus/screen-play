@@ -199,3 +199,8 @@
 .login.active .toggle-right {
   transform: translateX(200%);
 }
+
+input.error {
+  background-color: red;
+  opacity: 0.3;
+}

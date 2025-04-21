@@ -5,10 +5,7 @@ import LoginFormProps from "../types/form"
 
 
 export default function SignUpForm(props: LoginFormProps) {
-    const inputStyle = {
-        backgroundColor: props.authContext.error || props.errors ? 'red' : '',
-        opacity: props.authContext.error || props.errors ? 0.3 : 1.0
-    };
+    const inputClassName = props.authContext.error || props.errors ? "error" : "";
     return (
         <div className="form-container sign-up">
             <form>
@@ -16,7 +13,7 @@ export default function SignUpForm(props: LoginFormProps) {
                     <>
                         <h1>Success!</h1>
                         <span className="message">You are signed in</span>
-                        <button onClick={props.authContext.handleLogout} type="reset">Sign Out</button>
+                        <button data-testid="sign-out-button" onClick={props.authContext.handleLogout} type="reset">Sign Out</button>
                     </>
                 )}
                 {!props.authContext.token && (
@@ -36,7 +33,7 @@ export default function SignUpForm(props: LoginFormProps) {
                             data-testid="register-email-input"
                             value={props.data.email}
                             onChange={props.onInputChange}
-                            style={inputStyle}
+                            className={inputClassName}
                             onClick={props.onReset}
                         />
                         <FormErrors errors={props.errors?.email?._errors} />
@@ -47,7 +44,7 @@ export default function SignUpForm(props: LoginFormProps) {
                             data-testid="register-pwd-input"
                             value={props.data.password}
                             onChange={props.onInputChange}
-                            style={inputStyle}
+                            className={inputClassName}
                             onClick={props.onReset}
                         />
                         <FormErrors errors={props.errors?.password?._errors} />
@@ -58,7 +55,7 @@ export default function SignUpForm(props: LoginFormProps) {
                             data-testid="register-conf-pwd-input"
                             value={props.data.confirmPassword}
                             onChange={props.onInputChange}
-                            style={inputStyle}
+                            className={inputClassName}
                             onClick={props.onReset}
                         />
                         <FormErrors errors={props.errors?.confirmPassword?._errors} />
