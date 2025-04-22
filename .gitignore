@@ -249,8 +249,5 @@ node_modules/
 ## .NET Settings
 appsettings.Development.json
 
-# React
-*package-lock.json
-
 # Local files
 local
