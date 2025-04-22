@@ -88,7 +88,7 @@ public class RadarrClient : IRadarrClient
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 _logger.LogError(
-                    "GetMovieByImdbIdAsync failed with status code {StatusCode}: {ErrorContent}",
+                    "LookupMovieByImdbIdAsync failed with status code {StatusCode}: {ErrorContent}",
                     response.StatusCode,
                     errorContent
                 );

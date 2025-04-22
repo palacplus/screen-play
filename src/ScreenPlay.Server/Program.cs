@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ScreenPlay.Server.Configuration;
 using ScreenPlay.Server.Data;
@@ -22,7 +23,7 @@ builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connect
 builder.Services.AddDatabaseDeveloperPageExceptionFilter();
 
 // Configuration
-builder.Services.BindAndValidateOnStart<AdminConfiguration>(AdminConfiguration.ConfigSection);
+builder.Services.BindAndValidateOnStart<AdminCredentials>(AdminCredentials.ConfigSection);
 builder.Services.BindAndValidateOnStart<JwtConfiguration>(JwtConfiguration.ConfigSection);
 builder.Services.BindAndValidateOnStart<GoogleAuthConfiguration>(GoogleAuthConfiguration.ConfigSection);
 builder.Services.BindAndValidateOnStart<RadarrConfiguration>(RadarrConfiguration.ConfigSection);
@@ -95,6 +96,7 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddHttpClient<IRadarrClient, RadarrClient>();
 builder.Services.AddHostedService<MovieSyncService>();
+builder.Services.AddHostedService<StartupService>();
 
 var app = builder.Build();
 

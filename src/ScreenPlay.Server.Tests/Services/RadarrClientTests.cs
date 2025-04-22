@@ -60,7 +60,7 @@ public class RadarrClientTests
     }
 
     [Fact]
-    public async Task GetMovieByImdbIdAsync_ShouldReturnMovieDto_WhenRequestIsSuccessful()
+    public async Task LookupMovieByImdbIdAsync_ShouldReturnMovieDto_WhenRequestIsSuccessful()
     {
         // Arrange
         var imdbId = "tt1375666";
@@ -69,7 +69,7 @@ public class RadarrClientTests
         _httpMessageHandlerMock.SetupResponse(HttpStatusCode.OK, JsonSerializer.Serialize(movieResponse));
 
         // Act
-        var result = await _radarrClient.GetMovieByImdbIdAsync(imdbId);
+        var result = await _radarrClient.LookupMovieByImdbIdAsync(imdbId);
 
         // Assert
         result.Should().NotBeNull();
@@ -78,13 +78,13 @@ public class RadarrClientTests
     }
 
     [Fact]
-    public async Task GetMovieByImdbIdAsync_ShouldThrowException_WhenImdbIdIsNullOrEmpty()
+    public async Task LookupMovieByImdbIdAsync_ShouldThrowException_WhenImdbIdIsNullOrEmpty()
     {
         // Arrange
         string imdbId = null;
 
         // Act
-        Func<Task> act = async () => await _radarrClient.GetMovieByImdbIdAsync(imdbId);
+        Func<Task> act = async () => await _radarrClient.LookupMovieByImdbIdAsync(imdbId);
 
         // Assert
         await act.Should()

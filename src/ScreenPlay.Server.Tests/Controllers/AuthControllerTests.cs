@@ -14,14 +14,11 @@ public class AuthControllerTests
 {
     private readonly ILogger<AuthController> _logger = Substitute.For<ILogger<AuthController>>();
     private readonly IAuthService _authService = Substitute.For<IAuthService>();
-    private readonly IOptions<AdminConfiguration> _adminOptions = Options.Create(
-        new AdminConfiguration { Email = "admin@example.com" }
-    );
     private readonly AuthController _controller;
 
     public AuthControllerTests()
     {
-        _controller = new AuthController(_logger, _authService, _adminOptions);
+        _controller = new AuthController(_logger, _authService);
     }
 
     [Fact]

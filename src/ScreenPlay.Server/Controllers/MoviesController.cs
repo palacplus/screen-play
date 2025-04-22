@@ -40,6 +40,9 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Movie>> GetMovie(int id)
     {
         if (_context.Movies == null)
@@ -62,6 +65,8 @@ public class MoviesController : ControllerBase
 
     [HttpGet("imdbid/{imdbId}")]
     [AllowAnonymous]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Movie>> GetMovieWithImdbId(string imdbId)
     {
         if (_context.Movies == null)
@@ -83,6 +88,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpPut("{id}")]
+    [Authorize(Roles = AppRole.Admin)]
     public async Task<IActionResult> PutMovie(int id, Movie movie)
     {
         if (id != movie.Id)
@@ -98,33 +104,16 @@ public class MoviesController : ControllerBase
         }
         catch (DbUpdateConcurrencyException)
         {
-            if (!MovieExists(id))
-            {
-                return NotFound();
-            }
-            else
-            {
-                throw;
-            }
+            throw;
         }
 
         return NoContent();
     }
 
-    [HttpPost]
-    public async Task<ActionResult<Movie>> PostMovie(Movie movie)
-    {
-        if (_context.Movies == null)
-        {
-            return Problem("Entity set 'AppDbContext.Movies'  is null.");
-        }
-        _context.Movies.Add(movie);
-        await _context.SaveChangesAsync();
-
-        return CreatedAtAction("GetMovie", new { id = movie.Id }, movie);
-    }
-
     [HttpDelete("{id}")]
+    [Authorize(Roles = AppRole.Admin)]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteMovie(int id, [FromQuery] bool deleteFiles = false)
     {
         if (_context.Movies == null)
@@ -221,10 +210,5 @@ public class MoviesController : ControllerBase
         };
 
         return Ok(stats);
-    }
-
-    private bool MovieExists(int id)
-    {
-        return (_context.Movies?.Any(e => e.Id == id)).GetValueOrDefault();
     }
 }

@@ -7,6 +7,8 @@ ARG PROJECT_NAME
 WORKDIR /app
 COPY ./${PROJECT_NAME}/package*.json ./
 
+ENV REACT_APP_SERVER_PORT=7001
+
 RUN npm install
 COPY ./${PROJECT_NAME} .
 RUN npm run build
@@ -14,7 +16,6 @@ RUN npm run build
 # Production Stage
 FROM nginx:stable-alpine AS runtime
 COPY --from=build /app/build /usr/share/nginx/html
-
 # Add an entrypoint to injext environment variables at runtime
 # COPY /deploy/env.sh /docker-entrypoint.d/env.sh
 # RUN chmod +x /docker-entrypoint.d/env.sh

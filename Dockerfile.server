@@ -23,6 +23,7 @@ RUN dotnet publish --disable-parallel -c Release -r linux-musl-x64 --self-contai
 FROM mcr.microsoft.com/dotnet/aspnet:9.0-alpine AS runtime
 ARG PROJECT_NAME
 ENV PROJECT_NAME=${PROJECT_NAME}
+ENV ASPNETCORE_ENVIRONMENT=Production
 
 # Copy the built output
 COPY --chown=app:app --from=build /app/out /app
@@ -40,7 +41,6 @@ RUN apk del --purge apk-tools
 
 USER app
 WORKDIR /app
-
 EXPOSE 7001
 
 ENTRYPOINT ["dotnet", "ScreenPlay.Server.dll"]

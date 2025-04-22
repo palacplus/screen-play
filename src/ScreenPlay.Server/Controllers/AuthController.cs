@@ -10,6 +10,7 @@ using ScreenPlay.Server.Models;
 using ScreenPlay.Server.Services;
 
 namespace ScreenPlay.Server.Controllers;
+
 //TODO: Configure Roles and Permissions
 [Route("api/[controller]")]
 [ApiController]
@@ -19,15 +20,10 @@ public class AuthController : ControllerBase
     private readonly IAuthService _service;
     private readonly string _adminEmail;
 
-    public AuthController(
-        ILogger<AuthController> logger,
-        IAuthService service,
-        IOptions<AdminConfiguration> adminOptions
-    )
+    public AuthController(ILogger<AuthController> logger, IAuthService service)
     {
         _logger = logger;
         _service = service;
-        _adminEmail = adminOptions.Value.Email;
     }
 
     [HttpGet("user")]
@@ -79,7 +75,7 @@ public class AuthController : ControllerBase
     {
         try
         {
-            var response = await RegisterUserWithRoleAsync(request);
+            var response = await _service.RegisterAsync(request, AppRole.User);
             if (response.Token == null)
             {
                 return BadRequest(response.ErrorMessage);
@@ -119,7 +115,7 @@ public class AuthController : ControllerBase
                 return Ok(loginResponse);
             }
 
-            var registerResponse = await RegisterUserWithRoleAsync(loginRequest);
+            var registerResponse = await _service.RegisterAsync(loginRequest, AppRole.User);
             if (registerResponse.Token == null)
             {
                 _logger.LogError("Unable to register external user {email}", loginRequest.Email);
@@ -192,7 +188,7 @@ public class AuthController : ControllerBase
             {
                 AccessToken = token,
                 RefreshToken = request.RefreshToken,
-                Username = request.Email
+                Username = request.Email,
             };
             var response = await _service.RefreshTokenAsync(tokenInfo);
             if (response.Token == null)
@@ -226,18 +222,6 @@ public class AuthController : ControllerBase
         catch (Exception ex)
         {
             return StatusCode(StatusCodes.Status500InternalServerError, ex.Message);
-        }
-    }
-
-    private async Task<AuthResponse> RegisterUserWithRoleAsync(LoginRequest request)
-    {
-        if (request.Email == _adminEmail)
-        {
-            return await _service.RegisterAsync(request, AppRole.Admin);
-        }
-        else
-        {
-            return await _service.RegisterAsync(request, AppRole.User);
         }
     }
 }
