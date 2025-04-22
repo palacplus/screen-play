@@ -1,0 +1,179 @@
+name: E2E Playwright Tests
+
+on:
+  push:
+    branches: [feature/*]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  extract-image-metadata:
+    runs-on: ubuntu-latest
+    outputs:
+      serverImageTag: ${{ steps.server-image-metadata.outputs.tags }}
+      clientImageTag: ${{ steps.web-image-metadata.outputs.tags }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for docker image
+        id: web-image-metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+      - name: Extract metadata for docker image
+        id: server-image-metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-server
+          tags: |
+            type=ref,event=branch
+            type=ref,event=pr
+            type=semver,pattern={{version}}
+            type=semver,pattern={{major}}.{{minor}}
+
+  e2e-tests:
+    runs-on: ubuntu-latest
+    needs: extract-image-metadata
+    timeout-minutes: 60
+    env:
+      REGISTRY: ghcr.io
+      DB_PORT: 5432
+      DB_NAME: ScreenPlay
+      DB_USER: testuser
+      RADARR_API_KEY: 65a41f27f3f24c9a8cdd86aa3ccdb085
+      RADARR_PORT: 7878
+      TEST_USERNAME: testUser@mymmail.com
+    services:
+      postgres:
+        image: postgres:15
+        ports:
+          - 5432:5432
+        env:
+          POSTGRES_USER: ${{ env.DB_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          POSTGRES_DB: ${{ env.DB_NAME }}
+        options: --name postgres --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5 --health-start-period 30s
+
+      radarr:
+        image: lscr.io/linuxserver/radarr:5.21.1
+        ports:
+          - 7878:7878
+        options: --name radarr --workdir /
+
+      backend:
+        image: ${{ needs.extract-image-metadata.outputs.serverImageTag }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        ports:
+          - 5001:5001
+        env:
+          SP_AUTHENTICATION__GOOGLE__CLIENTID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          SP_AUTHENTICATION__GOOGLE__CLIENTSECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
+          SP_AUTHENTICATION__JWT__KEY: test
+          SP_AUTHENTICATION__JWT__ISSUER: test
+          SP_AUTHENTICATION__JWT__AUDIENCE: test
+          SP_AUTHENTICATION__JWT__EXPIRYHOURS: 1
+          SP_ADMIN__EMAIL: ${{ env.TEST_USERNAME }}
+          SP_ADMIN__PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          SP_CONNECTIONSTRINGS__DEFAULTCONNECTION: Server=postgres;Port=${{ env.DB_PORT }};Database=${{ env.DB_NAME }};User Id=${{ env.DB_USER }};Password=${{ secrets.ADMIN_PASSWORD }};
+          SP_RADARR__URI: http://radarr:${{ env.RADARR_PORT }}
+          SP_RADARR__APIKEY: ${{ env.RADARR_API_KEY }}
+          ASPNETCORE_ENVIRONMENT: Production
+          PORT: 5001
+        options: --name screenplay-server --workdir /app
+
+      frontend:
+        image: ${{ needs.extract-image-metadata.outputs.clientImageTag }}
+        credentials:
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+        ports:
+          - 8080:80
+        env:
+          PORT: 8080
+        options: >
+          --name screenplay-web --workdir /app
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Configure Radarr
+        run: |
+          docker exec radarr sed -i "s|<ApiKey>.*</ApiKey>|<ApiKey>${{ env.RADARR_API_KEY }}</ApiKey>|g" /config/config.xml
+          docker restart radarr
+          sleep 20
+          docker restart screenplay-server
+          docker restart screenplay-web
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+
+      - name: Wait for services to start
+        run: |
+          npm install wait-on
+
+          docker ps -a
+          echo "Waiting for database to start on port 5432..."
+          npx wait-on tcp:localhost:5432 -t 20s
+
+          echo "Waiting for frontend to start on port 8080..."
+          npx wait-on http://localhost:8080 -t 20s
+              
+          echo "Waiting for backend to start on port 5001..."
+          npx wait-on http://localhost:5001/health -t 20s
+
+      - name: Setup Playwright tests
+        run: |
+          npm ci
+          npx playwright install --with-deps
+        working-directory: ./frontend
+
+      - name: Run Playwright tests
+        run: |
+          npx playwright test
+        working-directory: ./frontend
+
+      - name: Generate Playwright report
+        run: npx playwright show-report
+
+      - name: Upload Playwright report as artifact
+        if: success()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 5
+
+      - name: Docker debug
+        if: failure()
+        run: |
+          echo "Docker debug information:"
+          echo "--------------------------------"
+          echo "Docker containers:"
+          docker ps -a
+          echo "-------------DATABASE------------"
+          docker logs postgres
+          echo "-------------BACKEND-------------"
+          docker logs screenplay-server
+          echo "-------------WEBSERVER-----------"
+          docker logs screenplay-web

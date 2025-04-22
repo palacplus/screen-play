@@ -18,7 +18,6 @@ public class AuthController : ControllerBase
 {
     private readonly ILogger<AuthController> _logger;
     private readonly IAuthService _service;
-    private readonly string _adminEmail;
 
     public AuthController(ILogger<AuthController> logger, IAuthService service)
     {

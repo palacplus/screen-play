@@ -1,9 +1,12 @@
 using System.Text;
+using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ScreenPlay.Server.Configuration;
@@ -81,6 +84,9 @@ builder.Services.AddHttpClient<IRadarrClient, RadarrClient>();
 builder.Services.AddHostedService<MovieSyncService>();
 builder.Services.AddHostedService<StartupService>();
 
+// Add Health Checks
+builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();
+
 var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
@@ -100,6 +106,9 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseIdentityServer();
 app.UseAuthorization();
+
+// Map Health Check Endpoints
+app.MapHealthChecks("/health");
 
 app.MapControllerRoute(name: "default", pattern: "{controller}/{action=Index}/{id?}");
 
