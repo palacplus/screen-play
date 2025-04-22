@@ -69,23 +69,6 @@ builder
         opts.SaveTokens = true;
     });
 
-// HTTPS
-builder.Services.AddHsts(options =>
-{
-    options.MaxAge = TimeSpan.FromDays(365);
-    options.IncludeSubDomains = true;
-    options.Preload = true;
-});
-builder.Services.Configure<HttpsRedirectionOptions>(options =>
-{
-    options.RedirectStatusCode = StatusCodes.Status307TemporaryRedirect;
-    options.HttpsPort = 443;
-});
-builder.Services.Configure<ForwardedHeadersOptions>(options =>
-{
-    options.ForwardedHeaders = Microsoft.AspNetCore.HttpOverrides.ForwardedHeaders.XForwardedProto;
-});
-
 // API
 builder.Services.AddControllers();
 builder.Services.AddHttpContextAccessor();
@@ -110,13 +93,6 @@ if (app.Environment.IsDevelopment())
         options.RoutePrefix = string.Empty;
     });
 }
-else
-{
-    app.UseHsts();
-}
-
-app.UseForwardedHeaders();
-app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 

@@ -20,7 +20,6 @@ docker run \
     --env=ASPNETCORE_ENVIRONMENT=Production \
     --network=bridge \
     --workdir=/app \
-    -p 7001:7001 \
     -p 5001:5001 \
     --restart=no -d \
     screenplay-server:1.0.0

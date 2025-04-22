@@ -11,7 +11,7 @@
     "ScreenPlay": {
       "commandName": "Project",
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7079;http://localhost:5155",
+      "applicationUrl": "http://localhost:5001",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
       }

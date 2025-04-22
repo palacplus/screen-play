@@ -1,6 +1,5 @@
 ARG PROJECT_NAME=ScreenPlay.Server
 
-# Use the official .NET 9.0 SDK image to build the app
 FROM mcr.microsoft.com/dotnet/sdk:9.0-alpine AS build
 ARG PROJECT_NAME
 ENV DOTNET_NUGET_SIGNATURE_VERIFICATION=false
@@ -28,20 +27,12 @@ ENV ASPNETCORE_ENVIRONMENT=Production
 # Copy the built output
 COPY --chown=app:app --from=build /app/out /app
 
-RUN apk --no-cache add ca-certificates
-COPY ./certs/ScreenPlay.pem /usr/local/share/ca-certificates/secure-tls.crt
-COPY ./certs/ScreenPlay.key /etc/ssl/private/secure-tls.key
-RUN chmod 644 /usr/local/share/ca-certificates/secure-tls.crt
-RUN chmod 644 /etc/ssl/private/secure-tls.key
-RUN update-ca-certificates
-
-# Clean up unnecessary packages to reduce image size
 RUN apk add --update curl
 RUN apk del --purge apk-tools
 
 USER app
 WORKDIR /app
-EXPOSE 7001
+EXPOSE 5001
 
 ENTRYPOINT ["dotnet", "ScreenPlay.Server.dll"]
 # ENTRYPOINT ["tail", "-f", "/dev/null"]

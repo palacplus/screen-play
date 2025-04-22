@@ -2,8 +2,8 @@ const { createProxyMiddleware } = require("http-proxy-middleware");
 const { env } = require("process");
 
 const target = env.REACT_APP_SERVER_PORT
-  ? `https://localhost:${env.REACT_APP_SERVER_PORT}`
-  : "https://localhost:7001";
+  ? `http://localhost:${env.REACT_APP_SERVER_PORT}`
+  : "http://localhost:5001";
 
 const context = [
   "/_configuration",
