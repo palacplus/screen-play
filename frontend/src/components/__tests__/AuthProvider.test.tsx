@@ -1,5 +1,6 @@
 import { render, screen, act } from "@testing-library/react";
 import axios from "axios";
+import { MemoryRouter } from "react-router-dom";
 import MockAdapter from "axios-mock-adapter";
 import AuthProvider, { useAuth } from "../AuthProvider";
 import { CredentialResponse } from "@react-oauth/google";
@@ -7,6 +8,11 @@ import { CredentialResponse } from "@react-oauth/google";
 const mockAxios = new MockAdapter(axios);
 
 describe("AuthProvider", () => {
+    const mockNavigate = jest.fn();
+    jest.mock("react-router-dom", () => ({
+        ...jest.requireActual("react-router-dom"),
+        useNavigate: () => mockNavigate,
+    }));
     const TestComponent = () => {
         const auth = useAuth();
 
@@ -33,6 +39,15 @@ describe("AuthProvider", () => {
             </div>
         );
     };
+    const renderComponent = () => {
+        render(
+          <MemoryRouter>
+            <AuthProvider>
+                <TestComponent />
+            </AuthProvider>
+          </MemoryRouter>
+        );
+      };
 
     beforeEach(() => {
         mockAxios.reset();
@@ -42,11 +57,7 @@ describe("AuthProvider", () => {
         const mockResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/login").reply(200, mockResponse);
 
-        render(
-            <AuthProvider>
-                <TestComponent />
-            </AuthProvider>
-        );
+        renderComponent();
 
         const loginButton = screen.getByText("Login");
 
@@ -63,11 +74,7 @@ describe("AuthProvider", () => {
     it("handles login failure", async () => {
         mockAxios.onPost("/api/auth/login").reply(401, "Invalid credentials");
 
-        render(
-            <AuthProvider>
-                <TestComponent />
-            </AuthProvider>
-        );
+        renderComponent();
 
         const loginButton = screen.getByText("Login");
 
@@ -85,11 +92,7 @@ describe("AuthProvider", () => {
         const mockResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/register").reply(201, mockResponse);
 
-        render(
-            <AuthProvider>
-                <TestComponent />
-            </AuthProvider>
-        );
+        renderComponent();
 
         const registerButton = screen.getByText("Register");
 
@@ -108,11 +111,7 @@ describe("AuthProvider", () => {
         const mockLoginResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/login").reply(200, mockLoginResponse);
 
-        render(
-            <AuthProvider>
-                <TestComponent />
-            </AuthProvider>
-        );
+        renderComponent();
 
         const loginButton = screen.getByText("Login");
         await act(async () => {
@@ -135,11 +134,7 @@ describe("AuthProvider", () => {
         const mockResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/external-login").reply(200, mockResponse);
 
-        render(
-            <AuthProvider>
-                <TestComponent />
-            </AuthProvider>
-        );
+        renderComponent();
 
         const externalLoginButton = screen.getByText("External Login");
 
@@ -170,11 +165,7 @@ describe("AuthProvider", () => {
 
         mockAxios.onGet("/api/some-data").replyOnce(403);
         mockAxios.onGet("/api/some-data").replyOnce(200);
-        render(
-            <AuthProvider>
-                <TestComponent />
-            </AuthProvider>
-        );
+        renderComponent();
 
         // Act: Request initial user login and send a get data request with bearer token
         const loginButton = screen.getByText("Login");
@@ -195,5 +186,5 @@ describe("AuthProvider", () => {
         expect(screen.getByTestId("token").textContent).toBe(mockRefreshResponse.token);
         expect(screen.getByTestId("refreshToken").textContent).toBe(mockLoginResponse.refreshToken);
         expect(screen.getByTestId("error").textContent).toBe("");
-    })
+    });
 });

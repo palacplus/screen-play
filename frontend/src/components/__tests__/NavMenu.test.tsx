@@ -9,6 +9,24 @@ jest.mock("react-router-dom", () => ({
   useNavigate: () => mockNavigate,
 }));
 
+const mockAuthContext = {
+  error: null,
+  token: "token",
+  currentUser: {
+    email: "email",
+    refreshToken: "refreshtoken",
+  },
+  handleLogin: jest.fn(),
+  handleLogout: jest.fn(),
+  handleRegister: jest.fn(),
+  handleExternalLogin: jest.fn(),
+  setError: jest.fn(),
+};
+jest.mock("../AuthProvider", () => ({
+  ...jest.requireActual("../AuthProvider"),
+  useAuth: () => mockAuthContext,
+}));
+
 describe("NavMenu Component", () => {
   const renderNavMenu = () => {
     render(
@@ -20,8 +38,8 @@ describe("NavMenu Component", () => {
 
   test("renders the logo and navigation links", () => {
     renderNavMenu();
-    expect(screen.getByRole("link", { name: /screenplay logo/i })).toBeInTheDocument();
-    expect(screen.getByRole("link", { name: /movie library/i })).toBeInTheDocument();
+    expect(screen.getByRole("img", { name: /screenplay logo/i })).toBeInTheDocument();
+    expect(screen.getByRole("link", { name: /view library/i })).toBeInTheDocument();
   });
 
   test("toggles the navbar when the toggler is clicked", () => {

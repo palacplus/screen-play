@@ -1,29 +1,40 @@
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import LibraryStats from "../LibraryStats";
+import { getStats } from "../../services/api/library";
+import { StatsModel } from "@/types/library";
+
+jest.mock("../../services/api/library", () => ({
+  getStats: jest.fn(),
+}));
+
+const mockStats: StatsModel = {
+  movieCount: 120,
+  userCount: 45,
+  ratingsCount: 300,
+};
 
 describe("LibraryStats Component", () => {
-  const metrics = {
-    totalMovies: 100,
-    activeUsers: 50,
-    totalHoursWatched: 200,
-    totalRatings: 300,
-    topTitles: ["Inception", "The Matrix", "Jurassic Park"],
-  };
-
-  test("renders all metrics", () => {
-    render(<LibraryStats {...metrics} />);
-    expect(screen.getByText("100")).toBeInTheDocument();
-    expect(screen.getByText("Total Movies")).toBeInTheDocument();
-    expect(screen.getByText("50")).toBeInTheDocument();
-    expect(screen.getByText("200")).toBeInTheDocument();
-    expect(screen.getByText("300")).toBeInTheDocument();
+  beforeEach(() => {
+    jest.clearAllMocks();
   });
 
-  test("renders the top 3 titles", () => {
-    render(<LibraryStats {...metrics} />);
-    metrics.topTitles.forEach((title) => {
-      expect(screen.getByText(title)).toBeInTheDocument();
+  test("renders the title and loading state initially", () => {
+    render(<LibraryStats />);
+    expect(screen.getByText("Library Overview")).toBeInTheDocument();
+    expect(screen.queryByText(/Total Movies/i)).toBeInTheDocument();
+  });
+
+  test("fetches and displays stats correctly", async () => {
+    (getStats as jest.Mock).mockResolvedValueOnce(mockStats);
+
+    render(<LibraryStats />);
+
+    // Wait for the stats to be displayed
+    await waitFor(() => {
+      expect(screen.getByText("120")).toBeInTheDocument();
+      expect(screen.getByText("45")).toBeInTheDocument();
+      expect(screen.getByText("300")).toBeInTheDocument();
     });
   });
 });

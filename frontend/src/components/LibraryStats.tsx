@@ -13,7 +13,6 @@ export default function LibraryStats() {
         console.error("Error fetching stats:", error);
       }
     };
-
     fetchStats();
   }, []);
 

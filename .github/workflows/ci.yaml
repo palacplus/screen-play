@@ -11,7 +11,7 @@ env:
   IMAGE_VERSION: ${{ github.ref_name }}
 
 jobs:
-  test-dotnet:
+  dotnet-test:
     runs-on: ubuntu-latest
     env:
       TEST_PATH: ./src/ScreenPlay.Server.Tests
@@ -22,19 +22,34 @@ jobs:
       with:
         dotnet-version: 9.0.x
     - name: Restore dependencies
-      run: |
-        dotnet restore ${{ env.TEST_PATH }}
+      run: dotnet restore ${{ env.TEST_PATH }}
     - name: Build
-      run: |
-        dotnet build --no-restore ${{ env.TEST_PATH }}
+      run: dotnet build --no-restore ${{ env.TEST_PATH }}
     - name: Test
-      run: |
-        dotnet test --no-build --verbosity normal ${{ env.TEST_PATH }}
+      run: dotnet test --no-build --verbosity normal ${{ env.TEST_PATH }}
 
+  node-test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+    - run: npm ci
+      working-directory: ./frontend
+    - run: npm run build --if-present
+      working-directory: ./frontend
+    - run: npm test
+      working-directory: ./frontend
 
   build-and-push-images:
     runs-on: ubuntu-latest
-    needs: test-dotnet
+    needs: [dotnet-test, node-test]
     permissions:
       contents: read
       packages: write

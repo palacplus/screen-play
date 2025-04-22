@@ -75,7 +75,7 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
         await addNewMovie(movie);
         onAddMovie(movie);
         setError("");
-      } catch (err) {
+      } catch (err: Error | any) {
         console.error(err);
         setError("An error occurred while adding the movie. Please try again.");
       } finally {
