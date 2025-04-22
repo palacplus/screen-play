@@ -65,7 +65,7 @@ public class MovieSyncService : BackgroundService
 
         var dbMovies = await FetchDatabaseMoviesAsync(dbContext, cancellationToken);
 
-        await AddNewMoviesAsync(dbContext, radarrMovies, dbMovies);
+        AddNewMoviesAsync(dbContext, radarrMovies, dbMovies);
         MarkRemovedMovies(dbContext, radarrMovies, dbMovies);
         await UpdateIncompleteMoviesAsync(dbContext, dbMovies, cancellationToken);
 
@@ -92,11 +92,7 @@ public class MovieSyncService : BackgroundService
         return await dbContext.Movies.Where(m => !m.IsDeleted).ToListAsync(cancellationToken);
     }
 
-    private async Task AddNewMoviesAsync(
-        AppDbContext dbContext,
-        IEnumerable<MovieDto> radarrMovies,
-        List<Movie> dbMovies
-    )
+    private void AddNewMoviesAsync(AppDbContext dbContext, IEnumerable<MovieDto> radarrMovies, List<Movie> dbMovies)
     {
         var existingTmdbIds = dbMovies.Select(m => m.TmdbId).ToHashSet();
 

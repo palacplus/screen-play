@@ -34,18 +34,7 @@ public class RadarrClient : IRadarrClient
         _retryPolicy = Policy
             .Handle<HttpRequestException>()
             .Or<TaskCanceledException>()
-            .WaitAndRetryAsync(
-                3,
-                retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)),
-                onRetryAsync: async (exception, timeSpan, context) =>
-                {
-                    _logger.LogWarning(
-                        "Error occurred while calling Radarr API: {Exception}. Retrying in {TimeSpan} seconds.",
-                        exception.Message,
-                        timeSpan.TotalSeconds
-                    );
-                }
-            );
+            .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
     }
 
     public async Task<MovieDto> SearchMovieAsync(SearchMovieRequest payload)

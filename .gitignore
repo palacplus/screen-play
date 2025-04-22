@@ -252,5 +252,5 @@ appsettings.Development.json
 # React
 *package-lock.json
 
-# Testing Certs
-certs
+# Local files
+local
