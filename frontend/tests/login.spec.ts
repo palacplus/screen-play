@@ -1,8 +1,8 @@
 import { test, expect } from "@playwright/test";
 import { getClassList, registerAndValidate } from "./helpers";
+import { testUser} from "./constants";
 
 test.use({ storageState: { cookies: [], origins: [] } });
-
 const location = "/home";
 
 test.describe("Login Form", () => {
@@ -76,44 +76,25 @@ test.describe("Registration Form", () => {
     expect(loginClasses).not.toContain("active");
   });
 
-  test.describe("input validation", () => {
-    const testEmail = "test@myplace.net";
-    const testPassword = "njk99Awen@$jn";
-
-    test.beforeAll(async ({ request }) => {
-      const response = await request.delete("/api/auth/user", {
-        params: { email: testEmail },
-      });
-      expect(response.ok() || response.status() === 404).toBeTruthy();
-    });
-
+  test.describe.serial("input validation", () => {
     test("should register user successfully", async ({ page }) => {
-      await test.step("should register user with valid input", async () => {
-        await registerAndValidate(page, testEmail, testPassword, testPassword, "Success!");
-      });
-
-      await test.step("should reject second attempt with the same input", async () => {
         await page.evaluate(() => localStorage.clear());
-        await page.goto(location);
-        await page.getByTestId("register-toggle").click();
-        expect(page.getByRole("heading", { name: "Create Account" })).toBeVisible();
-        await registerAndValidate(page, testEmail, testPassword, testPassword, "already taken");
+        await registerAndValidate(page, testUser.email, testUser.password, testUser.password, "Success!");
       });
-
-      await test.step("should execute login successfully", async ({}) => {
-        await page.evaluate(() => localStorage.clear());
+  
+      test("should execute login successfully", async ({page}) => {
         await page.goto(location);
-        await page.getByTestId("login-email-input").fill(testEmail);
-        await page.getByTestId("login-pwd-input").fill(testPassword);
+        await page.getByTestId("login-email-input").fill(testUser.email);
+        await page.getByTestId("login-pwd-input").fill(testUser.password);
         await page.getByTestId("login-button").click();
         await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
       });
     });
 
     const inputData = [
-      { email: "invalid", password: testPassword, confirmPassword: testPassword, expectedOutput: "Invalid Email" },
-      { email: testEmail, password: "invalid", confirmPassword: testPassword, expectedOutput: "Password must be at least" },
-      { email: testEmail, password: testPassword, confirmPassword: "invalid", expectedOutput: "Passwords do not match" },
+      { email: "invalid", password: testUser.password, confirmPassword: testUser.password, expectedOutput: "Invalid Email" },
+      { email: testUser.email, password: "invalid", confirmPassword: testUser.password, expectedOutput: "Password must be at least" },
+      { email: testUser.email, password: testUser.password, confirmPassword: "invalid", expectedOutput: "Passwords do not match" },
     ];
 
     inputData.forEach(({ email, password, confirmPassword, expectedOutput }) => {
@@ -121,5 +102,4 @@ test.describe("Registration Form", () => {
         await registerAndValidate(page, email, password, confirmPassword, expectedOutput);
       });
     });
-  });
 });

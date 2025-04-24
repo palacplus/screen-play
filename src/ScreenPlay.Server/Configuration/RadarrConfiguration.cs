@@ -12,4 +12,6 @@ public class RadarrConfiguration
 
     [Required]
     public string? ApiKey { get; set; }
+
+    public string? RootFolderPath { get; set; } = "/movies";
 }

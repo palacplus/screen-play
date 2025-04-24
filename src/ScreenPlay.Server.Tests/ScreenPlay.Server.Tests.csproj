@@ -2,8 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
-    <RootNamespace>ScreenPlay.Server.Tests</RootNamespace>
-    <AssemblyName>ScreenPlay.Server.Tests</AssemblyName>
     <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
   </PropertyGroup>
 

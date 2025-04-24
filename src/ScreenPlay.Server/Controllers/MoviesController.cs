@@ -24,6 +24,7 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize(Roles = AppRole.Admin)]
     public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
     {
         if (_context.Movies == null)
@@ -169,8 +170,8 @@ public class MoviesController : ControllerBase
         {
             return BadRequest("Movie does not have a TMDB ID.");
         }
-        var request = new SearchMovieRequest(movieResponse.TmdbId);
-        movieResponse = await _radarrClient.SearchMovieAsync(request);
+        var request = new QueueMovieRequest(movieResponse.TmdbId);
+        movieResponse = await _radarrClient.QueueMovieAsync(request);
         if (movieResponse == null)
         {
             return BadRequest("Failed to add movie to queue.");

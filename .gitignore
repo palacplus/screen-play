@@ -251,3 +251,6 @@ appsettings.Development.json
 
 # Local files
 local
+
+.vscode/
+*.code-workspace

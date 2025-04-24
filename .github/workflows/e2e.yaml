@@ -58,10 +58,13 @@ jobs:
       DB_USER: testuser
       RADARR_API_KEY: 65a41f27f3f24c9a8cdd86aa3ccdb085
       RADARR_PORT: 7878
-      TEST_USERNAME: testUser@mymmail.com
+      RADARR_ROOT_PATH: /tmp
+      TEST_USERNAME: testuser@mymail.com
+      TEST_PASSWORD: RandomPassword123@@
+
     services:
       postgres:
-        image: postgres:15
+        image: postgres:17
         ports:
           - 5432:5432
         env:
@@ -86,15 +89,16 @@ jobs:
         env:
           SP_AUTHENTICATION__GOOGLE__CLIENTID: ${{ secrets.GOOGLE_CLIENT_ID }}
           SP_AUTHENTICATION__GOOGLE__CLIENTSECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-          SP_AUTHENTICATION__JWT__KEY: test
+          SP_AUTHENTICATION__JWT__KEY: ${{ secrets.JWT_KEY }}
           SP_AUTHENTICATION__JWT__ISSUER: test
           SP_AUTHENTICATION__JWT__AUDIENCE: test
           SP_AUTHENTICATION__JWT__EXPIRYHOURS: 1
           SP_ADMIN__EMAIL: ${{ env.TEST_USERNAME }}
-          SP_ADMIN__PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
+          SP_ADMIN__PASSWORD: ${{ env.TEST_PASSWORD }}
           SP_CONNECTIONSTRINGS__DEFAULTCONNECTION: Server=postgres;Port=${{ env.DB_PORT }};Database=${{ env.DB_NAME }};User Id=${{ env.DB_USER }};Password=${{ secrets.ADMIN_PASSWORD }};
           SP_RADARR__URI: http://radarr:${{ env.RADARR_PORT }}
           SP_RADARR__APIKEY: ${{ env.RADARR_API_KEY }}
+          SP_RADARR__ROOTFOLDERPATH: ${{ env.RADARR_ROOT_PATH }}
           ASPNETCORE_ENVIRONMENT: Production
           PORT: 5001
         options: --name screenplay-server --workdir /app
@@ -115,13 +119,35 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Configure Radarr
+      - name: Inject API token into Radarr Config file
         run: |
           docker exec radarr sed -i "s|<ApiKey>.*</ApiKey>|<ApiKey>${{ env.RADARR_API_KEY }}</ApiKey>|g" /config/config.xml
-          docker restart radarr
-          sleep 20
+          docker restart radarr && sleep 20
+
+      - name: Configure Radarr root folder
+        run: |
+          curl --fail-with-body --location 'http://localhost:7878/api/v3/rootfolder?apikey=${{ env.RADARR_API_KEY }}' \
+                --header 'Content-Type: application/json' \
+                --data '{"id": 0, "path": "${{ env.RADARR_ROOT_PATH }}", "accessible": true}'
+      
+      - name: Restart Services
+        run: |
           docker restart screenplay-server
           docker restart screenplay-web
+
+      - name: Verify test user has been created
+        run: |
+          echo "Verifying test user..."
+          sleep 20
+          curl --fail-with-body --location 'http://localhost:5001/api/auth/user?email=${{ env.TEST_USERNAME }}'
+          curl --fail-with-body --location 'http://localhost:5001/api/auth/login' \
+          --header 'Content-Type: application/json' \
+          --data-raw '{
+            "email": "${{ env.TEST_USERNAME }}",
+            "password": "${{ env.TEST_PASSWORD }}",
+            "confirmPassword": "${{ env.TEST_PASSWORD }}",
+            "rememberMe": true
+          }'
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -153,9 +179,6 @@ jobs:
           npx playwright test
         working-directory: ./frontend
 
-      - name: Generate Playwright report
-        run: npx playwright show-report
-
       - name: Upload Playwright report as artifact
         if: success()
         uses: actions/upload-artifact@v4
@@ -164,7 +187,7 @@ jobs:
           path: playwright-report/
           retention-days: 5
 
-      - name: Docker debug
+      - name: Show Docker Logs on failure
         if: failure()
         run: |
           echo "Docker debug information:"
@@ -177,3 +200,7 @@ jobs:
           docker logs screenplay-server
           echo "-------------WEBSERVER-----------"
           docker logs screenplay-web
+          echo "-------------RADARR-------------"
+          docker logs radarr
+          echo "--------------------------------"
+          echo "Docker debug information end"

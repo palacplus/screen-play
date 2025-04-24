@@ -41,17 +41,17 @@ public class RadarrClientTests
     }
 
     [Fact]
-    public async Task SearchMovieAsync_ShouldReturnMovieDto_WhenRequestIsSuccessful()
+    public async Task QueueMovieAsync_ShouldReturnMovieDto_WhenRequestIsSuccessful()
     {
         // Arrange
-        var SearchMovieRequest = new SearchMovieRequest(12345);
+        var QueueMovieRequest = new QueueMovieRequest(12345);
 
         var movieResponse = new MovieDto { Title = "Inception", TmdbId = 12345 };
 
         _httpMessageHandlerMock.SetupResponse(HttpStatusCode.OK, JsonSerializer.Serialize(movieResponse));
 
         // Act
-        var result = await _radarrClient.SearchMovieAsync(SearchMovieRequest);
+        var result = await _radarrClient.QueueMovieAsync(QueueMovieRequest);
 
         // Assert
         result.Should().NotBeNull();
@@ -93,13 +93,13 @@ public class RadarrClientTests
     }
 
     [Fact]
-    public async Task SearchMovieAsync_ShouldThrowException_WhenPayloadIsNull()
+    public async Task QueueMovieAsync_ShouldThrowException_WhenPayloadIsNull()
     {
         // Arrange
-        SearchMovieRequest payload = null;
+        QueueMovieRequest payload = null;
 
         // Act
-        Func<Task> act = async () => await _radarrClient.SearchMovieAsync(payload);
+        Func<Task> act = async () => await _radarrClient.QueueMovieAsync(payload);
 
         // Assert
         await act.Should()

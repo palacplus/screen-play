@@ -1,6 +1,7 @@
 ﻿using Duende.IdentityServer.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using ScreenPlay.Server.Models;
 
@@ -10,9 +11,7 @@ public class AppDbContext : ApiAuthorizationDbContext<AppUser>
 {
     public AppDbContext(DbContextOptions options, IOptions<OperationalStoreOptions> operationalStoreOptions)
         : base(options, operationalStoreOptions) { }
-
     public DbSet<TokenInfo> Tokens { get; set; }
-
     public DbSet<Movie> Movies { get; set; }
     public DbSet<Image> Images { get; set; }
     public DbSet<Rating> Ratings { get; set; }
@@ -20,7 +19,12 @@ public class AppDbContext : ApiAuthorizationDbContext<AppUser>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
+        ConfigureMovieCreation(modelBuilder);
+        ConfigureUserCreation(modelBuilder);
+    }
 
+    private void ConfigureMovieCreation(ModelBuilder modelBuilder)
+    {
         modelBuilder.Entity<Movie>().HasKey(m => m.Id);
         modelBuilder.Entity<Movie>().Property(m => m.ImdbId).IsRequired();
         modelBuilder.Entity<Movie>().Property(m => m.TmdbId).IsRequired();
@@ -49,5 +53,20 @@ public class AppDbContext : ApiAuthorizationDbContext<AppUser>
         modelBuilder.Entity<Rating>().Property(r => r.Type).IsRequired();
         modelBuilder.Entity<Rating>().Property(r => r.Value).IsRequired();
         modelBuilder.Entity<Rating>().Property(r => r.Votes).IsRequired();
+    }
+
+    private void ConfigureUserCreation(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<AppUser>().HasKey(u => u.Id);
+        modelBuilder.Entity<AppUser>().Property(u => u.Email).IsRequired();
+        modelBuilder.Entity<AppUser>().Property(u => u.UserName).IsRequired();
+        modelBuilder.Entity<AppUser>().Property(u => u.Role).IsRequired();
+
+        modelBuilder
+            .Entity<TokenInfo>()
+            .HasOne<AppUser>()
+            .WithMany()
+            .HasForeignKey(t => t.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

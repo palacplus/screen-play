@@ -1,4 +1,4 @@
-import { Page } from "@playwright/test";
+import { Page, request } from "@playwright/test";
 import { expect } from "@playwright/test";
 
 export async function getClassList(page: Page, locator: string) {
@@ -20,3 +20,35 @@ export async function registerAndValidate(
   await page.getByTestId(`register-button`).click();
   await expect(page.getByText(expectedOutput).nth(0)).toBeVisible();
 };
+
+export async function loginAndValidate(
+  page : Page,
+  email: string,
+  password: string,
+  expectedOutput: string
+) {
+  await page.getByTestId(`login-email-input`).fill(email);
+  await page.getByTestId(`login-pwd-input`).fill(password);
+  await page.getByTestId(`login-button`).click();
+  await expect(page.getByText(expectedOutput).nth(0)).toBeVisible();
+};
+
+export async function adminApiContext(page: Page) {
+    // Extract the Bearer token from the storageState
+    const storageState = await page.context().storageState();
+    let token = storageState.origins[0].localStorage.find((item: any) => item.name === "token")?.value;
+
+    if (!token) {
+      throw new Error("Bearer token not found in storageState");
+    }
+    // Remove double quotes from the token
+    token = token.replace(/^"|"$/g, ""); // Removes quotes at the start and end of the string
+
+    // Create an authenticated APIRequestContext with the Bearer token
+    const apiContext = await request.newContext({
+    storageState: "playwright/.auth.json",
+    extraHTTPHeaders: {
+        Authorization: `Bearer ${token}`,
+    },});
+  return apiContext;
+}

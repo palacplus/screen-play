@@ -3,15 +3,12 @@ using System.Security.Claims;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using ScreenPlay.Server.Configuration;
 using ScreenPlay.Server.Dtos;
 using ScreenPlay.Server.Models;
 using ScreenPlay.Server.Services;
 
 namespace ScreenPlay.Server.Controllers;
 
-//TODO: Configure Roles and Permissions
 [Route("api/[controller]")]
 [ApiController]
 public class AuthController : ControllerBase
@@ -39,6 +36,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpDelete("user")]
+    [Authorize(Roles = AppRole.Admin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteUserAsync([FromQuery] string email)
@@ -52,21 +50,6 @@ public class AuthController : ControllerBase
         return Ok("User deleted successfully");
     }
 
-    [HttpGet("external-info")]
-    [Authorize(Roles = AppRole.Admin)]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetExternalInfoAsync()
-    {
-        var info = await _service.GetExternalInfoAsync();
-        if (info == null)
-        {
-            _logger.LogInformation("Unable to get external info");
-            return NotFound("Unable to get external info");
-        }
-        return Ok(info);
-    }
-
     [HttpPost("register")]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -75,6 +58,17 @@ public class AuthController : ControllerBase
         try
         {
             var response = await _service.RegisterAsync(request, AppRole.User);
+            try
+            {
+                response = await _service.LoginAsync(request);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to login new user");
+                await _service.DeleteUserAsync(request.Email);
+                throw;
+            }
+
             if (response.Token == null)
             {
                 return BadRequest(response.ErrorMessage);
@@ -183,12 +177,7 @@ public class AuthController : ControllerBase
                 return Unauthorized("Missing Bearer token");
             }
             var token = authorization.Substring("Bearer ".Length).Trim();
-            var tokenInfo = new TokenInfo
-            {
-                AccessToken = token,
-                RefreshToken = request.RefreshToken,
-                Username = request.Email,
-            };
+            var tokenInfo = new TokenInfo { AccessToken = token, RefreshToken = request.RefreshToken };
             var response = await _service.RefreshTokenAsync(tokenInfo);
             if (response.Token == null)
             {

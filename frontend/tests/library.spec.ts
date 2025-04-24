@@ -1,6 +1,8 @@
-import { test, expect, request } from "@playwright/test";
+import { test, expect } from "@playwright/test";
+import { adminApiContext } from "./helpers";
 
-test.use({ storageState: "playwright/.auth.json" });
+const storageStatePath = "playwright/.auth.json";
+test.use({ storageState: storageStatePath });
 
 const location = "/library";
 
@@ -19,28 +21,10 @@ test.describe("Add Movie Panel", () => {
 
     test("should add movie successfully", async ({ page }) => {
         const testMovie = { name: "Inception", imdbId: "tt1375666" };
-
-        // Extract the Bearer token from the storageState
-        const storageState = await page.context().storageState();
-        let token = storageState.origins[0].localStorage.find((item) => item.name === "token")?.value;
-
-        if (!token) {
-        throw new Error("Bearer token not found in storageState");
-        }
-
-        // Remove double quotes from the token
-        token = token.replace(/^"|"$/g, ""); // Removes quotes at the start and end of the string
-
-        // Create an authenticated APIRequestContext with the Bearer token
-        const apiContext = await request.newContext({
-        storageState: "playwright/.auth.json",
-        extraHTTPHeaders: {
-            Authorization: `Bearer ${token}`,
-        },
-        });
+        const apiContext = await adminApiContext(page);
 
         // Check if the movie exists
-        const response = await apiContext.get(`/api/movies/imdbid/${testMovie.imdbId}`);
+        const response = await page.request.get(`/api/movies/imdbid/${testMovie.imdbId}`);
         expect(response.ok() || response.status() === 404).toBeTruthy();
 
         const id = response.ok() ? (await response.json()).id : null;

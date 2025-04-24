@@ -42,12 +42,6 @@ namespace ScreenPlay.Server.Services
         Task LogoutAsync(string email);
 
         /// <summary>
-        /// Processes a password reset request using the user provided info
-        /// </summary>
-        /// <returns>Task<SignInResult></returns>
-        Task<SignInResult> GetExternalInfoAsync();
-
-        /// <summary>
         /// Refreshes the token using the user provided info
         /// </summary>
         /// <returns>Task<AuthResponse></returns>

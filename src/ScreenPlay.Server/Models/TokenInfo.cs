@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ScreenPlay.Server.Models;
 
@@ -8,8 +9,9 @@ public class TokenInfo
     public int Id { get; set; }
 
     [Required]
-    [MaxLength(30)]
-    public string Username { get; set; } = string.Empty;
+    [ForeignKey(nameof(AppUser))]
+    public string UserId { get; set; }
+    public AppUser AppUser { get; set; }
 
     [Required]
     public string AccessToken { get; set; } = string.Empty;
@@ -17,6 +19,9 @@ public class TokenInfo
     [Required]
     [MaxLength(100)]
     public string RefreshToken { get; set; } = string.Empty;
+
+    [Required]
+    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     [Required]
     public DateTime ExpiredAt { get; set; }

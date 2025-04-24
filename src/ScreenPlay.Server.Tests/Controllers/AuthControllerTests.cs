@@ -28,6 +28,7 @@ public class AuthControllerTests
         var loginRequest = new LoginRequest() { Email = "user@example.com", Password = "password" };
         var authResponse = new AuthResponse { Token = "access-token"};
         _authService.RegisterAsync(loginRequest, AppRole.User).Returns(authResponse);
+        _authService.LoginAsync(loginRequest).Returns(authResponse);
 
         // Act
         var result = await _controller.RegisterUserAsync(loginRequest);

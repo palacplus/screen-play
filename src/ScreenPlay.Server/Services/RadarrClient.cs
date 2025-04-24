@@ -10,7 +10,7 @@ namespace ScreenPlay.Server.Services;
 
 public interface IRadarrClient
 {
-    Task<MovieDto> SearchMovieAsync(SearchMovieRequest payload);
+    Task<MovieDto> QueueMovieAsync(QueueMovieRequest payload);
     Task<MovieDto> LookupMovieByImdbIdAsync(string imdbId);
     Task<IEnumerable<MovieDto>> GetMoviesAsync();
     Task<MovieDto> GetMovieAsync(int tmdbId);
@@ -37,10 +37,12 @@ public class RadarrClient : IRadarrClient
             .WaitAndRetryAsync(3, retryAttempt => TimeSpan.FromSeconds(Math.Pow(2, retryAttempt)));
     }
 
-    public async Task<MovieDto> SearchMovieAsync(SearchMovieRequest payload)
+    public async Task<MovieDto> QueueMovieAsync(QueueMovieRequest payload)
     {
         if (payload == null)
             throw new ArgumentNullException(nameof(payload));
+
+        payload.RootFolderPath = _config.RootFolderPath;
 
         var jsonPayload = JsonSerializer.Serialize(payload);
         var content = new StringContent(jsonPayload, Encoding.UTF8, "application/json");
@@ -52,7 +54,7 @@ public class RadarrClient : IRadarrClient
             {
                 var errorContent = await response.Content.ReadAsStringAsync();
                 _logger.LogError(
-                    "SearchMovieAsync failed with status code {StatusCode}: {ErrorContent}",
+                    "QueueMovieAsync failed with status code {StatusCode}: {ErrorContent}",
                     response.StatusCode,
                     errorContent
                 );

@@ -1,8 +1,8 @@
 namespace ScreenPlay.Server.Dtos;
 
-public class SearchMovieRequest
+public class QueueMovieRequest
 {
-    public SearchMovieRequest(int tmdbId)
+    public QueueMovieRequest(int tmdbId)
     {
         TmdbId = tmdbId;
     }

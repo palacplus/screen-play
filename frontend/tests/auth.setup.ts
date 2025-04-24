@@ -1,22 +1,18 @@
-import { test, expect } from "@playwright/test";
-import { registerAndValidate } from "./helpers";
+import { test } from "@playwright/test";
+import { loginAndValidate } from "./helpers";
+import { adminUser } from "./constants";
 
-test("authenticate", async ({ page }) => {
-    const testEmail = "testUser@mymmail.com";
-    const response = await page.request.delete('/api/auth/user',
-        {
-          params : { email: testEmail },
-      });
-    expect(response.ok()|| response.status() == 404).toBeTruthy();
+const storageStatePath = "playwright/.auth.json";
 
+test.describe.serial("Authentication Setup", () => {
+  test("authenticate admin user", async ({ page }) => {
     await page.goto("/home");
-    await page.getByTestId("register-toggle").click();
-    await registerAndValidate(
-        page,
-        testEmail,
-        "testPassword123@&",
-        "testPassword123@&",
-        "Success"
+    await loginAndValidate(
+      page,
+      adminUser.email,
+      adminUser.password,
+      "You are signed in"
     );
-    await page.context().storageState({ path: 'playwright/.auth.json' });
+    await page.context().storageState({ path: storageStatePath });
+  });
 });

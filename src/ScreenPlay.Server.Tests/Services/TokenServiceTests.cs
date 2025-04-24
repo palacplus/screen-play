@@ -64,17 +64,6 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public void GenerateRefreshToken_ShouldReturnValidToken()
-    {
-        // Act
-        var refreshToken = _tokenService.GenerateRefreshToken();
-
-        // Assert
-        refreshToken.Should().NotBeNullOrEmpty();
-        refreshToken.Length.Should().BeGreaterThan(0);
-    }
-
-    [Fact]
     public void TryGetClaimFromExpiredToken_ShouldReturnEmail_WhenTokenIsValid()
     {
         // Arrange
@@ -103,16 +92,13 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public async Task SetRefreshTokenForUserAsync_ShouldStoreTokensInDatabase()
+    public async Task GetUserTokensAsync_ShouldStoreTokensInDatabase()
     {
         // Arrange
         var user = new AppUser { Id = "123", Email = "user@example.com" };
-        var accessToken = "access_token";
-        var refreshToken = "refresh_token";
-
         var tokenInfo = new TokenInfo
         {
-            Username = user.Email,
+            UserId = user.Id,
             AccessToken = "old_access_token",
             RefreshToken = "old_refresh_token",
             ExpiredAt = DateTime.UtcNow.AddDays(-1)
@@ -124,13 +110,13 @@ public class TokenServiceTests
         await _dbContext.SaveChangesAsync();
 
         // Act
-        await _tokenService.SetRefreshTokenForUserAsync(user, refreshToken);
+        await _tokenService.GetUserTokensAsync(user);
 
         // Assert
-        var storedTokenInfo = await _dbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);
+        var storedTokenInfo = await _dbContext.Tokens.FirstOrDefaultAsync(t => t.UserId == user.Id);
         storedTokenInfo.Should().NotBeNull();
-        storedTokenInfo.Username.Should().Be(user.Email);
-        storedTokenInfo.RefreshToken.Should().Be(refreshToken);
+        storedTokenInfo.UserId.Should().Be(user.Id);
+        storedTokenInfo.RefreshToken.Should().NotBe("old_refresh_token");
         storedTokenInfo.ExpiredAt.Should().BeCloseTo(DateTime.UtcNow.AddDays(1), TimeSpan.FromSeconds(1));
     }
 
@@ -143,7 +129,7 @@ public class TokenServiceTests
 
         var tokenInfo = new TokenInfo
         {
-            Username = user.Email,
+            UserId = user.Id,
             RefreshToken = refreshToken,
             ExpiredAt = DateTime.UtcNow.AddDays(1)
         };
@@ -169,7 +155,7 @@ public class TokenServiceTests
 
         var tokenInfo = new TokenInfo
         {
-            Username = user.Email,
+            UserId = user.Id,
             RefreshToken = refreshToken,
             ExpiredAt = DateTime.UtcNow.AddDays(-1)
         };
@@ -194,7 +180,7 @@ public class TokenServiceTests
 
         var tokenInfo = new TokenInfo
         {
-            Username = user.Email,
+            UserId = user.Id,
             AccessToken = "access_token",
             RefreshToken = "refresh_token",
             ExpiredAt = DateTime.UtcNow.AddDays(1)
@@ -209,7 +195,7 @@ public class TokenServiceTests
         await _tokenService.RevokeTokensAsync(user);
 
         // Assert
-        var storedTokenInfo = await _dbContext.Tokens.FirstOrDefaultAsync(t => t.Username == user.Email);
+        var storedTokenInfo = await _dbContext.Tokens.FirstOrDefaultAsync(t => t.UserId == user.Id);
         storedTokenInfo.Should().BeNull();
     }
 }

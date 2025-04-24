@@ -69,20 +69,6 @@ public class AuthServiceTests
     }
 
     [Fact]
-    public async Task GetExternalInfoAsync_ShouldReturnSignInResult()
-    {
-        // Arrange
-        var expectedResult = SignInResult.Success;
-        _signInManager.PasswordSignInAsync(Arg.Any<string>(), Arg.Any<string>(), false, false).Returns(expectedResult);
-
-        // Act
-        var result = await _authService.GetExternalInfoAsync();
-
-        // Assert
-        result.Should().Be(expectedResult);
-    }
-
-    [Fact]
     public async Task RegisterAsync_ShouldCreateUserAndAssignRole()
     {
         // Arrange
@@ -102,9 +88,8 @@ public class AuthServiceTests
             .Returns(Task.FromResult(SignInResult.Success));
 
         _tokenService.GenerateAccessToken(appUser).Returns("access_token");
-        _tokenService.GenerateRefreshToken().Returns("refresh_token");
         _tokenService
-            .SetRefreshTokenForUserAsync(appUser, Arg.Any<string>())
+            .GetUserTokensAsync(appUser)
             .Returns(Task.FromResult(new TokenInfo { AccessToken = "access_token", RefreshToken = "refresh_token" }));
 
         // Act
@@ -112,16 +97,13 @@ public class AuthServiceTests
 
         // Assert
         result.Should().NotBeNull();
-        result.Token.Should().NotBeNullOrEmpty();
-        result.RefreshToken.Should().NotBeNullOrEmpty();
+        result.ErrorMessage.Should().BeNull();
         await _userManager.Received(1).CreateAsync(Arg.Any<AppUser>());
         await _userManager.Received(1).AddPasswordAsync(Arg.Any<AppUser>(), loginRequest.Password);
         await _userManager.Received(1).SetEmailAsync(Arg.Any<AppUser>(), loginRequest.Email);
         await _roleManager.Received(1).RoleExistsAsync("User");
         await _roleManager.Received(1).CreateAsync(Arg.Is<IdentityRole>(r => r.Name == "User"));
         await _userManager.Received(1).AddToRoleAsync(Arg.Any<AppUser>(), "User");
-        await _tokenService.Received(1).SetRefreshTokenForUserAsync(appUser, "refresh_token");
-        await _signInManager.Received(1).PasswordSignInAsync(loginRequest.Email, loginRequest.Password, true, false);
     }
 
     [Fact]
@@ -138,9 +120,8 @@ public class AuthServiceTests
             .Returns(Task.FromResult(SignInResult.Success));
         _userManager.FindByEmailAsync(Arg.Any<string>()).Returns(appUser);
         _tokenService.GenerateAccessToken(appUser).Returns("access_token");
-        _tokenService.GenerateRefreshToken().Returns("refresh_token");
         _tokenService
-            .SetRefreshTokenForUserAsync(appUser, Arg.Any<string>())
+            .GetUserTokensAsync(appUser)
             .Returns(Task.FromResult(new TokenInfo { AccessToken = "access_token", RefreshToken = "refresh_token" }));
 
         // Act
@@ -149,7 +130,7 @@ public class AuthServiceTests
         // Assert
         result.Should().NotBeNull();
         result.Token.Should().NotBeNullOrEmpty();
-        await _tokenService.Received(1).SetRefreshTokenForUserAsync(appUser, "refresh_token");
+        await _tokenService.Received(1).GetUserTokensAsync(appUser);
         await _signInManager
             .Received(1)
             .PasswordSignInAsync(loginRequest.Email, loginRequest.Password, loginRequest.RememberMe, false);
@@ -165,9 +146,8 @@ public class AuthServiceTests
         _tokenService.TryGetClaimFromExpiredToken(tokenInfo.AccessToken, ClaimTypes.Email).Returns(appUser.Email);
         _tokenService.ValidateRefreshToken(appUser, tokenInfo.RefreshToken).Returns(true);
         _tokenService.GenerateAccessToken(appUser).Returns("new_access_token");
-        _tokenService.GenerateRefreshToken().Returns("new_refresh_token");
         _tokenService
-            .SetRefreshTokenForUserAsync(appUser, Arg.Any<string>())
+            .GetUserTokensAsync(appUser)
             .Returns(
                 Task.FromResult(new TokenInfo { AccessToken = "new_access_token", RefreshToken = "new_refresh_token" })
             );

@@ -26,12 +26,13 @@ public class TokenService : ITokenService
         if (user == null)
             throw new ArgumentNullException(nameof(user));
 
-        var claims = new[]
+        var claims = new List<Claim>
         {
             new Claim(JwtRegisteredClaimNames.Sub, user.Email ?? throw new ArgumentNullException(nameof(user.Email))),
             new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
             new Claim(ClaimTypes.NameIdentifier, user.Id),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, user.Role),
         };
 
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtConfig.Key));
@@ -43,19 +44,11 @@ public class TokenService : ITokenService
             Expires = DateTime.UtcNow.AddMinutes(_jwtConfig.ExpirationMinutes),
             SigningCredentials = creds,
             Issuer = _jwtConfig.Issuer,
-            Audience = _jwtConfig.Audience
+            Audience = _jwtConfig.Audience,
         };
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
-    }
-
-    public string GenerateRefreshToken()
-    {
-        var randomNumber = new byte[32];
-        using var generator = RandomNumberGenerator.Create();
-        generator.GetBytes(randomNumber);
-        return Convert.ToBase64String(randomNumber);
     }
 
     public string? TryGetClaimFromExpiredToken(string accessToken, string claimType)
@@ -94,35 +87,41 @@ public class TokenService : ITokenService
         return principal.FindFirstValue(claimType);
     }
 
-    public async Task<TokenInfo> SetRefreshTokenForUserAsync(AppUser user, string refreshToken)
+    private static string GenerateRefreshToken()
     {
-        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.Username == user.Email);
+        var randomNumber = new byte[32];
+        using var generator = RandomNumberGenerator.Create();
+        generator.GetBytes(randomNumber);
+        return Convert.ToBase64String(randomNumber);
+    }
 
+    public async Task<TokenInfo> GetUserTokensAsync(AppUser user)
+    {
+        var refreshToken = GenerateRefreshToken();
+        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.UserId == user.Id);
         if (tokenInfo == null)
         {
-            var ti = new TokenInfo
+            tokenInfo = new TokenInfo
             {
-                Username = user.Email,
+                UserId = user.Id,
                 RefreshToken = refreshToken,
-                ExpiredAt = DateTime.UtcNow.AddDays(1)
+                ExpiredAt = DateTime.UtcNow.AddDays(1),
             };
-            _dbContext.Tokens.Add(ti);
+            _dbContext.Tokens.Add(tokenInfo);
         }
         else
         {
             tokenInfo.RefreshToken = refreshToken;
             tokenInfo.ExpiredAt = DateTime.UtcNow.AddDays(1);
         }
-
+        tokenInfo.AccessToken = GenerateAccessToken(user);
         await _dbContext.SaveChangesAsync();
-        return _dbContext.Tokens.First(a => a.Username == user.Email);
+        return tokenInfo;
     }
 
     public bool ValidateRefreshToken(AppUser user, string refreshToken)
     {
-        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a =>
-            a.RefreshToken == refreshToken && a.Username == user.Email
-        );
+        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.RefreshToken == refreshToken && a.UserId == user.Id);
         if (tokenInfo == null)
             return false;
 
@@ -134,7 +133,7 @@ public class TokenService : ITokenService
 
     public async Task RevokeTokensAsync(AppUser user)
     {
-        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.Username == user.Email);
+        var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.UserId == user.Id);
         if (tokenInfo != null)
         {
             _dbContext.Tokens.Remove(tokenInfo);
