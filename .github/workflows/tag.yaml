@@ -2,9 +2,14 @@ name: Tag Release
 
 on:
   pull_request:
-    branches:
-      - main
-    types: [opened, reopened, synchronize]
+    branches: [main]
+    types: [closed]
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to release'
+        required: true
+        default: '1.0.0'
 
 jobs:
   deploy:

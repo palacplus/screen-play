@@ -2,7 +2,8 @@ name: E2E Playwright Tests
 
 on:
   push:
-    branches: [feature/*]
+    branches: [feature/*, bugfix/*, hotfix/*, develop, main]
+    tags: [v*]
 
 env:
   REGISTRY: ghcr.io
