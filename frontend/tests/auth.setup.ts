@@ -6,7 +6,7 @@ const storageStatePath = "playwright/.auth.json";
 
 test.describe.serial("Authentication Setup", () => {
   test("authenticate admin user", async ({ page }) => {
-    await page.goto("/home");
+    await page.goto("/");
     await loginAndValidate(
       page,
       adminUser.email,

@@ -26,7 +26,7 @@ export default function LoginPanel() {
 
   useEffect(() => {
     if (auth.token) {
-      navigate("/home");
+      navigate("/");
     }
   }, [auth.token, navigate]);
 

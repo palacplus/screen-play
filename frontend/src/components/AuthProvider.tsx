@@ -54,8 +54,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         const originalRequest = error.config;
         // TODO: ensure forbidden status when token is expired
 
-        if (error.response.status == 401 && window.location.pathname !== '/home') {
-          nav('/home');
+        if (error.response.status == 401 && window.location.pathname !== '/') {
+          nav('/');
           setToken(null);
           setCurrentUser(null);
         }
