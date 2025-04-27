@@ -38,7 +38,7 @@ export default function NavMenu() {
         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
           <ul className="navbar-nav flex-grow align-items-center">
             <NavItem className="nav-item-logo">
-              <NavbarBrand tag={Link} to="/" className="nav-title">
+              <NavbarBrand tag={Link} to="/home" className="nav-title">
                 <LogoImage />
               </NavbarBrand>
             </NavItem>

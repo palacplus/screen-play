@@ -3,7 +3,7 @@ import { getClassList, registerAndValidate } from "./helpers";
 import { testUser} from "./constants";
 
 test.use({ storageState: { cookies: [], origins: [] } });
-const location = "/";
+const location = "/home";
 
 test.describe("Login Form", () => {
   test.beforeEach(async ({ page }) => {
