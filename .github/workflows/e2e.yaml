@@ -136,7 +136,7 @@ jobs:
           docker restart screenplay-server
           docker restart screenplay-web
 
-      - name: Verify test user has been created
+      - name: Verify test user has been created and can login
         run: |
           echo "Verifying test user..."
           sleep 20
