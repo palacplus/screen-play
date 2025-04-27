@@ -16,13 +16,17 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+      
+      - name: echo version
+        run: |
+          echo "Version: ${{ github.ref }}"
 
       - name: Get Next Version
         id: semver
         uses: ietf-tools/semver-action@v1
         with:
           token: ${{ github.token }}
-          branch: main
+          branch: ${{ github.ref }}
           fallbackTag: 0.0.0
           patchAll: true
           minorList: '+semver:minor'
