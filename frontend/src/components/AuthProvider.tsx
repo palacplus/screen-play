@@ -52,7 +52,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       (response) => response,
       async (error) => {
         const originalRequest = error.config;
-        // TODO: ensure forbidden status when token is expired
 
         if (error.response.status == 401 && window.location.pathname !== '/') {
           nav('/');

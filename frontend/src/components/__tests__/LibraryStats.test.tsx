@@ -30,7 +30,6 @@ describe("LibraryStats Component", () => {
 
     render(<LibraryStats />);
 
-    // Wait for the stats to be displayed
     await waitFor(() => {
       expect(screen.getByText("120")).toBeInTheDocument();
       expect(screen.getByText("45")).toBeInTheDocument();

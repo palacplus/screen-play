@@ -34,17 +34,14 @@ export async function loginAndValidate(
 };
 
 export async function adminApiContext(page: Page) {
-    // Extract the Bearer token from the storageState
     const storageState = await page.context().storageState();
     let token = storageState.origins[0].localStorage.find((item: any) => item.name === "token")?.value;
 
     if (!token) {
       throw new Error("Bearer token not found in storageState");
     }
-    // Remove double quotes from the token
-    token = token.replace(/^"|"$/g, ""); // Removes quotes at the start and end of the string
+    token = token.replace(/^"|"$/g, "");
 
-    // Create an authenticated APIRequestContext with the Bearer token
     const apiContext = await request.newContext({
     storageState: "playwright/.auth.json",
     extraHTTPHeaders: {

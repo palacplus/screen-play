@@ -8,7 +8,7 @@ import {
   NavLink,
 } from "reactstrap";
 import { Link } from "react-router-dom";
-import "./NavDropdownMenu.css"; // Add a CSS file for dropdown styling
+import "./NavDropdownMenu.css";
 
 export default function NavDropdownMenu() {
   const [dropdownOpen, setDropdownOpen] = useState(false);

@@ -40,7 +40,6 @@ export default function LoginPanel() {
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
     setLoading(true)
-    // await new Promise((resolve) => setTimeout(resolve, 3000));
     try{
       const result = LoginSchema.safeParse(formData);
       if (result.success) {
@@ -89,7 +88,6 @@ export default function LoginPanel() {
     }
     setFormData(initialFormData);
   }
-  // TODO: Logout function is not working
   return (
     <div className="login" id="login-container">
       <LoadingOverlay isLoading={loading} />

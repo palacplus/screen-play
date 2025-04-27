@@ -9,7 +9,6 @@ export async function externalLogin(credentialResponse: CredentialResponse) {
     const response = await axios.post(AuthEndpoints.EXTERNAL_LOGIN, credentialResponse);
     const authResponse = (await response.data) as AuthResponse;
     const user: User = {
-        // TODO: get email from credentialResponse
         email: "google",
         refreshToken: authResponse.refreshToken,
     };

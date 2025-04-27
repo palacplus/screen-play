@@ -66,7 +66,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      # Build and push the first image
       - name: Extract metadata for server image
         id: meta-server
         uses: docker/metadata-action@v5

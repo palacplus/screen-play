@@ -5,14 +5,14 @@ import { FormErrors } from "../FormErrors";
 describe("FormErrors", () => {
   it("renders nothing when there are no errors", () => {
     render(<FormErrors />);
-    expect(screen.queryByText(/.+/)).toBeNull(); // Ensures no content is rendered
+    expect(screen.queryByText(/.+/)).toBeNull();
   });
 
   it("renders the first error message when errors are provided", () => {
     const errors = ["Error 1", "Error 2"];
     render(<FormErrors errors={errors} />);
     expect(screen.getByText("Error 1")).toBeInTheDocument();
-    expect(screen.queryByText("Error 2")).toBeNull(); // Only the first error is rendered
+    expect(screen.queryByText("Error 2")).toBeNull();
   });
 
   it("renders the error message with the default red color", () => {

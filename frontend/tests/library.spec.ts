@@ -23,7 +23,6 @@ test.describe("Add Movie Panel", () => {
         const testMovie = { name: "Inception", imdbId: "tt1375666" };
         const apiContext = await adminApiContext(page);
 
-        // Check if the movie exists
         const response = await page.request.get(`/api/movies/imdbid/${testMovie.imdbId}`);
         expect(response.ok() || response.status() === 404).toBeTruthy();
 
@@ -38,7 +37,6 @@ test.describe("Add Movie Panel", () => {
         }
         await page.goto(location);
 
-        // Perform UI actions to add the movie
         const addMovieBtn = page.getByTestId("add-movie-btn");
         await addMovieBtn.click();
         const searchInput = page.getByPlaceholder("Search for a movie...");
@@ -49,7 +47,6 @@ test.describe("Add Movie Panel", () => {
         await expect(searchInput).not.toBeVisible();
         await expect(page.getByAltText("Inception")).toBeVisible();
 
-        // Dispose of the API context
         await apiContext.dispose();
     });
 
