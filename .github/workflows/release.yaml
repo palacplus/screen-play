@@ -4,11 +4,6 @@ on:
   pull_request:
     branches: [main]
   workflow_dispatch:
-    inputs:
-      version:
-        description: 'Version to release'
-        required: true
-        default: '1.0.0'
 
 jobs:
   deploy:
@@ -16,21 +11,36 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
-      
-      - name: echo version
-        run: |
-          echo "Version: ${{ github.ref }}"
 
       - name: Get Next Version
         id: semver
         uses: ietf-tools/semver-action@v1
         with:
           token: ${{ github.token }}
-          branch: ${{ github.ref }}
+          branch: feature/refactor-1
           fallbackTag: 0.0.0
           patchAll: true
           minorList: '+semver:minor'
           majorList: '+semver:major'
+
+      - name: Create Pre-Release
+        uses: ncipollo/release-action@v1.12.0
+        with:
+          prerelease: true
+          draft: false
+          commit: ${{ github.sha }}
+          tag: ${{ steps.semver.outputs.next }}
+          name: ${{ steps.semver.outputs.next }}
+          body: '*pending*'
+          token: ${{ github.token }}
+
+      - name: Update CHANGELOG
+        id: changelog
+        uses: requarks/changelog-action@v1
+        with:
+          token: ${{ github.token }}
+          tag: ${{ steps.semver.outputs.next }}
+          writeToFile: false
 
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
@@ -38,6 +48,7 @@ jobs:
           allowUpdates: true
           draft: false
           makeLatest: true
+          tag: ${{ steps.semver.outputs.next }}
           name: ${{ steps.semver.outputs.next }}
-          body: Changelog Contents
+          body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
