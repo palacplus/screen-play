@@ -3,7 +3,7 @@ name: Tag Release
 on:
   pull_request:
     branches: [main]
-    types: [closed]
+    types: [opened]
   workflow_dispatch:
     inputs:
       version:

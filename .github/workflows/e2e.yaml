@@ -13,12 +13,6 @@ on:
         required: true
 
 jobs:
-  echo:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Echo image tag
-        run: echo "Image tag is ${{ inputs.serverImageTag }} and ${{ inputs.clientImageTag }}"
-
   e2e-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 60
