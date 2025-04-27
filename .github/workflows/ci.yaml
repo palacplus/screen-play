@@ -54,6 +54,9 @@ jobs:
       packages: write
       attestations: write
       id-token: write
+    outputs:
+      server-tags: ${{ steps.meta-server.outputs.tags }}
+      client-tags: ${{ steps.meta-client.outputs.tags }}
 
     steps:
       - name: Checkout repository
@@ -123,3 +126,11 @@ jobs:
       #     subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
       #     subject-digest: ${{ steps.push-client-image.outputs.digest }}
       #     push-to-registry: true
+  
+  trigger-e2e:
+    uses: ./.github/workflows/e2e.yaml
+    needs: build-and-push-images
+    with:
+      clientImageTag: ${{ needs.build-and-push-images.outputs.client-tags }}
+      serverImageTag: ${{ needs.build-and-push-images.outputs.server-tags }}
+    secrets: inherit

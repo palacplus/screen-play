@@ -1,59 +1,28 @@
 name: E2E Playwright Tests
 
 on:
-  push:
-    branches: [feature/*, bugfix/*, hotfix/*, develop, main]
-    tags: [v*]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+  workflow_call:
+    inputs:
+      serverImageTag:
+        description: 'Image tag'
+        type: string
+        required: true
+      clientImageTag:
+        description: 'Image tag'
+        type: string
+        required: true
 
 jobs:
-  extract-image-metadata:
+  echo:
     runs-on: ubuntu-latest
-    outputs:
-      serverImageTag: ${{ steps.server-image-metadata.outputs.tags }}
-      clientImageTag: ${{ steps.web-image-metadata.outputs.tags }}
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Log in to the Container registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata for docker image
-        id: web-image-metadata
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-
-      - name: Extract metadata for docker image
-        id: server-image-metadata
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-server
-          tags: |
-            type=ref,event=branch
-            type=ref,event=pr
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
+      - name: Echo image tag
+        run: echo "Image tag is ${{ inputs.serverImageTag }} and ${{ inputs.clientImageTag }}"
 
   e2e-tests:
     runs-on: ubuntu-latest
-    needs: extract-image-metadata
     timeout-minutes: 60
     env:
-      REGISTRY: ghcr.io
       DB_PORT: 5432
       DB_NAME: ScreenPlay
       DB_USER: testuser
@@ -81,7 +50,7 @@ jobs:
         options: --name radarr --workdir /
 
       backend:
-        image: ${{ needs.extract-image-metadata.outputs.serverImageTag }}
+        image: ${{ inputs.serverImageTag }}
         credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
@@ -105,7 +74,7 @@ jobs:
         options: --name screenplay-server --workdir /app
 
       frontend:
-        image: ${{ needs.extract-image-metadata.outputs.clientImageTag }}
+        image: ${{ inputs.clientImageTag }}
         credentials:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
