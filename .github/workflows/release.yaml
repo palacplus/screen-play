@@ -24,6 +24,10 @@ jobs:
         with:
           token: ${{ github.token }}
           branch: main
+          fallbackTag: 0.0.0
+          patchAll: true
+          minorList: '+semver:minor'
+          majorList: '+semver:major'
 
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
