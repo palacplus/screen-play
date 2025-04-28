@@ -1,9 +1,7 @@
 name: Push Docker Images
 
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
   workflow_call:
     outputs:
       client-tags:
