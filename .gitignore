@@ -251,6 +251,6 @@ appsettings.Development.json
 
 # Local files
 local
-
+.DS_Store
 .vscode/
 *.code-workspace
