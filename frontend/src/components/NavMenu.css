@@ -1,0 +1,129 @@
+﻿a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+.mb-3 {
+  margin-bottom: 0 !important;
+}
+
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.box-shadow {
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.05);
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Paytone+One&family=Rubik+Glitch&display=swap");
+
+header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  background-color: inherit;
+  padding: 10px 0;
+}
+
+.navbar-expand-sm {
+  width: 90%;
+  max-width: 90vw;
+  background-color: inherit;
+  border-bottom: 1px solid #ddd;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  border-radius: 6px;
+}
+
+body {
+  background-color: #f8f9fa;
+}
+
+.navbar-nav {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  width: 100%;
+}
+
+.nav-item-container {
+  display: flex;
+  align-items: center;
+}
+
+.nav-title img {
+  max-height: 100%;
+  height: 4.5em;
+  width: auto;
+}
+
+.nav-item-logo {
+  margin-right: auto;
+}
+
+.nav-btn {
+  margin-right: 10px;
+  color: #ff8700;
+  padding: 8px 12px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: bold;
+  font-size: 0.9rem;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  border: none;
+  transition: transform 0.1s, box-shadow 0.2s;
+}
+.nav-btn:hover {
+  transform: scale(1.01);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+  background-color: #ff8700;
+}
+
+.nav-btn:focus {
+  color: #ff8700; /* Ensure text color is white when focused */
+  outline: none; /* Remove the default focus outline */
+}
+
+.nav-btn:focus:hover {
+  background-color: #ff8700; /* Ensure the button stays orange when both focused and hovered */
+  color: white; /* Ensure text color is white when both focused and hovered */
+}
+
+.search-container {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.1);
+  height: 38px;
+}
+
+.search-input {
+  background-color: #eee;
+  border: none;
+  box-shadow: none;
+  padding: 5px 10px;
+  width: 150px;
+  color: #333;
+  outline: none;
+  font-size: 0.9rem;
+}
+
+.search-input::placeholder {
+  color: #aaa;
+  font-size: 0.9rem;
+}
+
+.logo-image {
+  height: 12vh;
+  width: auto;
+  display: block;
+}

@@ -3,6 +3,7 @@
 
 # Editor
 *.editorconfig
+*.config
 
 # User-specific files
 *.suo
@@ -233,3 +234,23 @@ _Pvt_Extensions
 
 # FAKE - F# Make
 .fake/
+
+# Playwright
+node_modules/
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Environment
+.env
+.env.*
+
+## .NET Settings
+appsettings.Development.json
+
+# Local files
+local
+
+.vscode/
+*.code-workspace
