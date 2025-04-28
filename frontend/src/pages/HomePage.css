@@ -1,0 +1,46 @@
+/* Home Page Container */
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  width: 100%;
+  padding: 1rem;
+  box-sizing: border-box;
+}
+
+/* Main Content */
+.main-content {
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+  width: 100%;
+}
+
+/* Left Side: About and Library Metrics */
+.left-side {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+/* Right Side: Login Panel */
+.right-side {
+  flex: 1;
+}
+
+/* GitHub Icon Link */
+.github-link {
+  text-align: center;
+  margin-top: 5rem;
+}
+
+.github-anchor {
+  text-decoration: none;
+  color: #1e293b;
+  font-size: 1.5rem;
+}
+
+.github-icon {
+  margin-right: 0.5rem;
+}

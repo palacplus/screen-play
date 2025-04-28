@@ -1,0 +1,47 @@
+/* Dropdown Toggle Button */
+.dropdown-toggle-btn {
+  color: #ff8700;
+  background-color: inherit;
+  padding: 6px 10px; /* Reduced padding for a smaller button */
+  border-radius: 6px; /* Match the border radius of the View Library button */
+  font-weight: bold;
+  font-size: 0.85rem; /* Slightly smaller font size */
+  border: none;
+  box-shadow: none; /* Remove box shadow */
+  transition: transform 0.2s;
+  cursor: pointer;
+}
+
+.dropdown-toggle-btn:hover {
+  transform: scale(1.05);
+  background-color: #ff8700;
+}
+
+.dropdown-toggle-btn:active {
+  transform: scale(1); /* No scaling when active */
+  background-color: #ff8700; /* Ensure the background color stays the same */
+  box-shadow: none; /* Remove box shadow */
+  border: none; /* Remove border */
+}
+
+/* Dropdown Menu */
+.dropdown-menu-custom {
+  border-radius: 6px;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+  padding: 0;
+  background-color: #333; /* Dark background for white text to stand out */
+  border: none; /* Remove border */
+}
+
+/* Dropdown Items */
+.dropdown-item-custom {
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  color: white; /* White text for better contrast */
+  transition: background-color 0.2s;
+}
+
+.dropdown-item-custom:hover {
+  background-color: #ff8700; /* Bright orange for hover effect */
+  color: white; /* Ensure text remains white on hover */
+}
