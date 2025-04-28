@@ -20,8 +20,7 @@ jobs:
           branch: feature/refactor-1
           fallbackTag: 0.0.0
           patchAll: true
-          minorList: '+semver:minor'
-          majorList: '+semver:major'
+          majorList: 'BREAKING'
 
       - name: Create Pre-Release
         uses: ncipollo/release-action@v1.12.0
