@@ -48,6 +48,11 @@ jobs:
     uses: ./.github/workflows/docker.yaml
     needs: [dotnet-test, node-test]
     secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
 
   e2e:
     uses: ./.github/workflows/e2e.yaml
