@@ -54,3 +54,13 @@ jobs:
           name: ${{ steps.semver.outputs.next }}
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
+
+  docker-build:
+    uses: ./.github/workflows/docker.yaml
+    needs: tag_release
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
