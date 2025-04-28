@@ -1,6 +1,9 @@
 name: Push Docker Images
 
 on:
+  push:
+    tags:
+      - 'v*'
   workflow_call:
     outputs:
       client-tags:
@@ -44,9 +47,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-server
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push server image
         id: push-server-image
@@ -73,9 +74,7 @@ jobs:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=branch
-            type=ref,event=pr
             type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
 
       - name: Build and push server image
         id: push-client-image
