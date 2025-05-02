@@ -3,6 +3,11 @@ name: Tag Release
 on:
   pull_request:
     branches: [main]
+    paths:
+      - '/deploy/**'
+      - 'frontend/**'
+      - 'src/**'
+      - 'Dockerfile.*'
   workflow_dispatch:
 
 jobs:
