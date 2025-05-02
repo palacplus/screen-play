@@ -1,0 +1,81 @@
+postgres:
+  enabled: true
+  image:
+    repository: postgres
+    tag: 17
+  containerPort: 5432
+  service:
+    enabled: true
+    port: 5432
+  database: mydatabase
+  user: myuser
+  password: mypassword
+
+frontend:
+  enabled: true
+  image:
+    repository: ghcr.io/palacplus/screen-play
+    tag: 1.0.0
+  containerPort: 80
+  service:
+    enabled: true
+    type: NodePort
+    port: 80
+    targetPort: 80
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+
+server:
+  enabled: true
+  image:
+    repository: ghcr.io/palacplus/screen-play-server
+    tag: 1.0.0
+  containerPort: 5001
+  service:
+    enabled: true
+    type: ClusterIP
+    port: 5001
+    targetPort: 5001
+  resources:
+    limits:
+      cpu: "100m"
+      memory: "128Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  readinessProbe:
+    httpGet:
+      path: /health
+      port: http
+    initialDelaySeconds: 30
+    periodSeconds: 5
+  env:
+    - name: ASPNETCORE_ENVIRONMENT
+      value: Production
+    - name: SP_AUTHENTICATION__GOOGLE__CLIENTID
+      value: ""
+    - name: SP_AUTHENTICATION__GOOGLE__CLIENTSECRET
+      value: ""
+    - name: SP_AUTHENTICATION__JWT__KEY
+      value: ""
+    - name: SP_AUTHENTICATION__JWT__ISSUER
+      value: screenplay
+    - name: SP_AUTHENTICATION__JWT__AUDIENCE
+      value: screenplay
+    - name: SP_AUTHENTICATION__JWT__EXPIRYHOURS
+      value: "1"
+    - name: SP_ADMIN__EMAIL
+      value: ""
+    - name: SP_ADMIN__PASSWORD
+      value: ""
+    - name: SP_RADARR__URI
+      value: http://radarr:7878
+    - name: SP_RADARR__APIKEY
+      value: ""
+    - name: SP_RADARR__ROOTFOLDERPATH
+      value: /movies
