@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm-chart.fullname" . }}
+  labels:
+    app: {{ include "helm-chart.name" . }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "helm-chart.name" . }}
+  template:
+    metadata:
+      labels:
+        app: {{ include "helm-chart.name" . }}
+    spec:
+      containers:
+        - name: postgres
+          image: 
+          ports:
+            - containerPort: {{ .Values.postgres.containerPort | quote }}
+          env:
+{{ toYaml .Values.postgres.env | indent 12 }}
+        - name: screenplay-server
+          image: {{ .Values.server.image }}
+          ports:
+            - containerPort: {{ .Values.server.containerPort | quote }}
+          readinessProbe:
+{{ toYaml .Values.server.readinessProbe | indent 12 }}
+          env:
+{{ toYaml .Values.server.env | indent 12 }}
+        - name: screenplay
+          image: {{ .Values.frontend.image }}
+          ports:
+            - containerPort: {{ .Values.client.containerPort | quote }}
+          env:
+{{ toYaml .Values.frontend.env | indent 12 }}
