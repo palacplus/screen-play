@@ -67,3 +67,9 @@ Client image name with the tag
 {{ printf "%s:%s" .Values.frontend.image.repository .Values.frontend.image.tag }}
 {{- end -}}
 
+{{/*
+Create the database connection string
+*/}}
+{{- define "helm-chart.postgres.connectionString" -}}
+{{ printf "Server=%s;Port=%d;Database=%s;User Id=%s;Password=%s;" "postgres" .Values.postgres.containerPort .Values.postgres.database .Values.postgres.user .Values.postgres.password }}
+{{- end -}}
