@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: {{ include "helm-chart.fullname" . }}
   labels:
-    app: {{ include "helm-chart.name" . }}
+    {{- include "helm-chart.labels" . | nindent 4 }}
 spec:
   replicas: 1
   selector:
@@ -16,22 +16,22 @@ spec:
     spec:
       containers:
         - name: postgres
-          image: 
+          image: {{ include "helm-chart.postgres.image" . }}
           ports:
-            - containerPort: {{ .Values.postgres.containerPort | quote }}
+            - containerPort: {{ .Values.postgres.containerPort }}
           env:
 {{ toYaml .Values.postgres.env | indent 12 }}
+
         - name: screenplay-server
-          image: {{ .Values.server.image }}
+          image: {{ include "helm-chart.server.image" . }}
           ports:
-            - containerPort: {{ .Values.server.containerPort | quote }}
+            - containerPort: {{ .Values.server.containerPort }}
           readinessProbe:
 {{ toYaml .Values.server.readinessProbe | indent 12 }}
           env:
 {{ toYaml .Values.server.env | indent 12 }}
+
         - name: screenplay
-          image: {{ .Values.frontend.image }}
+          image: {{ include "helm-chart.frontend.image" . }}
           ports:
-            - containerPort: {{ .Values.client.containerPort | quote }}
-          env:
-{{ toYaml .Values.frontend.env | indent 12 }}
+            - containerPort: {{ .Values.frontend.containerPort }}

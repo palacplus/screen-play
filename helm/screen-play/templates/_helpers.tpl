@@ -7,11 +7,20 @@ release: {{ .Release.Name }}
 {{- end -}}
 
 {{/*
-Generate a full name for any resource
+Create a default fully qualified app name.
 */}}
 {{- define "helm-chart.fullname" -}}
-{{- printf "%s-%s" .Release.Name .Chart.Name | trunc 63 | trimSuffix "-" -}}
-{{- end -}}
+{{- if .Values.fullnameOverride }}
+{{- .Values.fullnameOverride | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- $name := default .Chart.Name .Values.nameOverride }}
+{{- if contains $name .Release.Name }}
+{{- .Release.Name | trunc 63 | trimSuffix "-" }}
+{{- else }}
+{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" }}
+{{- end }}
+{{- end }}
+{{- end }}
 
 {{/*
 Get the name of the chart
@@ -47,14 +56,14 @@ Postgres image name with the tag
 {{/*
 Server image name with the tag
 */}}
-{{- define "helm-chart.postgres.image" -}}
+{{- define "helm-chart.server.image" -}}
 {{ printf "%s:%s" .Values.server.image.repository .Values.server.image.tag }}
 {{- end -}}
 
 {{/*
 Client image name with the tag
 */}}
-{{- define "helm-chart.postgres.image" -}}
+{{- define "helm-chart.frontend.image" -}}
 {{ printf "%s:%s" .Values.frontend.image.repository .Values.frontend.image.tag }}
 {{- end -}}
 
