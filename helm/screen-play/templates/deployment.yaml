@@ -23,7 +23,7 @@ spec:
       {{- end }}
       containers:
         - name: postgres
-          image: {{ include "helm-chart.postgres.image" . }}
+          image: {{ .Values.postgres.image }}
           ports:
             - containerPort: {{ .Values.postgres.containerPort }}
           volumeMounts:
@@ -40,12 +40,12 @@ spec:
             - name: POSTGRES_PASSWORD
               value: {{ .Values.postgres.password }}
         - name: screenplay
-          image: {{ include "helm-chart.frontend.image" . }}
+          image: {{ .Values.frontend.image }}
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}
 
         - name: screenplay-server
-          image: {{ include "helm-chart.server.image" . }}
+          image: {{ .Values.server.image }}
           ports:
             - containerPort: {{ .Values.server.containerPort }}
           readinessProbe:
