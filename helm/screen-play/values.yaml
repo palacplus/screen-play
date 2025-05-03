@@ -7,9 +7,13 @@ postgres:
   service:
     enabled: true
     port: 5432
-  database: mydatabase
-  user: myuser
-  password: mypassword
+  env:
+    - name: POSTGRES_DB
+      value: ScreenPlay
+    - name: POSTGRES_USER
+      value: admin
+    - name: POSTGRES_PASSWORD
+      value: ""
 
 frontend:
   enabled: true
