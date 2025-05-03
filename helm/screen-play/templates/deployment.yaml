@@ -33,7 +33,12 @@ spec:
               subPath: {{ .subPath | default "" }}
           {{- end }}
           env:
-{{ toYaml .Values.postgres.env | indent 12 }}
+            - name: POSTGRES_DB
+              value: {{ .Values.postgres.database }}
+            - name: POSTGRES_USER
+              value: {{ .Values.postgres.user }}
+            - name: POSTGRES_PASSWORD
+              value: {{ .Values.postgres.password }}
         - name: screenplay
           image: {{ include "helm-chart.frontend.image" . }}
           ports:
@@ -46,6 +51,8 @@ spec:
           readinessProbe:
 {{ toYaml .Values.server.readinessProbe | indent 12 }}
           env:
+            - name: SP_CONNECTIONSTRINGS__DEFAULTCONNECTION
+              value: {{ include "helm-chart.postgres.connectionString" . }}
 {{ toYaml .Values.server.env | indent 12 }}
           resources:
             requests:
