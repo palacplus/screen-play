@@ -14,13 +14,30 @@ spec:
       labels:
         app: {{ include "helm-chart.name" . }}
     spec:
+      volumes:
+      {{- range .Values.postgres.volumes }}
+        - name: {{ .name }}
+          persistentVolumeClaim:
+            claimName: {{ .persistentVolumeClaim.claimName }}
+            readOnly: {{ .persistentVolumeClaim.readOnly | default false }}
+      {{- end }}
       containers:
         - name: postgres
           image: {{ include "helm-chart.postgres.image" . }}
           ports:
             - containerPort: {{ .Values.postgres.containerPort }}
+          volumeMounts:
+          {{- range .Values.postgres.volumeMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .mountPath }}
+              subPath: {{ .subPath | default "" }}
+          {{- end }}
           env:
 {{ toYaml .Values.postgres.env | indent 12 }}
+        - name: screenplay
+          image: {{ include "helm-chart.frontend.image" . }}
+          ports:
+            - containerPort: {{ .Values.frontend.containerPort }}
 
         - name: screenplay-server
           image: {{ include "helm-chart.server.image" . }}
@@ -30,8 +47,6 @@ spec:
 {{ toYaml .Values.server.readinessProbe | indent 12 }}
           env:
 {{ toYaml .Values.server.env | indent 12 }}
-
-        - name: screenplay
-          image: {{ include "helm-chart.frontend.image" . }}
-          ports:
-            - containerPort: {{ .Values.frontend.containerPort }}
+          resources:
+            requests:
+{{- toYaml .Values.server.resources | nindent 12 }}
