@@ -7,6 +7,15 @@ postgres:
   service:
     enabled: true
     port: 5432
+  volumes:
+    - name: s3-bucket
+      persistentVolumeClaim:
+        claimName: s3-pvc
+        readOnly: false
+  volumeMounts:
+    - name: s3-bucket
+      mountPath: /var/lib/postgresql/data
+      subPath: postgres
   env:
     - name: POSTGRES_DB
       value: ScreenPlay
@@ -47,11 +56,11 @@ server:
     targetPort: 5001
   resources:
     limits:
-      cpu: "100m"
-      memory: "128Mi"
+      cpu: 1.0
+      memory: 400M
     requests:
-      cpu: "100m"
-      memory: "128Mi"
+      cpu: 1.0
+      memory: 128M
   readinessProbe:
     httpGet:
       path: /health
