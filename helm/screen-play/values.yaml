@@ -1,12 +1,10 @@
 postgres:
   enabled: true
-  image:
-    repository: postgres
-    tag: 17
-  containerPort: 5432
+  image: postgres:17
+  containerPort: "5432"
   service:
     enabled: true
-    port: 5432
+    port: "5432"
   volumes:
     - name: s3-bucket
       persistentVolumeClaim:
@@ -22,15 +20,13 @@ postgres:
 
 frontend:
   enabled: true
-  image:
-    repository: ghcr.io/palacplus/screen-play
-    tag: 1.0.0
-  containerPort: 80
+  image: ghcr.io/palacplus/screen-play:1.0.0
+  containerPort: "80"
   service:
     enabled: true
     type: NodePort
-    port: 80
-    targetPort: 80
+    port: "80"
+    targetPort: "80"
   resources:
     limits:
       cpu: "100m"
@@ -41,15 +37,13 @@ frontend:
 
 server:
   enabled: true
-  image:
-    repository: ghcr.io/palacplus/screen-play-server
-    tag: 1.0.0
-  containerPort: 5001
+  image: ghcr.io/palacplus/screen-play-server:1.0.0
+  containerPort: "5001"
   service:
     enabled: true
     type: ClusterIP
-    port: 5001
-    targetPort: 5001
+    port: "5001"
+    targetPort: "5001"
   resources:
     limits:
       cpu: 1.0
