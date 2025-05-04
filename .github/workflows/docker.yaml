@@ -1,10 +1,6 @@
 name: Push Docker Images
 
 on:
-  push:
-    branches: [feature/*, bugfix/*, hotfix/*, develop, main]
-    tags:
-      - 'v*'
   workflow_call:
     outputs:
       client-tags:
