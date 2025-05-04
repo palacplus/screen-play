@@ -50,5 +50,5 @@ Generate a name for the PostgreSQL deployment
 Create the database connection string
 */}}
 {{- define "helm-chart.postgres.connectionString" -}}
-{{ printf "Server=%s;Port=%d;Database=%s;User Id=%s;Password=%s;" "postgres" .Values.postgres.containerPort .Values.postgres.database .Values.postgres.user .Values.postgres.password }}
+{{ printf "Server=%s-database;Port=%s;Database=%s;User Id=%s;Password=%s;" (include "helm-chart.fullname" .) (.Values.postgres.containerPort | toString) .Values.postgres.database .Values.postgres.user .Values.postgres.password }}
 {{- end -}}

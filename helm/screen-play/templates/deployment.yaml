@@ -1,7 +1,8 @@
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ include "helm-chart.fullname" . }}
+  name: {{ include "helm-chart.name" . }}
   labels:
     {{- include "helm-chart.labels" . | nindent 4 }}
 spec:
@@ -14,36 +15,30 @@ spec:
       labels:
         app: {{ include "helm-chart.name" . }}
     spec:
-      volumes:
-      {{- range .Values.postgres.volumes }}
-        - name: {{ .name }}
-          persistentVolumeClaim:
-            claimName: {{ .persistentVolumeClaim.claimName }}
-            readOnly: {{ .persistentVolumeClaim.readOnly | default false }}
-      {{- end }}
       containers:
-        - name: postgres
-          image: {{ .Values.postgres.image }}
-          ports:
-            - containerPort: {{ .Values.postgres.containerPort }}
-          volumeMounts:
-          {{- range .Values.postgres.volumeMounts }}
-            - name: {{ .name }}
-              mountPath: {{ .mountPath }}
-              subPath: {{ .subPath | default "" }}
-          {{- end }}
-          env:
-            - name: POSTGRES_DB
-              value: {{ .Values.postgres.database }}
-            - name: POSTGRES_USER
-              value: {{ .Values.postgres.user }}
-            - name: POSTGRES_PASSWORD
-              value: {{ .Values.postgres.password }}
         - name: screenplay
           image: {{ .Values.frontend.image }}
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}
 
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "helm-chart.name" . }}-server
+  labels:
+    {{- include "helm-chart.labels" . | nindent 4 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ include "helm-chart.name" . }}-server
+  template:
+    metadata:
+      labels:
+        app: {{ include "helm-chart.name" . }}-server
+    spec:
+      containers:
         - name: screenplay-server
           image: {{ .Values.server.image }}
           ports:

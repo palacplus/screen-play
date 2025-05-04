@@ -1,22 +1,40 @@
 postgres:
   enabled: true
-  image: postgres:17
-  containerPort: "5432"
-  service:
-    enabled: true
-    port: "5432"
-  volumes:
-    - name: s3-bucket
-      persistentVolumeClaim:
-        claimName: s3-pvc
-        readOnly: false
-  volumeMounts:
-    - name: s3-bucket
-      mountPath: /var/lib/postgresql/data
+  fullnameOverride: postgres
+  image:
+    tag: 17.4.0-debian-12-r17
+    debug: true
+  auth:
+    database: ScreenPlay
+    username: admin
+    password: admin
+  primary:
+    podSecurityContext:
+      fsGroup: 65534
+      fsGroupChangePolicy: OnRootMismatch
+    containerSecurityContext:
+      runAsUser: 65534
+      runAsGroup: 65534
+    persistence:
+      enabled: true
+      existingClaim: plex-pvc
       subPath: postgres
-  database: ScreenPlay
-  user: admin
-  password: ""
+  backup:
+    enabled: true
+    cronjob:
+      enabled: true
+      podSecurityContext:
+        fsGroup: 65534
+        fsGroupChangePolicy: OnRootMismatch
+      containerSecurityContext:
+        runAsUser: 65534
+        runAsGroup: 65534
+      storage:
+        enabled: true
+        existingClaim: s3-pvc
+        subPath: postgres-backup
+      schedule: "0 * * * *"
+
 
 frontend:
   enabled: true
@@ -61,11 +79,20 @@ server:
     - name: ASPNETCORE_ENVIRONMENT
       value: Production
     - name: SP_AUTHENTICATION__GOOGLE__CLIENTID
-      value: ""
+      valueFrom:
+        secretKeyRef:
+          name: google-client
+          key: clientid
     - name: SP_AUTHENTICATION__GOOGLE__CLIENTSECRET
-      value: ""
+      valueFrom:
+        secretKeyRef:
+          name: google-client
+          key: clientsecret
     - name: SP_AUTHENTICATION__JWT__KEY
-      value: ""
+      valueFrom:
+        secretKeyRef:
+          name: jwt
+          key: key
     - name: SP_AUTHENTICATION__JWT__ISSUER
       value: screenplay
     - name: SP_AUTHENTICATION__JWT__AUDIENCE
@@ -73,12 +100,21 @@ server:
     - name: SP_AUTHENTICATION__JWT__EXPIRYHOURS
       value: "1"
     - name: SP_ADMIN__EMAIL
-      value: ""
+      valueFrom:
+        secretKeyRef:
+          name: admin
+          key: email
     - name: SP_ADMIN__PASSWORD
-      value: ""
+      valueFrom:
+        secretKeyRef:
+          name: admin
+          key: password
     - name: SP_RADARR__URI
       value: http://radarr:7878
     - name: SP_RADARR__APIKEY
-      value: ""
+      valueFrom:
+        secretKeyRef:
+          name: radarr
+          key: apikey
     - name: SP_RADARR__ROOTFOLDERPATH
       value: /movies
