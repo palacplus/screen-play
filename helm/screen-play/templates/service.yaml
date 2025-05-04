@@ -13,7 +13,6 @@ spec:
       name: http
   selector:
     app: {{ include "helm-chart.name" . }}
-    tier: frontend
 
 ---
 apiVersion: v1
@@ -31,4 +30,3 @@ spec:
       name: server
   selector:
     app: {{ include "helm-chart.name" . }}-server
-    tier: backend
