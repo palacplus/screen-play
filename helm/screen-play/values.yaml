@@ -1,4 +1,5 @@
-postgres:
+# Default values for screen-play.
+postgresql:
   enabled: true
   fullnameOverride: postgres
   image:
