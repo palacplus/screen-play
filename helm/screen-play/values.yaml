@@ -75,7 +75,7 @@ server:
     httpGet:
       path: /health
       port: 5001
-    initialDelaySeconds: 30
+    initialDelaySeconds: 10
     periodSeconds: 5
   livenessProbe:
     httpGet:
@@ -117,7 +117,7 @@ server:
           name: admin
           key: password
     - name: SP_RADARR__URI
-      value: http://radarr:7878
+      value: http://radarr
     - name: SP_RADARR__APIKEY
       valueFrom:
         secretKeyRef:

@@ -2,7 +2,6 @@
 Common labels for all resources
 */}}
 {{- define "helm-chart.labels" -}}
-app: {{ .Chart.Name }}
 release: {{ .Release.Name }}
 {{- end -}}
 

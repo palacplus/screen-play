@@ -5,6 +5,8 @@ metadata:
   name: {{ include "helm-chart.name" . }}
   labels:
     {{- include "helm-chart.labels" . | nindent 4 }}
+    app: {{ include "helm-chart.name" . }}
+    tier: frontend
 spec:
   replicas: 1
   selector:
@@ -16,7 +18,7 @@ spec:
         app: {{ include "helm-chart.name" . }}
     spec:
       containers:
-        - name: screenplay
+        - name: {{ include "helm-chart.name" . }}
           image: {{ .Values.frontend.image }}
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}
@@ -28,6 +30,8 @@ metadata:
   name: {{ include "helm-chart.name" . }}-server
   labels:
     {{- include "helm-chart.labels" . | nindent 4 }}
+    app: {{ include "helm-chart.name" . }}-server
+    tier: backend
 spec:
   replicas: 1
   selector:
@@ -39,7 +43,7 @@ spec:
         app: {{ include "helm-chart.name" . }}-server
     spec:
       containers:
-        - name: screenplay-server
+        - name: {{ include "helm-chart.name" . }}-server
           image: {{ .Values.server.image }}
           ports:
             - containerPort: {{ .Values.server.containerPort }}
@@ -51,6 +55,3 @@ spec:
             - name: SP_CONNECTIONSTRINGS__DEFAULTCONNECTION
               value: {{ include "helm-chart.postgres.connectionString" . }}
 {{ toYaml .Values.server.env | indent 12 }}
-          resources:
-            requests:
-{{- toYaml .Values.server.resources | nindent 12 }}
