@@ -45,6 +45,8 @@ spec:
             - containerPort: {{ .Values.server.containerPort }}
           readinessProbe:
 {{ toYaml .Values.server.readinessProbe | indent 12 }}
+          livenessProbe:
+{{ toYaml .Values.server.livenessProbe | indent 12 }}
           env:
             - name: SP_CONNECTIONSTRINGS__DEFAULTCONNECTION
               value: {{ include "helm-chart.postgres.connectionString" . }}

@@ -36,8 +36,7 @@ postgresql:
         enabled: true
         existingClaim: s3-pvc
         subPath: postgres-backup
-      schedule: "0 * * * *"
-
+      schedule: "@daily"
 
 frontend:
   enabled: true
@@ -75,9 +74,14 @@ server:
   readinessProbe:
     httpGet:
       path: /health
-      port: http
+      port: 5001
     initialDelaySeconds: 30
     periodSeconds: 5
+  livenessProbe:
+    httpGet:
+      path: /health
+      port: 5001
+    periodSeconds: 120
   env:
     - name: ASPNETCORE_ENVIRONMENT
       value: Production
