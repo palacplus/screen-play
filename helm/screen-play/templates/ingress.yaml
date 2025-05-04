@@ -1,0 +1,21 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "helm-chart.fullname" . }}
+spec:
+  ingressClassName: cloudflare-tunnel
+  rules:
+  - host: {{ include "helm-chart.name" . }}.palacpl.us
+    http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: {{ include "helm-chart.name" . }}
+            port:
+              number: 80
+  tls:
+  - hosts:
+    - {{ include "helm-chart.name" . }}.palacpl.us
+    secretName: secure-tls
