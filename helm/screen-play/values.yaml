@@ -5,6 +5,8 @@ postgresql:
   image:
     tag: 17.4.0-debian-12-r17
     debug: true
+  containerPorts:
+    postgresql: 5432
   auth:
     database: ScreenPlay
     username: admin
