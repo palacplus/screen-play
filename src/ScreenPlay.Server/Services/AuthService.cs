@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Text.Json;
 using System.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
@@ -71,29 +72,37 @@ public class AuthService : IAuthService
         var result = await _userManager.CreateAsync(user);
         if (!result.Succeeded)
         {
-            return GetFailureResponse(result);
-        }
-
-        result = await _userManager.AddPasswordAsync(user, request.Password);
-        if (!result.Succeeded)
-        {
-            return GetFailureResponse(result);
-        }
-        result = await _userManager.SetEmailAsync(user, request.Email);
-        if (!result.Succeeded)
-        {
+            await _userManager.DeleteAsync(user);
             return GetFailureResponse(result);
         }
 
         if (request.IsExternalLogin)
         {
-            var info = await _signInManager.GetExternalLoginInfoAsync();
+            var info = new UserLoginInfo(request.Provider, request.Email, request.Provider);
             result = await _userManager.AddLoginAsync(user, info);
             if (!result.Succeeded)
             {
+                await _userManager.DeleteAsync(user);
                 return GetFailureResponse(result);
             }
         }
+        else
+        {
+            result = await _userManager.AddPasswordAsync(user, request.Password);
+            if (!result.Succeeded)
+            {
+                await _userManager.DeleteAsync(user);
+                return GetFailureResponse(result);
+            }
+        }
+
+        result = await _userManager.SetEmailAsync(user, request.Email);
+        if (!result.Succeeded)
+        {
+            await _userManager.DeleteAsync(user);
+            return GetFailureResponse(result);
+        }
+
         // TODO: Send email confirmation link
         // var userId = await _userManager.GetUserIdAsync(user);
         // var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -122,12 +131,9 @@ public class AuthService : IAuthService
         var result = SignInResult.Failed;
         if (request.IsExternalLogin)
         {
-            var info =
-                await _signInManager.GetExternalLoginInfoAsync()
-                ?? throw new InvalidOperationException("Account not found");
             result = await _signInManager.ExternalLoginSignInAsync(
-                info.LoginProvider,
-                info.ProviderKey,
+                request.Provider,
+                request.Email,
                 isPersistent: true
             );
         }

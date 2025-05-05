@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using Google.Apis.Auth;
 using ScreenPlay.Server.Configuration;
 using ScreenPlay.Server.Dtos;
 using ScreenPlay.Server.Models;
@@ -101,6 +102,54 @@ public class AuthServiceTests
         await _userManager.Received(1).CreateAsync(Arg.Any<AppUser>());
         await _userManager.Received(1).AddPasswordAsync(Arg.Any<AppUser>(), loginRequest.Password);
         await _userManager.Received(1).SetEmailAsync(Arg.Any<AppUser>(), loginRequest.Email);
+        await _roleManager.Received(1).RoleExistsAsync("User");
+        await _roleManager.Received(1).CreateAsync(Arg.Is<IdentityRole>(r => r.Name == "User"));
+        await _userManager.Received(1).AddToRoleAsync(Arg.Any<AppUser>(), "User");
+    }
+
+    [Fact]
+    public async Task RegisterAsync_ShouldRegisterExternalUser_WhenIsExternalLoginIsTrue()
+    {
+        // Arrange
+        var request = new ExternalLoginRequest(
+            new GoogleJsonWebSignature.Payload
+            {
+                Email = "testEmail@mymail.com"
+            }
+        );
+        request.IsExternalLogin.Should().BeTrue();
+        var appUser = new AppUser { Email = request.Email };
+
+        _httpContextAccessor.HttpContext = null;
+        _userManager.CreateAsync(Arg.Any<AppUser>()).Returns(IdentityResult.Success);
+        _userManager.SetEmailAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+        _roleManager.RoleExistsAsync(Arg.Any<string>()).Returns(false);
+        _roleManager.CreateAsync(Arg.Any<IdentityRole>()).Returns(IdentityResult.Success);
+        _userManager.AddLoginAsync(Arg.Any<AppUser>(), Arg.Any<UserLoginInfo>()).Returns(IdentityResult.Success);
+        _userManager.FindByEmailAsync(Arg.Any<string>()).Returns(appUser);
+        _userManager.AddToRoleAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+        _signInManager
+            .ExternalLoginSignInAsync(
+                request.Provider,
+                request.Email,
+                isPersistent: true
+            )
+            .Returns(Task.FromResult(SignInResult.Success));
+
+        _tokenService.GenerateAccessToken(appUser).Returns("access_token");
+        _tokenService
+            .GetUserTokensAsync(appUser)
+            .Returns(Task.FromResult(new TokenInfo { AccessToken = "access_token", RefreshToken = "refresh_token" }));
+
+        // Act
+        var result = await _authService.RegisterAsync(request, "User");
+
+        // Assert
+        result.Should().NotBeNull();
+        result.ErrorMessage.Should().BeNull();
+        await _userManager.Received(1).CreateAsync(Arg.Any<AppUser>());
+        await _userManager.Received(1).AddLoginAsync(Arg.Any<AppUser>(), Arg.Is<UserLoginInfo>(l => l.LoginProvider == "Google"));
+        await _userManager.Received(1).SetEmailAsync(Arg.Any<AppUser>(), request.Email);
         await _roleManager.Received(1).RoleExistsAsync("User");
         await _roleManager.Received(1).CreateAsync(Arg.Is<IdentityRole>(r => r.Name == "User"));
         await _userManager.Received(1).AddToRoleAsync(Arg.Any<AppUser>(), "User");
