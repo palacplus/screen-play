@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ScreenPlay.Server.Configuration;
@@ -106,6 +107,7 @@ public class TokenService : ITokenService
                 UserId = user.Id,
                 RefreshToken = refreshToken,
                 ExpiredAt = DateTime.UtcNow.AddDays(1),
+                AccessToken = GenerateAccessToken(user),
             };
             _dbContext.Tokens.Add(tokenInfo);
         }
@@ -113,9 +115,25 @@ public class TokenService : ITokenService
         {
             tokenInfo.RefreshToken = refreshToken;
             tokenInfo.ExpiredAt = DateTime.UtcNow.AddDays(1);
+            tokenInfo.AccessToken = GenerateAccessToken(user);
+            _dbContext.Tokens.Update(tokenInfo);
         }
-        tokenInfo.AccessToken = GenerateAccessToken(user);
-        await _dbContext.SaveChangesAsync();
+
+        var saved = false;
+        while (!saved)
+        {
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+                saved = true;
+            }
+            catch (DbUpdateConcurrencyException ex)
+            {
+                var entry = ex.Entries.First(e => e.Entity is TokenInfo || e.Entity is AppUser);
+                var databaseValues = await entry.GetDatabaseValuesAsync();
+                entry.OriginalValues.SetValues(databaseValues);
+            }
+        }
         return tokenInfo;
     }
 

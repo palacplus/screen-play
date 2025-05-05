@@ -25,4 +25,7 @@ public class TokenInfo
 
     [Required]
     public DateTime ExpiredAt { get; set; }
+
+    [Timestamp]
+    public uint Version { get; set; }
 }
