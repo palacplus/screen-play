@@ -30,6 +30,7 @@ jobs:
           fallbackTag: 0.0.0
           patchAll: true
           majorList: 'BREAKING'
+          noVersionBumpBehavior: patch
 
       - name: Create Pre-Release
         uses: ncipollo/release-action@v1.12.0
