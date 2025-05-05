@@ -50,6 +50,7 @@ jobs:
           token: ${{ github.token }}
           tag: ${{ steps.semver.outputs.next }}
           writeToFile: false
+          includeInvalidCommits: true
 
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
