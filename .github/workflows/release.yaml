@@ -26,7 +26,7 @@ jobs:
         uses: ietf-tools/semver-action@v1
         with:
           token: ${{ github.token }}
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
           fallbackTag: 0.0.0
           patchAll: true
           majorList: 'BREAKING'
@@ -54,6 +54,7 @@ jobs:
 
       - name: Create Release
         uses: ncipollo/release-action@v1.12.0
+        # if: github.event_name == 'push'
         with:
           allowUpdates: true
           draft: false
@@ -64,6 +65,7 @@ jobs:
           token: ${{ github.token }}
       
       - name: Push New Tag to trigger image creation
+        # if: github.event_name == 'push'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
