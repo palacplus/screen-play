@@ -1,6 +1,8 @@
 name: Tag Release
 
 on:
+  pull_request:
+    branches: [main]
   push:
     branches: [main]
     paths:
@@ -24,7 +26,7 @@ jobs:
         uses: ietf-tools/semver-action@v1
         with:
           token: ${{ github.token }}
-          branch: ${{ github.ref }}
+          branch: ${{ github.head_ref }}
           fallbackTag: 0.0.0
           patchAll: true
           majorList: 'BREAKING'
