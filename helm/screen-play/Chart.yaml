@@ -2,7 +2,7 @@ apiVersion: v2
 name: screenplay
 description: A Helm chart for deploying ScreenPlay 
 version: 0.1.0
-appVersion: "1.0"
+appVersion: 1.0.0
 dependencies:
   - name: postgresql
     version: 16.6.6

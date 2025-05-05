@@ -40,7 +40,7 @@ postgresql:
 
 frontend:
   enabled: true
-  image: ghcr.io/palacplus/screen-play:1.0.0
+  image: ghcr.io/palacplus/screen-play
   containerPort: "80"
   service:
     enabled: true
@@ -57,7 +57,7 @@ frontend:
 
 server:
   enabled: true
-  image: ghcr.io/palacplus/screen-play-server:1.0.0
+  image: ghcr.io/palacplus/screen-play-server
   containerPort: "5001"
   service:
     enabled: true

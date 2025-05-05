@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: {{ include "helm-chart.name" . }}
-          image: {{ .Values.frontend.image }}
+          image: {{ .Values.frontend.image }}:{{ .Chart.AppVersion }}
           ports:
             - containerPort: {{ .Values.frontend.containerPort }}
 
@@ -42,7 +42,7 @@ spec:
     spec:
       containers:
         - name: {{ include "helm-chart.name" . }}-server
-          image: {{ .Values.server.image }}
+          image: {{ .Values.server.image }}:{{ .Chart.AppVersion }}
           ports:
             - containerPort: {{ .Values.server.containerPort }}
           readinessProbe:

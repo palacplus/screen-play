@@ -3,6 +3,7 @@ name: Tag Release
 on:
   pull_request:
     branches: [main]
+    # types: [closed]
     paths:
       - '/deploy/**'
       - 'frontend/**'
