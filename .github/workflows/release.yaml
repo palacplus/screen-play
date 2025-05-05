@@ -86,12 +86,22 @@ jobs:
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
+
       - name: Update values.yaml
         run: |
           cd helm/screen-play
           TAG=${{ needs.tag-release.outputs.tag }}
-          echo "TAG: $TAG"
           VERSION=${TAG#v}
-          echo "VERSION: $VERSION"
+          echo "Setting new Chart version: $VERSION"
           sed -i "s/^appVersion: .*/appVersion: $VERSION/" Chart.yaml
           cat Chart.yaml
+      
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+          git add helm/screen-play/Chart.yaml
+          git commit -m "Update Chart version to ${{ needs.tag-release.outputs.tag }}"
+          git push origin HEAD:main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
