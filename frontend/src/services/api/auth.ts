@@ -1,15 +1,20 @@
 import axios from 'axios';
 import { CredentialResponse } from '@react-oauth/google';
-
+import { jwtDecode } from "jwt-decode";
 import { User } from '../../types/user';
 import { AuthResponse, LoginRequest, TokenRequest } from '../../types/auth';
 import { AuthEndpoints } from '../../types/endpoints';
 
+interface JwtPayload {
+    email: string;
+}
+
 export async function externalLogin(credentialResponse: CredentialResponse) {
     const response = await axios.post(AuthEndpoints.EXTERNAL_LOGIN, credentialResponse);
     const authResponse = (await response.data) as AuthResponse;
+    const jwtToken = jwtDecode<JwtPayload>(authResponse.token);
     const user: User = {
-        email: "google",
+        email: jwtToken.email,
         refreshToken: authResponse.refreshToken,
     };
     return [response.status, user, authResponse.token] as const;

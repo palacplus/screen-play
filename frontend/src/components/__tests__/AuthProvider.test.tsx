@@ -131,19 +131,23 @@ describe("AuthProvider", () => {
     });
 
     it("handles external login successfully", async () => {
-        const mockResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
+        // Arrange: Mock a real JWT token with an email claim
+        const mockJwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20ifQ.sflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+        const mockResponse = { token: mockJwtToken, refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/external-login").reply(200, mockResponse);
 
         renderComponent();
 
+        // Act: Trigger the external login
         const externalLoginButton = screen.getByText("External Login");
-
         await act(async () => {
             externalLoginButton.click();
         });
 
+        // Assert: Verify the token and refresh token are set correctly
         expect(mockAxios.history.post.length).toBe(1);
-        expect(screen.getByTestId("token").textContent).toBe("mock-token");
+        expect(screen.getByTestId("token").textContent).toBe(mockJwtToken);
+        expect(screen.getByTestId("refreshToken").textContent).toBe("mock-refresh-token");
         expect(screen.getByTestId("error").textContent).toBe("");
     });
 
