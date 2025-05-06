@@ -1,4 +1,6 @@
 #!/bin/sh
+
+## Set environment variables for React app
 for i in $(env | grep REACT_APP_)
 do
     key=$(echo $i | cut -d '=' -f 1)
