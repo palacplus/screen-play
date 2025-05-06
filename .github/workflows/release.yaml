@@ -39,7 +39,7 @@ jobs:
         with:
           allowUpdates: true
           prerelease: true
-          draft: true
+          draft: ${{ github.event_name == 'pull_request' }}
           commit: ${{ github.sha }}
           tag: ${{ steps.semver.outputs.next }}
           name: ${{ steps.semver.outputs.next }}
