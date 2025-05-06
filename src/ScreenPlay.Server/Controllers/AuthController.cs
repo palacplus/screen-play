@@ -212,17 +212,12 @@ public class AuthController : ControllerBase
 
     [HttpGet("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> LogoutAsync()
+    public async Task<ActionResult> LogoutAsync([FromQuery] string email)
     {
         try
         {
-            var principal = User.FindFirst(ClaimTypes.Email);
-            if (principal == null)
-            {
-                return Unauthorized("User not found!");
-            }
-            await _service.LogoutAsync(principal.Value);
-            _logger.LogInformation("User logged out {email}", principal.Value);
+            await _service.LogoutAsync(email);
+            _logger.LogInformation("User logged out {email}", email);
             return Ok();
         }
         catch (Exception ex)
