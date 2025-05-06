@@ -112,4 +112,20 @@ public class AuthControllerTests
         unauthorizedResult!.StatusCode.Should().Be(StatusCodes.Status401Unauthorized);
         unauthorizedResult.Value.Should().Be(authResponse.ErrorMessage);
     }
+
+    [Fact]
+    public async Task LogoutAsync_ShouldReturnNoContent_WhenLogoutIsSuccessful()
+    {
+        // Arrange
+        var email = "user@example.com";
+        _authService.LogoutAsync(email).Returns(Task.CompletedTask);
+
+        // Act
+        var result = await _controller.LogoutAsync(email);
+
+        // Assert
+        var ok = result as OkResult;
+        ok.Should().NotBeNull();
+        ok!.StatusCode.Should().Be(StatusCodes.Status200OK);
+    }
 }
