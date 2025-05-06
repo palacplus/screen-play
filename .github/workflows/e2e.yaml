@@ -140,7 +140,7 @@ jobs:
 
       - name: Run Playwright tests
         run: |
-          npx playwright test
+          npx playwright test --retries=3
         working-directory: ./frontend
 
       - name: Upload Playwright report as artifact

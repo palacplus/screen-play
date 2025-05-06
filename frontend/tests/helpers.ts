@@ -49,3 +49,8 @@ export async function adminApiContext(page: Page) {
     },});
   return apiContext;
 }
+
+export function generateRandomEmail(): string {
+  const randomString = Math.random().toString(36).substring(2, 10);
+  return `testuser_${randomString}@example.com`;
+}

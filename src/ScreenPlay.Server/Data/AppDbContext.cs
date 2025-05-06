@@ -1,7 +1,6 @@
 ﻿using Duende.IdentityServer.EntityFramework.Options;
 using Microsoft.AspNetCore.ApiAuthorization.IdentityServer;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.Extensions.Options;
 using ScreenPlay.Server.Models;
 
@@ -68,5 +67,9 @@ public class AppDbContext : ApiAuthorizationDbContext<AppUser>
             .WithMany()
             .HasForeignKey(t => t.UserId)
             .OnDelete(DeleteBehavior.Cascade);
+        
+        modelBuilder.Entity<TokenInfo>()
+            .Property(b => b.Version)
+            .IsRowVersion();
     }
 }

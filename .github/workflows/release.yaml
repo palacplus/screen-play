@@ -3,6 +3,8 @@ name: Tag Release
 on:
   pull_request:
     branches: [main]
+  push:
+    branches: [main]
     paths:
       - '/deploy/**'
       - 'frontend/**'
@@ -11,10 +13,12 @@ on:
   workflow_dispatch:
 
 jobs:
-  tag_release:
+  tag-release:
     runs-on: ubuntu-latest
     permissions:
       contents: write
+    outputs:
+      tag: ${{ steps.semver.outputs.next }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
@@ -24,16 +28,18 @@ jobs:
         uses: ietf-tools/semver-action@v1
         with:
           token: ${{ github.token }}
-          branch: ${{ github.head_ref }}
+          branch: ${{ github.event_name == 'pull_request' && github.head_ref || github.ref_name }}
           fallbackTag: 0.0.0
           patchAll: true
           majorList: 'BREAKING'
+          noVersionBumpBehavior: patch
 
       - name: Create Pre-Release
         uses: ncipollo/release-action@v1.12.0
         with:
+          allowUpdates: true
           prerelease: true
-          draft: false
+          draft: true
           commit: ${{ github.sha }}
           tag: ${{ steps.semver.outputs.next }}
           name: ${{ steps.semver.outputs.next }}
@@ -41,14 +47,17 @@ jobs:
           token: ${{ github.token }}
 
       - name: Update CHANGELOG
+        if: github.event_name == 'push'
         id: changelog
         uses: requarks/changelog-action@v1
         with:
           token: ${{ github.token }}
           tag: ${{ steps.semver.outputs.next }}
           writeToFile: false
+          includeInvalidCommits: true
 
       - name: Create Release
+        if: github.event_name == 'push'
         uses: ncipollo/release-action@v1.12.0
         with:
           allowUpdates: true
@@ -58,10 +67,52 @@ jobs:
           name: ${{ steps.semver.outputs.next }}
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
+
+  helm-chart-version:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: [tag-release]
+    permissions:
+      contents: write
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.head.ref }}
+
+      - name: Update values.yaml
+        run: |
+          cd helm/screen-play
+          TAG=${{ needs.tag-release.outputs.tag }}
+          VERSION=${TAG#v}
+          echo "Setting new Chart version: $VERSION"
+          sed -i "s/^appVersion: .*/appVersion: $VERSION/" Chart.yaml
+          cat Chart.yaml
       
-      - name: Push New Tag to trigger image creation
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'GitHub Actions'
+          git config --global user.email 'actions@github.com'
+
+          if git status --porcelain | grep Chart.yaml; then
+            git add helm/screen-play/Chart.yaml
+            git commit -m "Update Chart version to ${{ needs.tag-release.outputs.tag }}"
+            git push
+          else
+            echo "No changes to commit"
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          git tag ${{ steps.semver.outputs.next }}
-          git push origin ${{ steps.semver.outputs.next }}
+
+  docker-build:
+    if: github.event_name == 'push'
+    uses: ./.github/workflows/docker.yaml
+    needs: [tag-release]
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    with:
+      tagOverride: ${{ needs.tag-release.outputs.tag }} 

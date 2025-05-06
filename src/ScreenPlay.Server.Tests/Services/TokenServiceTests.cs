@@ -92,7 +92,29 @@ public class TokenServiceTests
     }
 
     [Fact]
-    public async Task GetUserTokensAsync_ShouldStoreTokensInDatabase()
+    public async Task GetUserTokensAsync_ShouldStoreNewTokensInDatabase()
+    {
+        // Arrange
+        var user = new AppUser { Id = "123", Email = "user@example.com" };
+
+        _dbContext.ChangeTracker.Clear();
+        _dbContext.Tokens.RemoveRange(_dbContext.Tokens);
+        await _dbContext.SaveChangesAsync();
+
+        // Act
+        await _tokenService.GetUserTokensAsync(user);
+
+        // Assert
+        var storedTokenInfo = await _dbContext.Tokens.FirstOrDefaultAsync(t => t.UserId == user.Id);
+        storedTokenInfo.Should().NotBeNull();
+        storedTokenInfo.UserId.Should().Be(user.Id);
+        storedTokenInfo.RefreshToken.Should().NotBeNullOrEmpty();
+        storedTokenInfo.AccessToken.Should().NotBeNullOrEmpty();
+        storedTokenInfo.ExpiredAt.Should().BeCloseTo(DateTime.UtcNow.AddDays(1), TimeSpan.FromSeconds(1));
+    }
+
+    [Fact]
+    public async Task GetUserTokensAsync_ShouldUpdateTokensInDatabase()
     {
         // Arrange
         var user = new AppUser { Id = "123", Email = "user@example.com" };

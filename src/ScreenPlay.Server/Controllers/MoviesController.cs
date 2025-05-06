@@ -24,7 +24,6 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = AppRole.Admin)]
     public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
     {
         if (_context.Movies == null)
@@ -41,7 +40,6 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Movie>> GetMovie(int id)
@@ -65,7 +63,6 @@ public class MoviesController : ControllerBase
     }
 
     [HttpGet("imdbid/{imdbId}")]
-    [AllowAnonymous]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Movie>> GetMovieWithImdbId(string imdbId)

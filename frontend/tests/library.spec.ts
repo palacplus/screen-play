@@ -23,7 +23,7 @@ test.describe("Add Movie Panel", () => {
         const testMovie = { name: "Inception", imdbId: "tt1375666" };
         const apiContext = await adminApiContext(page);
 
-        const response = await page.request.get(`/api/movies/imdbid/${testMovie.imdbId}`);
+        const response = await apiContext.get(`/api/movies/imdbid/${testMovie.imdbId}`);
         expect(response.ok() || response.status() === 404).toBeTruthy();
 
         const id = response.ok() ? (await response.json()).id : null;

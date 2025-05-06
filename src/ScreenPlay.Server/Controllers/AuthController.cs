@@ -86,36 +86,49 @@ public class AuthController : ControllerBase
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
-    public async Task<ActionResult<AppUser>> ExternalLoginAsync([FromBody] GoogleCallbackRequest request)
+    public async Task<ActionResult<AppUser>> ExternalLoginAsync([FromBody] GoogleCallbackRequest callBackRequest)
     {
         try
         {
-            var payload = await GoogleJsonWebSignature.ValidateAsync(request.Credential);
-            var loginRequest = new ExternalLoginRequest(payload);
+            var payload = await GoogleJsonWebSignature.ValidateAsync(callBackRequest.Credential);
+            var request = new ExternalLoginRequest(payload);
 
-            _logger.LogInformation(loginRequest.IsExternalLogin.ToString());
-
-            var user = await _service.GetUserByEmailAsync(loginRequest.Email);
+            _logger.LogInformation("Processing external login with email {email}", request.Email);
+            var user = await _service.GetUserByEmailAsync(request.Email);
+            AuthResponse response = null;
             if (user != null)
             {
-                var loginResponse = await _service.LoginAsync(loginRequest);
-                if (loginResponse.Token == null)
+                try
                 {
-                    _logger.LogError("User not found {email}", loginRequest.Email);
-                    return Unauthorized(loginResponse.ErrorMessage);
+                    response = await _service.LoginAsync(request);
                 }
-                _logger.LogInformation("User logged in {email}", loginRequest.Email);
-                return Ok(loginResponse);
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Failed to login new user");
+                    await _service.DeleteUserAsync(request.Email);
+                    throw;
+                }
+            
+                if (response.Token == null)
+                {
+                    return BadRequest(response.ErrorMessage);
+                }
+                _logger.LogInformation("User logged in {email}", request.Email);
+                return Ok(response);
             }
 
-            var registerResponse = await _service.RegisterAsync(loginRequest, AppRole.User);
-            if (registerResponse.Token == null)
+            response = await _service.RegisterAsync(request, AppRole.User);
+            try
             {
-                _logger.LogError("Unable to register external user {email}", loginRequest.Email);
-                return BadRequest(registerResponse.ErrorMessage);
+                response = await _service.LoginAsync(request);
             }
-            _logger.LogInformation("New User registered {email}", loginRequest.Email);
-            return CreatedAtAction(nameof(ExternalLoginAsync), registerResponse);
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to login new user");
+                await _service.DeleteUserAsync(request.Email);
+                throw;
+            }
+            return CreatedAtAction(nameof(ExternalLoginAsync), response);
         }
         catch (InvalidJwtException ex)
         {

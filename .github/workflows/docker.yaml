@@ -2,6 +2,11 @@ name: Push Docker Images
 
 on:
   workflow_call:
+    inputs:
+      tagOverride:
+        required: false
+        type: string
+        description: 'Override the tag'
     outputs:
       client-tags:
         description: 'Image tag'
@@ -45,6 +50,7 @@ jobs:
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
+            type=semver,pattern={{version}},value=${{ inputs.tagOverride }}
 
       - name: Build and push server image
         id: push-server-image
@@ -64,7 +70,7 @@ jobs:
       #     subject-digest: ${{ steps.push-server-image.outputs.digest }}
       #     push-to-registry: true
 
-      - name: Extract metadata for server image
+      - name: Extract metadata for client image
         id: meta-client
         uses: docker/metadata-action@v5
         with:
@@ -72,8 +78,9 @@ jobs:
           tags: |
             type=ref,event=branch
             type=semver,pattern={{version}}
+            type=semver,pattern={{version}},value=${{ inputs.tagOverride }}
 
-      - name: Build and push server image
+      - name: Build and push client image
         id: push-client-image
         uses: docker/build-push-action@v6
         with:
@@ -90,3 +97,4 @@ jobs:
       #     subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
       #     subject-digest: ${{ steps.push-client-image.outputs.digest }}
       #     push-to-registry: true
+

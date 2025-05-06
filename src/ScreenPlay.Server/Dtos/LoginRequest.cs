@@ -28,7 +28,10 @@ public class LoginRequest
     [Display(Name = "Remember me?")]
     public bool RememberMe { get; set; } = true;
 
-    public bool IsExternalLogin => string.IsNullOrEmpty(Password) && string.IsNullOrEmpty(ConfirmPassword);
+    [JsonIgnore]
+    public string Provider { get; set; } = string.Empty;
+
+    public bool IsExternalLogin => string.IsNullOrEmpty(Password) && string.IsNullOrEmpty(ConfirmPassword) && !string.IsNullOrEmpty(Provider);
 
     public LoginRequest()
     {
@@ -41,7 +44,6 @@ public class LoginRequest
 
 public class ExternalLoginRequest : LoginRequest
 {
-    public string Provider { get; set; } = string.Empty;
     public new string Password { get; set; } = string.Empty;
     public new string ConfirmPassword { get; set; } = string.Empty;
 

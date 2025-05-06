@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { getClassList, registerAndValidate } from "./helpers";
+import { generateRandomEmail, getClassList, registerAndValidate } from "./helpers";
 import { testUser} from "./constants";
 
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -77,14 +77,20 @@ test.describe("Registration Form", () => {
   });
 
   test.describe.serial("input validation", () => {
+    let randomEmail: string;
+
+    test.beforeAll(() => {
+      randomEmail = generateRandomEmail();
+      console.log("Generated random email:", randomEmail);
+    });
     test("should register user successfully", async ({ page }) => {
         await page.evaluate(() => localStorage.clear());
-        await registerAndValidate(page, testUser.email, testUser.password, testUser.password, "Success!");
+        await registerAndValidate(page, randomEmail, testUser.password, testUser.password, "Success!");
       });
   
       test("should execute login successfully", async ({page}) => {
         await page.goto(location);
-        await page.getByTestId("login-email-input").fill(testUser.email);
+        await page.getByTestId("login-email-input").fill(randomEmail);
         await page.getByTestId("login-pwd-input").fill(testUser.password);
         await page.getByTestId("login-button").click();
         await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
