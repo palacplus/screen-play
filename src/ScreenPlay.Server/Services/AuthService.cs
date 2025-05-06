@@ -72,7 +72,6 @@ public class AuthService : IAuthService
         var result = await _userManager.CreateAsync(user);
         if (!result.Succeeded)
         {
-            await _userManager.DeleteAsync(user);
             return GetFailureResponse(result);
         }
 

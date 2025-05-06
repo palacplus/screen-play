@@ -107,6 +107,47 @@ public class AuthServiceTests
         await _userManager.Received(1).AddToRoleAsync(Arg.Any<AppUser>(), "User");
     }
 
+
+    [Fact]
+    public async Task RegisterAsync_ShouldHandleCreateUserFailure()
+    {
+        // Arrange
+        var loginRequest = new LoginRequest { Email = "user@example.com", Password = "password" };
+        var appUser = new AppUser { Email = loginRequest.Email };
+
+        var identityError = new IdentityError
+        {
+            Code = "UserCreationFailed",
+            Description = "User creation failed"
+        };
+
+        _httpContextAccessor.HttpContext = null;
+        _userManager.CreateAsync(Arg.Any<AppUser>()).Returns(IdentityResult.Failed(new [] { identityError }));
+        _userManager.SetEmailAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+        _roleManager.RoleExistsAsync(Arg.Any<string>()).Returns(false);
+        _roleManager.CreateAsync(Arg.Any<IdentityRole>()).Returns(IdentityResult.Success);
+        _userManager.AddPasswordAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+        _userManager.FindByEmailAsync(Arg.Any<string>()).Returns(appUser);
+        _userManager.AddToRoleAsync(Arg.Any<AppUser>(), Arg.Any<string>()).Returns(IdentityResult.Success);
+        _signInManager
+            .PasswordSignInAsync(loginRequest.Email, loginRequest.Password, true, false)
+            .Returns(Task.FromResult(SignInResult.Success));
+
+        _tokenService.GenerateAccessToken(appUser).Returns("access_token");
+        _tokenService
+            .GetUserTokensAsync(appUser)
+            .Returns(Task.FromResult(new TokenInfo { AccessToken = "access_token", RefreshToken = "refresh_token" }));
+
+        // Act
+        var result = await _authService.RegisterAsync(loginRequest, "User");
+
+        // Assert
+        result.Should().NotBeNull();
+        result.ErrorMessage.Should().NotBeNullOrEmpty();
+        result.ErrorMessage.Should().Be(identityError.Description);
+        await _userManager.Received(1).CreateAsync(Arg.Any<AppUser>());
+    }
+
     [Fact]
     public async Task RegisterAsync_ShouldRegisterExternalUser_WhenIsExternalLoginIsTrue()
     {
