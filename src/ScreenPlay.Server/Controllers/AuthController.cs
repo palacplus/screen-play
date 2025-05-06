@@ -58,6 +58,11 @@ public class AuthController : ControllerBase
         try
         {
             var response = await _service.RegisterAsync(request, AppRole.User);
+            if (response.ErrorMessage != null)
+            {
+                return BadRequest(response.ErrorMessage);
+            }
+
             try
             {
                 response = await _service.LoginAsync(request);

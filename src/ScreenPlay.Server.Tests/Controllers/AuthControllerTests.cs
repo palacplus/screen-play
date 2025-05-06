@@ -41,6 +41,24 @@ public class AuthControllerTests
     }
 
     [Fact]
+    public async Task RegisterUserAsync_ShouldReturnBadRequest_WhenInputIsInvalid()
+    {
+        // Arrange
+        var loginRequest = new LoginRequest() { Email = "user@example.com", Password = "password" };
+        var authResponse = new AuthResponse { ErrorMessage = "Invalid input" };
+        _authService.RegisterAsync(loginRequest, AppRole.User).Returns(authResponse);
+
+        // Act
+        var result = await _controller.RegisterUserAsync(loginRequest);
+
+        // Assert
+        var badRequest = result.Result as BadRequestObjectResult;
+        badRequest.Should().NotBeNull();
+        badRequest!.StatusCode.Should().Be(StatusCodes.Status400BadRequest);
+        badRequest.Value.Should().Be(authResponse.ErrorMessage);
+    }
+
+    [Fact]
     public async Task RegisterUserAsync_ShouldReturnInternalError_WhenRegistrationFails()
     {
         // Arrange
