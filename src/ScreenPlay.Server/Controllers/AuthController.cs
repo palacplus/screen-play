@@ -58,7 +58,7 @@ public class AuthController : ControllerBase
         try
         {
             var response = await _service.RegisterAsync(request, AppRole.User);
-            if (response.ErrorMessage != null)
+            if (!string.IsNullOrEmpty(response.ErrorMessage))
             {
                 return BadRequest(response.ErrorMessage);
             }
