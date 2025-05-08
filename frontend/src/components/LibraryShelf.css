@@ -40,7 +40,7 @@
   overflow-x: hidden;
   overflow-y: hidden;
   scroll-behavior: smooth; /* Smooth scrolling for button clicks */
-  gap: 1.5rem; /* Space between posters */
+  gap: 3.5rem; /* Space between posters */
   justify-content: flex-start; /* Align items to the start of the row */
   align-items: center; /* Vertically center posters */
   min-width: 0; /* Prevent content from overflowing */
