@@ -6,20 +6,12 @@ test.use({ storageState: storageStatePath });
 
 const location = "/library";
 
-test.describe("Add Movie Panel", () => {
+test.describe.serial("Add Movie Panel", () => {
     test.beforeEach(async ({ page }) => {
         await page.goto(location);
     });
 
-    test("should have correct metadata and elements", async ({ page }) => {
-        const addMovieBtn = page.getByTestId("add-movie-btn");
-        await expect(addMovieBtn).toBeVisible();
-        await addMovieBtn.click();
-        await expect(page.getByRole("heading", { name: "Add a Movie" })).toBeVisible();
-        await expect(page.getByPlaceholder("Search for a movie...")).toBeVisible();
-    });
-
-    test("should add movie successfully", async ({ page }) => {
+    test("should remove movie from library", async ({ page }) => {
         const testMovie = { name: "Inception", imdbId: "tt1375666" };
         const apiContext = await adminApiContext(page);
 
@@ -36,7 +28,19 @@ test.describe("Add Movie Panel", () => {
             expect(deleteResponse.ok()).toBeTruthy();
         }
         await page.goto(location);
+        await expect(page.getByAltText("Inception")).not.toBeVisible();
+        await apiContext.dispose();
+    });
 
+    test("should have correct metadata and elements", async ({ page }) => {
+        const addMovieBtn = page.getByTestId("add-movie-btn");
+        await expect(addMovieBtn).toBeVisible();
+        await addMovieBtn.click();
+        await expect(page.getByRole("heading", { name: "Add a Movie" })).toBeVisible();
+        await expect(page.getByPlaceholder("Search for a movie...")).toBeVisible();
+    });
+
+    test("should add movie successfully", async ({ page }) => {
         const addMovieBtn = page.getByTestId("add-movie-btn");
         await addMovieBtn.click();
         const searchInput = page.getByPlaceholder("Search for a movie...");
@@ -46,8 +50,6 @@ test.describe("Add Movie Panel", () => {
         await page.getByRole("button", { name: "Add" }).click();
         await expect(searchInput).not.toBeVisible();
         await expect(page.getByAltText("Inception")).toBeVisible();
-
-        await apiContext.dispose();
     });
 
     test("should show movie details in popup window", async ({ page }) => {

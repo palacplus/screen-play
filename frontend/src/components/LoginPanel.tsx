@@ -1,18 +1,18 @@
 import { GoogleOAuthProvider } from "@react-oauth/google";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import SignUpForm from "./SignUpForm";
 import { LoginSchema, LoginRequest } from "../types/auth";
-import { ZodFormattedError } from "zod";
+import { set, ZodFormattedError } from "zod";
 import { useAuth } from "./AuthProvider";
 import { AuthContextProps } from "../types/auth";
-import LoadingOverlay from "./LoadingOverlay";
 
 import "./LoginPanel.css";
 
 export default function LoginPanel() {
   const [activeForm, setActiveForm] = useState("login");
+  const [loginSuccessful, setLoginSucceeded] = useState(false);
   const initialFormData = {
     email: "",
     password: "",
@@ -20,15 +20,16 @@ export default function LoginPanel() {
   };
   const [formData, setFormData] = useState<LoginRequest>(initialFormData);
   const [formErrors, setFormErrors] = useState<ZodFormattedError<LoginRequest> | null>(null);
-  const[loading, setLoading] = useState<boolean>(false);
+  const [isPending, startTransition] = useTransition();
   const auth: AuthContextProps = useAuth();
-  const navigate = useNavigate();
+  const nav = useNavigate();
 
   useEffect(() => {
-    if (auth.token) {
-      navigate("/home");
+    if (loginSuccessful && auth.token) {
+      setLoginSucceeded(false);
+      nav("/library");
     }
-  }, [auth.token, navigate]);
+  }, [auth.token, nav]);
 
   function handleReset() {
     if (formErrors || auth.error) {
@@ -39,39 +40,36 @@ export default function LoginPanel() {
 
   async function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
-    setLoading(true)
-    try{
-      const result = LoginSchema.safeParse(formData);
+    const result = LoginSchema.safeParse(formData);
+    startTransition(async () => {
       if (result.success) {
         if (activeForm === "login") {
-          auth.handleLogin(result.data);
+          await auth.handleLogin(result.data);
         } else {
-          auth.handleRegister(result.data);
+          await auth.handleRegister(result.data);
         }
         setFormErrors(null);
+        setLoginSucceeded(true);
       } else {
         console.error("Form data is invalid. Errors:", result.error.flatten());
         auth.setError(null);
         setFormErrors(result.error.format());
       }
-    }
-    finally {
-      setLoading(false)
-    }
+    });
   }
 
   function handleInputChange(event: React.ChangeEvent<HTMLInputElement>) {
     const { name, value } = event.target;
-    setFormData((prevState) => ({
-      ...prevState,
-      [name]: value,
-    }));
-    if (activeForm === "login" && name === "password") {
       setFormData((prevState) => ({
         ...prevState,
-        confirmPassword: value,
+        [name]: value,
       }));
-    }
+      if (activeForm === "login" && name === "password") {
+        setFormData((prevState) => ({
+          ...prevState,
+          confirmPassword: value,
+        }));
+      }
   }
 
   function switchForm(event: React.MouseEvent) {
@@ -90,7 +88,6 @@ export default function LoginPanel() {
   }
   return (
     <div className="login" id="login-container">
-      <LoadingOverlay isLoading={loading} />
       <GoogleOAuthProvider clientId="1001545826720-tj9qj1r0uko12j8j5c0osfv9485vbgve">
         <SignUpForm
           data={formData}
@@ -99,6 +96,8 @@ export default function LoginPanel() {
           onSubmit={handleSubmit}
           onReset={handleReset}
           authContext={auth}
+          loading={isPending}
+          active={activeForm === "signup"}
         />
         <LoginForm
           data={formData}
@@ -107,6 +106,8 @@ export default function LoginPanel() {
           onSubmit={handleSubmit}
           onReset={handleReset}
           authContext={auth}
+          loading={isPending}
+          active={activeForm === "login"}
         />
       </GoogleOAuthProvider>
       <div className="toggle-container">

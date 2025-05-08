@@ -1,18 +1,17 @@
 import { test } from "@playwright/test";
-import { loginAndValidate } from "./helpers";
+import { login } from "./helpers";
 import { adminUser } from "./constants";
+import { expect } from "@playwright/test";
 
 const storageStatePath = "playwright/.auth.json";
 
 test.describe.serial("Authentication Setup", () => {
   test("authenticate admin user", async ({ page }) => {
     await page.goto("/home");
-    await loginAndValidate(
-      page,
-      adminUser.email,
-      adminUser.password,
-      "You are signed in"
-    );
+    await login(page, adminUser.email, adminUser.password);
+    await expect(page.getByText("View Library")).toBeVisible();
+    await page.goto("/home");
+    await expect(page.getByText("You are signed in").nth(0)).toBeVisible();
     await page.context().storageState({ path: storageStatePath });
   });
 });

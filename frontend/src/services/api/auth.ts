@@ -46,7 +46,11 @@ export async function login(request: LoginRequest) {
     return [response.status, user, authResponse.token] as const;
 }
 
-export async function logout() {
-    const response = await axios.get(AuthEndpoints.LOGOUT);
+export async function logout(email: string) {
+    const response = await axios.get(AuthEndpoints.LOGOUT, {
+        params: {
+            email: email,
+        },
+    });
     return response.status;
 }

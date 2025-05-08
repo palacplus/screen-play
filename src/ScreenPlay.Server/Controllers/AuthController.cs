@@ -23,10 +23,18 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("user")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Authorize(Roles = AppRole.Admin)]
+    [ProducesResponseType(typeof(IEnumerable<AppUser>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AppUser), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetUserAsync([FromQuery] string email)
+    public async Task<IActionResult> GetUserAsync([FromQuery] string email="")
     {
+        if (string.IsNullOrEmpty(email))
+        {
+            var users = await _service.GetAllUsersAsync();
+            return Ok(users);
+        }
+        
         var user = await _service.GetUserByEmailAsync(email);
         if (user == null)
         {
@@ -212,17 +220,12 @@ public class AuthController : ControllerBase
 
     [HttpGet("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> LogoutAsync()
+    public async Task<ActionResult> LogoutAsync([FromQuery] string email)
     {
         try
         {
-            var principal = User.FindFirst(ClaimTypes.Email);
-            if (principal == null)
-            {
-                return Unauthorized("User not found!");
-            }
-            await _service.LogoutAsync(principal.Value);
-            _logger.LogInformation("User logged out {email}", principal.Value);
+            await _service.LogoutAsync(email);
+            _logger.LogInformation("User logged out {email}", email);
             return Ok();
         }
         catch (Exception ex)

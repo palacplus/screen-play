@@ -9,4 +9,6 @@ export default interface LoginFormProps {
   onSubmit: (event: React.FormEvent) => void,
   onReset: (event: React.FormEvent) => void,
   authContext: AuthContextProps
+  loading: boolean,
+  active: boolean
 }

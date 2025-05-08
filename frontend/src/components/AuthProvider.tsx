@@ -121,11 +121,17 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   async function handleLogout() {
     try {
-      await logout();
-      setToken(null);
-      setCurrentUser(null);
+      if (currentUser?.email) {
+        await logout(currentUser.email);
+      } else {
+        throw new Error('User email is undefined');
+      }
     } catch (error: any) {
       setError(error.response.data);
+    }
+    finally {
+      setToken(null);
+      setCurrentUser(null);
     }
   }
 

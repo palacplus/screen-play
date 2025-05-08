@@ -73,7 +73,7 @@ export default function LibraryPage() {
 
             <div className="main-content">
                 <div className="right-side">
-                    <LibraryShelf posters={filteredPosters} />
+                    <LibraryShelf posters={filteredPosters} isLoading={loading}/>
                 </div>
             </div>
             <GitHubLink />

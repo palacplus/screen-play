@@ -3,12 +3,14 @@ import Popup from "./Popup";
 import { Movie, MoviePartial } from "@/types/library";
 import Poster from "./Poster";
 import "./LibraryShelf.css";
+import LoadingOverlay from "./LoadingOverlay";
 
 interface LibraryShelfProps {
   posters: MoviePartial[];
+  isLoading: boolean;
 }
 
-export default function LibraryShelf({ posters }: LibraryShelfProps) {
+export default function LibraryShelf({ posters, isLoading }: LibraryShelfProps) {
   const rowRefs = useRef<{ [genre: string]: HTMLDivElement | null }>({});
   const [overflowStates, setOverflowStates] = useState<{
     [genre: string]: { left: boolean; right: boolean };
@@ -26,7 +28,13 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
         genreMap[firstGenre].push(movie);
       }
     });
-    return genreMap;
+
+    return Object.entries(genreMap)
+      .sort(([, moviesA], [, moviesB]) => moviesB.length - moviesA.length)
+      .reduce((sortedMap, [genre, movies]) => {
+        sortedMap[genre] = movies;
+        return sortedMap;
+      }, {} as { [genre: string]: MoviePartial[] });
   }, [posters]);
 
   useEffect(() => {
@@ -82,6 +90,7 @@ export default function LibraryShelf({ posters }: LibraryShelfProps) {
 
   return (
     <div className="library-shelf">
+      <LoadingOverlay isLoading={isLoading} />
       {Object.entries(groupByGenre).map(([genre, movies], genreIndex) => (
         <div key={genreIndex} className="library-shelf-row-container">
           <h3 className="genre-label">{genre}</h3>

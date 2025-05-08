@@ -17,6 +17,12 @@ namespace ScreenPlay.Server.Services
         Task<AppUser?> GetUserByEmailAsync(string email);
 
         /// <summary>
+        /// Gets all users
+        /// </summary>
+        /// <returns>Task<IEnumerable<AppUser>></returns>
+        Task<IEnumerable<AppUser>> GetAllUsersAsync();
+
+        /// <summary>
         /// Deletes the user by email
         /// </summary>
         /// <returns>Task<bool></returns>

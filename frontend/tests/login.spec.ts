@@ -1,5 +1,5 @@
 import { test, expect } from "@playwright/test";
-import { generateRandomEmail, getClassList, registerAndValidate } from "./helpers";
+import { generateRandomEmail, getClassList, login, register } from "./helpers";
 import { testUser} from "./constants";
 
 test.use({ storageState: { cookies: [], origins: [] } });
@@ -85,14 +85,18 @@ test.describe("Registration Form", () => {
     });
     test("should register user successfully", async ({ page }) => {
         await page.evaluate(() => localStorage.clear());
-        await registerAndValidate(page, randomEmail, testUser.password, testUser.password, "Success!");
+        await register(page, randomEmail, testUser.password, testUser.password);
+        await expect(page.getByText("View Library")).toBeVisible();
+        await page.goto("/home");
+        await expect(page.getByText("Success!").nth(0)).toBeVisible();
+
       });
   
       test("should execute login successfully", async ({page}) => {
         await page.goto(location);
-        await page.getByTestId("login-email-input").fill(randomEmail);
-        await page.getByTestId("login-pwd-input").fill(testUser.password);
-        await page.getByTestId("login-button").click();
+        await login(page, randomEmail, testUser.password);
+        await expect(page.getByText("View Library")).toBeVisible();
+        await page.goto("/home");
         await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
       });
     });
@@ -105,7 +109,8 @@ test.describe("Registration Form", () => {
 
     inputData.forEach(({ email, password, confirmPassword, expectedOutput }) => {
       test(`should handle invalid registration input ${expectedOutput}`, async ({ page }) => {
-        await registerAndValidate(page, email, password, confirmPassword, expectedOutput);
+        await register(page, email, password, confirmPassword);
+        await expect(page.getByText(expectedOutput).nth(0)).toBeVisible();
       });
     });
 });
