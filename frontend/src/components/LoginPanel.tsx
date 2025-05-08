@@ -4,7 +4,7 @@ import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import SignUpForm from "./SignUpForm";
 import { LoginSchema, LoginRequest } from "../types/auth";
-import { ZodFormattedError } from "zod";
+import { set, ZodFormattedError } from "zod";
 import { useAuth } from "./AuthProvider";
 import { AuthContextProps } from "../types/auth";
 
@@ -12,6 +12,7 @@ import "./LoginPanel.css";
 
 export default function LoginPanel() {
   const [activeForm, setActiveForm] = useState("login");
+  const [loginSuccessful, setLoginSucceeded] = useState(false);
   const initialFormData = {
     email: "",
     password: "",
@@ -21,13 +22,14 @@ export default function LoginPanel() {
   const [formErrors, setFormErrors] = useState<ZodFormattedError<LoginRequest> | null>(null);
   const [isPending, startTransition] = useTransition();
   const auth: AuthContextProps = useAuth();
-  const navigate = useNavigate();
+  const nav = useNavigate();
 
   useEffect(() => {
-    if (auth.token) {
-      navigate("/home");
+    if (loginSuccessful && auth.token) {
+      setLoginSucceeded(false);
+      nav("/library");
     }
-  }, [auth.token, navigate]);
+  }, [auth.token, nav]);
 
   function handleReset() {
     if (formErrors || auth.error) {
@@ -47,6 +49,7 @@ export default function LoginPanel() {
           await auth.handleRegister(result.data);
         }
         setFormErrors(null);
+        setLoginSucceeded(true);
       } else {
         console.error("Form data is invalid. Errors:", result.error.flatten());
         auth.setError(null);

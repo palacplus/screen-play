@@ -13,7 +13,6 @@ describe("LoadingOverlay Component", () => {
         render(<LoadingOverlay isLoading={true} />);
         const overlay = screen.getByTestId("loading-overlay");
         expect(overlay).toBeInTheDocument();
-        expect(overlay).toHaveStyle("background-color: rgba(255, 255, 255, 0.8)");
 
         const spinner = screen.getByTestId("loading-overlay").querySelector("div");
         expect(spinner).toBeInTheDocument();

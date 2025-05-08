@@ -4,7 +4,7 @@ import AddMoviePanel from "../components/AddMoviePanel";
 import { MoviePartial } from "@/types/library";
 import LibraryShelf from "../components/LibraryShelf";
 import GitHubLink from "../components/GitHubLink";
-import { useState, useMemo, useLayoutEffect } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllMovies } from "../services/api/library";
 
@@ -19,7 +19,7 @@ export default function LibraryPage() {
         setIsAddMovieOpen(false);
     };
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         const fetchMovies = async () => {
             setLoading(true);
             try {
