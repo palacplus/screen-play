@@ -1,11 +1,13 @@
 import { GoogleLogin } from "@react-oauth/google";
 import { FormErrors } from "./FormErrors";
 import LoginFormProps from "../types/form";
+import LoadingOverlay from "./LoadingOverlay";
 
 export default function LoginForm(props: LoginFormProps) {
     const inputClassName = props.authContext.error || props.errors ? "error" : "";
     return (
         <div className="form-container sign-in">
+            {props.active && <LoadingOverlay isLoading={props.loading} />}
             <form>
                 {props.authContext.token && (
                     <>

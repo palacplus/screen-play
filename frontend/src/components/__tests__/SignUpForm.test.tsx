@@ -26,6 +26,8 @@ describe("SignUpForm", () => {
     onSubmit: jest.fn(),
     onInputChange: jest.fn(),
     onReset: jest.fn(),
+    loading: false,
+    active: false
   };
 
   beforeEach(() => {

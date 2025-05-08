@@ -22,11 +22,13 @@ describe("LoginForm", () => {
 
   const mockProps: LoginFormProps = {
     authContext: mockAuthContext,
-    data: { email: "", password: "",  confirmPassword: ""},
+    data: { email: "", password: "", confirmPassword: "" },
     errors: null,
     onSubmit: jest.fn(),
     onInputChange: jest.fn(),
     onReset: jest.fn(),
+    loading: false,
+    active: false
   };
 
   beforeEach(() => {
