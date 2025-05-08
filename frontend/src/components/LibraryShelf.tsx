@@ -28,7 +28,13 @@ export default function LibraryShelf({ posters, isLoading }: LibraryShelfProps) 
         genreMap[firstGenre].push(movie);
       }
     });
-    return genreMap;
+
+    return Object.entries(genreMap)
+      .sort(([, moviesA], [, moviesB]) => moviesB.length - moviesA.length)
+      .reduce((sortedMap, [genre, movies]) => {
+        sortedMap[genre] = movies;
+        return sortedMap;
+      }, {} as { [genre: string]: MoviePartial[] });
   }, [posters]);
 
   useEffect(() => {
