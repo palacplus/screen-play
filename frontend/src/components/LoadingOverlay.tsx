@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { set } from "zod";
 
 interface LoadingOverlayProps {
     isLoading: boolean;
@@ -45,7 +46,6 @@ export default function LoadingOverlay({ isLoading }: LoadingOverlayProps) {
         left: 0,
         width: "100%",
         height: "100%",
-        backgroundColor: "rgba(255, 255, 255, 0.8)",
         zIndex: 1000,
     };
 

@@ -62,14 +62,14 @@ describe("LibraryShelf Component", () => {
   ];
 
   test("renders all posters", () => {
-    render(<LibraryShelf posters={movies} />);
+    render(<LibraryShelf posters={movies} isLoading={false}/>);
     movies.forEach((movie) => {
       expect(screen.getByAltText(movie.title)).toBeInTheDocument();
     });
   });
 
   test("renders no posters when the list is empty", () => {
-    render(<LibraryShelf posters={[]} />);
+    render(<LibraryShelf posters={[]} isLoading={false}/>);
     expect(screen.getByText("No movies found.")).toBeInTheDocument();
   });
 
@@ -98,13 +98,13 @@ describe("LibraryShelf Component", () => {
       boxOffice: null,
     };
 
-    render(<LibraryShelf posters={[incompleteMovie]} />);
+    render(<LibraryShelf posters={[incompleteMovie]} isLoading={false}/>);
     expect(screen.getByAltText(incompleteMovie.title)).toBeInTheDocument();
     expect(screen.getByText("Sci-Fi")).toBeInTheDocument();
   });
 
   test("renders genres correctly when grouped by genre", () => {
-    render(<LibraryShelf posters={movies} />);
+    render(<LibraryShelf posters={movies} isLoading={false}/>);
     expect(screen.getByText("Action")).toBeInTheDocument();
     expect(screen.getByText("Sci-Fi")).toBeInTheDocument();
   });

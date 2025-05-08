@@ -4,7 +4,7 @@ import AddMoviePanel from "../components/AddMoviePanel";
 import { MoviePartial } from "@/types/library";
 import LibraryShelf from "../components/LibraryShelf";
 import GitHubLink from "../components/GitHubLink";
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useLayoutEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllMovies } from "../services/api/library";
 
@@ -19,7 +19,7 @@ export default function LibraryPage() {
         setIsAddMovieOpen(false);
     };
 
-    useEffect(() => {
+    useLayoutEffect(() => {
         const fetchMovies = async () => {
             setLoading(true);
             try {
@@ -73,7 +73,7 @@ export default function LibraryPage() {
 
             <div className="main-content">
                 <div className="right-side">
-                    <LibraryShelf posters={filteredPosters} />
+                    <LibraryShelf posters={filteredPosters} isLoading={loading}/>
                 </div>
             </div>
             <GitHubLink />
