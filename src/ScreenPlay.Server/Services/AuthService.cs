@@ -1,8 +1,7 @@
 using System.Security.Claims;
-using System.Text.Json;
-using System.Web;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 using ScreenPlay.Server.Dtos;
 using ScreenPlay.Server.Models;
 
@@ -45,6 +44,17 @@ public class AuthService : IAuthService
             return null;
         }
         return user;
+    }
+
+    public async Task<IEnumerable<AppUser>> GetAllUsersAsync()
+    {
+        var users = await _userManager.Users.ToListAsync();
+        if (users == null || !users.Any())
+        {
+            _logger.LogWarning("No users found");
+            return Enumerable.Empty<AppUser>();
+        }
+        return users;
     }
 
     public async Task<bool> DeleteUserAsync(string email)

@@ -99,11 +99,10 @@ jobs:
           docker restart screenplay-server
           docker restart screenplay-web
 
-      - name: Verify test user has been created and can login
+      - name: Verify test user can login
         run: |
           echo "Verifying test user..."
           sleep 20
-          curl --fail-with-body --location 'http://localhost:5001/api/auth/user?email=${{ env.TEST_USERNAME }}'
           curl --fail-with-body --location 'http://localhost:5001/api/auth/login' \
           --header 'Content-Type: application/json' \
           --data-raw '{

@@ -23,10 +23,18 @@ public class AuthController : ControllerBase
     }
 
     [HttpGet("user")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
+    [Authorize(Roles = AppRole.Admin)]
+    [ProducesResponseType(typeof(IEnumerable<AppUser>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(AppUser), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetUserAsync([FromQuery] string email)
+    public async Task<IActionResult> GetUserAsync([FromQuery] string email="")
     {
+        if (string.IsNullOrEmpty(email))
+        {
+            var users = await _service.GetAllUsersAsync();
+            return Ok(users);
+        }
+        
         var user = await _service.GetUserByEmailAsync(email);
         if (user == null)
         {

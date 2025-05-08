@@ -2,10 +2,14 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Microsoft.EntityFrameworkCore;
+using Duende.IdentityServer.EntityFramework.Options;
 using Google.Apis.Auth;
 using ScreenPlay.Server.Configuration;
 using ScreenPlay.Server.Dtos;
+using ScreenPlay.Server.Data;
 using ScreenPlay.Server.Models;
 using ScreenPlay.Server.Services;
 
@@ -268,5 +272,50 @@ public class AuthServiceTests
         await _userManager.Received(1).FindByEmailAsync(email);
         await _tokenService.Received(1).RevokeTokensAsync(appUser);
         await _signInManager.Received(1).SignOutAsync();
+    }
+
+    [Fact]
+    public async Task GetAllUsersAsync_ShouldReturnAllUsers_WhenUsersExist()
+    {
+        // Arrange
+        var options = new DbContextOptionsBuilder<AppDbContext>()
+            .UseInMemoryDatabase(databaseName: "GetAllUsersAsync_ShouldReturnAllUsers")
+            .Options;
+        
+        using var context = new AppDbContext(options, Options.Create(new OperationalStoreOptions()));
+        context.Users.AddRange(
+            new AppUser { Email = "user1@example.com", UserName = "user1" },
+            new AppUser { Email = "user2@example.com", UserName = "user2" }
+        );
+        await context.SaveChangesAsync();
+
+        var userManager = CreateUserManager(context);
+        var authService = new AuthService(userManager, _roleManager, _signInManager, _logger, _httpContextAccessor, _tokenService);
+
+        // Act
+        var result = await authService.GetAllUsersAsync();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().HaveCount(2);
+        result.Should().Contain(u => u.Email == "user1@example.com");
+        result.Should().Contain(u => u.Email == "user2@example.com");
+    }
+
+    // Helper method to create a UserManager with an in-memory database
+    private UserManager<AppUser> CreateUserManager(AppDbContext context)
+    {
+        var store = new UserStore<AppUser>(context);
+        return new UserManager<AppUser>(
+            store,
+            null,
+            new PasswordHasher<AppUser>(),
+            null,
+            null,
+            null,
+            null,
+            null,
+            null
+        );
     }
 }
