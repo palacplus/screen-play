@@ -13,6 +13,34 @@ export default function Popup({ movie, onClose }: PopupProps) {
   const [reportText, setReportText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
 
+  const formatReleaseDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      };
+      
+      const formattedDate = date.toLocaleDateString('en-US', options);
+      const day = date.getDate();
+      let dayWithSuffix;
+      if (day >= 11 && day <= 13) {
+        dayWithSuffix = day + 'th';
+      } else {
+        switch (day % 10) {
+          case 1: dayWithSuffix = day + 'st'; break;
+          case 2: dayWithSuffix = day + 'nd'; break;
+          case 3: dayWithSuffix = day + 'rd'; break;
+          default: dayWithSuffix = day + 'th'; break;
+        }
+      }
+      return formattedDate.replace(day.toString(), dayWithSuffix);
+    } catch (error) {
+      return dateString;
+    }
+  };
+
   const handleRating = (value: number) => {
     setRating(value);
   };
@@ -42,7 +70,7 @@ export default function Popup({ movie, onClose }: PopupProps) {
               <div className="popup-header-details">
                 <h2>{movie.title}</h2>
                 <p className="popup-genre">{movie.genre}</p>
-                <p className="popup-release-date">Released: {movie.released}</p>
+                <p className="popup-release-date">Released: {movie.released ? formatReleaseDate(movie.released) : 'NA'}</p>
                 <p className="popup-runtime">Runtime: {movie.runtime}</p>
                 <div className="popup-rated">
                   <span className={`rated-icon rated-${movie.rated?.toLowerCase()}`}>
