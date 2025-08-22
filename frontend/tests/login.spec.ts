@@ -91,7 +91,7 @@ test.describe("Registration Form", () => {
 
       });
   
-      test("should execute login successfully", async ({page}) => {
+      test("should execute login and logout successfully", async ({page}) => {
         await page.goto(PAGES.home);
         await login(page, randomEmail, TEST_USER.password);
         await expect(page.getByText("View Library")).toBeVisible();
@@ -99,9 +99,17 @@ test.describe("Registration Form", () => {
         await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
       });
 
-      test("should invalidate authentication on logout", async ({ page }) => {
+      test("should logout on invalid refresh token", async ({ page }) => {
+        await page.goto(PAGES.home);
+        await login(page, randomEmail, TEST_USER.password);
+        await expect(page.getByText("View Library")).toBeVisible();
+        await page.goto(PAGES.home);
+        await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
+
         const apiContext = await adminApiContext(page);
-        const response = await apiContext.get(ENDPOINTS.logout);
+        const response = await apiContext.get(ENDPOINTS.logout, {
+          params: { email: randomEmail },
+        });
         expect(response.ok()).toBeTruthy();
 
         await page.goto(PAGES.home);
