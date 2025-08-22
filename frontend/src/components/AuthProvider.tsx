@@ -55,8 +55,10 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       async (error) => {
         const originalRequest = error.config;
 
-        if (error.response.status === 401 && window.location.pathname !== '/home') {
-          nav('/home');
+        if (error.response.status === 401) {
+          if (window.location.pathname !== '/home') {
+            nav('/home');
+          }
           setToken(null);
           setCurrentUser(null);
         }
