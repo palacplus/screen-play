@@ -4,10 +4,11 @@ import {
   useContext,
   useState,
   useLayoutEffect,
+  useEffect,
 } from 'react';
 import axios from 'axios';
 import { CredentialResponse } from '@react-oauth/google';
-import { refreshToken, login, logout, externalLogin, register } from '../services/api/auth';
+import { requestToken, login, logout, externalLogin, register } from '../services/api/auth';
 import { LoginRequest, TokenRequest } from '../types/auth';
 import { usePersistedState } from '../hooks/usePersistedState';
 import { User } from '../types/user';
@@ -32,6 +33,21 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   const maxRetryCount = 10;
   const [retryCount, setRetryCount] = useState(0);
 
+  useEffect(() => {
+    async function refreshTokenOnMount() {
+      if (currentUser?.email && currentUser?.refreshToken && token) {
+        try {
+          await refreshToken();
+        } catch (err) {
+          setToken(null);
+          setCurrentUser(null);
+          nav('/home');
+        }
+      }
+    }
+    refreshTokenOnMount();
+  }, []);
+
   useLayoutEffect(() => {
     const authInterceptor = axios.interceptors.request.use((config) => {
       if (config.url?.includes('http')) {
@@ -55,28 +71,23 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       async (error) => {
         const originalRequest = error.config;
 
-        if (error.response.status === 401 && window.location.pathname !== '/home') {
-          nav('/home');
+        if (error.response.status === 401) {
+          if (window.location.pathname !== '/home') {
+            nav('/home');
+          }
           setToken(null);
           setCurrentUser(null);
         }
         
         if (error.response.status === 403) {
           setRetryCount((prev) => prev + 1);
+
+          if (retryCount >= maxRetryCount) {
+            throw new Error('Max retry count exceeded');
+          }
           try {
-            const refreshTokenRequest = {
-              email: currentUser?.email,
-              refreshToken: currentUser?.refreshToken,
-            } as TokenRequest;
-
-            if (retryCount >= maxRetryCount) {
-              throw new Error('Max retry count exceeded');
-            }
-
-            const resp = await refreshToken(refreshTokenRequest);
-            setToken(resp[1].token);
-
-            originalRequest.headers.Authorization = `Bearer ${resp[1].token}`;
+            var newToken = await refreshToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
             originalRequest._retry = true;
 
             return axios(originalRequest);
@@ -94,6 +105,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       axios.interceptors.response.eject(refreshTokenInterceptor);
     };
   }, [token]);
+
+  async function refreshToken() {
+      const refreshTokenRequest = {
+        email: currentUser?.email,
+        refreshToken: currentUser?.refreshToken,
+      } as TokenRequest;
+
+      const resp = await requestToken(refreshTokenRequest);
+      setToken(resp[1].token);
+
+      return resp[1].token;
+  }
 
   async function handleLogin(request: LoginRequest) {
     try {

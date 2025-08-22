@@ -1,5 +1,4 @@
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
+using System.ComponentModel.DataAnnotations;
 using Google.Apis.Auth;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -46,8 +45,9 @@ public class AuthController : ControllerBase
     [HttpDelete("user")]
     [Authorize(Roles = AppRole.Admin)]
     [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteUserAsync([FromQuery] string email)
+    public async Task<IActionResult> DeleteUserAsync([FromQuery, Required] string email)
     {
         var user = await _service.GetUserByEmailAsync(email);
         if (user == null)
@@ -220,7 +220,8 @@ public class AuthController : ControllerBase
 
     [HttpGet("logout")]
     [ProducesResponseType(StatusCodes.Status200OK)]
-    public async Task<ActionResult> LogoutAsync([FromQuery] string email)
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult> LogoutAsync([FromQuery, Required] string email)
     {
         try
         {

@@ -82,7 +82,7 @@ describe("AuthProvider", () => {
             loginButton.click();
         });
 
-        expect(mockAxios.history.post.length).toBe(1);
+        expect(mockAxios.history.post.length).toBe(2);
         expect(screen.getByTestId("token").textContent).toBe("");
         expect(screen.getByTestId("refreshToken").textContent).toBe("");
         expect(screen.getByTestId("error").textContent).toBe("Invalid credentials");
@@ -106,10 +106,10 @@ describe("AuthProvider", () => {
     });
 
     it("handles logout successfully", async () => {
-        mockAxios.onGet("/api/auth/logout").reply(200);
-
         const mockLoginResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/login").reply(200, mockLoginResponse);
+        mockAxios.onPost("/api/auth/refresh-token").reply(200, mockLoginResponse);
+        mockAxios.onGet("/api/auth/logout").reply(200);
 
         renderComponent();
 
@@ -117,6 +117,7 @@ describe("AuthProvider", () => {
         await act(async () => {
             loginButton.click();
         });
+
         expect(screen.getByTestId("token").textContent).toBe("mock-token");
 
         const logoutButton = screen.getByText("Logout");
@@ -186,7 +187,7 @@ describe("AuthProvider", () => {
 
         // Assert: Verify the GET request was made 2 times and the token was refreshed
         expect(mockAxios.history.get.length).toBe(2);
-        expect(mockAxios.history.post.length).toBe(2);
+        expect(mockAxios.history.post.length).toBe(3);
         expect(screen.getByTestId("token").textContent).toBe(mockRefreshResponse.token);
         expect(screen.getByTestId("refreshToken").textContent).toBe(mockLoginResponse.refreshToken);
         expect(screen.getByTestId("error").textContent).toBe("");

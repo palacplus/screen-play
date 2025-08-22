@@ -17,6 +17,7 @@ public class TokenServiceTests
     private readonly AppDbContext _dbContext;
     private readonly JwtConfiguration _jwtConfig;
     private readonly TokenService _tokenService;
+    private readonly ILogger<TokenService> _loggerMock;
 
     public TokenServiceTests()
     {
@@ -29,7 +30,8 @@ public class TokenServiceTests
         };
         var dbContextOptions = new DbContextOptionsBuilder<AppDbContext>().UseInMemoryDatabase("UserDatabase").Options;
         _dbContext = new AppDbContext(dbContextOptions, Options.Create(new OperationalStoreOptions()));
-        _tokenService = new TokenService(_dbContext, Options.Create(_jwtConfig));
+        _loggerMock = Substitute.For<ILogger<TokenService>>();
+        _tokenService = new TokenService(_dbContext, Options.Create(_jwtConfig), _loggerMock);
     }
 
     [Fact]

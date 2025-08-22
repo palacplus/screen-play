@@ -30,7 +30,7 @@ export async function register(request: LoginRequest) {
     return [response.status, user, authResponse.token] as const;
 }
 
-export async function refreshToken(request: TokenRequest) {
+export async function requestToken(request: TokenRequest) {
     const response = await axios.post(AuthEndpoints.REFRESH_TOKEN, request);
     const authResponse = (await response.data) as AuthResponse;
     return [response.status, authResponse] as const;

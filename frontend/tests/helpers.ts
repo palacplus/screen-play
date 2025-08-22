@@ -1,4 +1,5 @@
 import { Page, request } from "@playwright/test";
+import { STORAGE_STATE_PATH } from "./constants";
 
 export async function getClassList(page: Page, locator: string) {
   const element = page.locator(locator);
@@ -38,7 +39,7 @@ export async function adminApiContext(page: Page) {
   token = token.replace(/^"|"$/g, "");
 
   const apiContext = await request.newContext({
-    storageState: "playwright/.auth.json",
+    storageState: STORAGE_STATE_PATH,
     extraHTTPHeaders: {
       Authorization: `Bearer ${token}`,
     },

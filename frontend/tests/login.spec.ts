@@ -1,13 +1,12 @@
 import { test, expect } from "@playwright/test";
-import { generateRandomEmail, getClassList, login, register } from "./helpers";
-import { testUser} from "./constants";
+import { adminApiContext, generateRandomEmail, getClassList, login, register } from "./helpers";
+import { TEST_USER, PAGES, ENDPOINTS } from "./constants";
 
 test.use({ storageState: { cookies: [], origins: [] } });
-const location = "/home";
 
 test.describe("Login Form", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(location);
+    await page.goto(PAGES.home);
   });
 
   test.afterEach(async ({ page }) => {
@@ -48,7 +47,7 @@ test.describe("Login Form", () => {
 
 test.describe("Registration Form", () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto(location);
+    await page.goto(PAGES.home);
     await page.getByTestId("register-toggle").click();
   });
 
@@ -85,26 +84,44 @@ test.describe("Registration Form", () => {
     });
     test("should register user successfully", async ({ page }) => {
         await page.evaluate(() => localStorage.clear());
-        await register(page, randomEmail, testUser.password, testUser.password);
+        await register(page, randomEmail, TEST_USER.password, TEST_USER.password);
         await expect(page.getByText("View Library")).toBeVisible();
-        await page.goto("/home");
+        await page.goto(PAGES.home);
         await expect(page.getByText("Success!").nth(0)).toBeVisible();
 
       });
   
-      test("should execute login successfully", async ({page}) => {
-        await page.goto(location);
-        await login(page, randomEmail, testUser.password);
+      test("should execute login and logout successfully", async ({page}) => {
+        await page.goto(PAGES.home);
+        await login(page, randomEmail, TEST_USER.password);
         await expect(page.getByText("View Library")).toBeVisible();
-        await page.goto("/home");
+        await page.goto(PAGES.home);
         await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
+      });
+
+      test("should logout on invalid refresh token", async ({ page }) => {
+        await page.goto(PAGES.home);
+        await login(page, randomEmail, TEST_USER.password);
+        await expect(page.getByText("View Library")).toBeVisible();
+        await page.goto(PAGES.home);
+        await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
+
+        const apiContext = await adminApiContext(page);
+        const response = await apiContext.get(ENDPOINTS.logout, {
+          params: { email: randomEmail },
+        });
+        expect(response.ok()).toBeTruthy();
+
+        await page.goto(PAGES.home);
+        await expect(page.getByRole("heading", { name: "Sign In" })).toBeVisible();
+        await expect(page.getByTestId("login-email-input")).toBeVisible();
       });
     });
 
     const inputData = [
-      { email: "invalid", password: testUser.password, confirmPassword: testUser.password, expectedOutput: "Invalid Email" },
-      { email: testUser.email, password: "invalid", confirmPassword: testUser.password, expectedOutput: "Password must be at least" },
-      { email: testUser.email, password: testUser.password, confirmPassword: "invalid", expectedOutput: "Passwords do not match" },
+      { email: "invalid", password: TEST_USER.password, confirmPassword: TEST_USER.password, expectedOutput: "Invalid Email" },
+      { email: TEST_USER.email, password: "invalid", confirmPassword: TEST_USER.password, expectedOutput: "Password must be at least" },
+      { email: TEST_USER.email, password: TEST_USER.password, confirmPassword: "invalid", expectedOutput: "Passwords do not match" },
     ];
 
     inputData.forEach(({ email, password, confirmPassword, expectedOutput }) => {

@@ -1,14 +1,13 @@
 import { test, expect } from "@playwright/test";
 import { adminApiContext } from "./helpers";
+import { PAGES, STORAGE_STATE_PATH } from "./constants";
 
-const storageStatePath = "playwright/.auth.json";
-test.use({ storageState: storageStatePath });
 
-const location = "/library";
+test.use({ storageState: STORAGE_STATE_PATH });
 
 test.describe.serial("Add Movie Panel", () => {
     test.beforeEach(async ({ page }) => {
-        await page.goto(location);
+        await page.goto(PAGES.library);
     });
 
     test("should remove movie from library", async ({ page }) => {
@@ -27,7 +26,7 @@ test.describe.serial("Add Movie Panel", () => {
             console.log(`Delete response: ${deleteResponse.status()}`);
             expect(deleteResponse.ok()).toBeTruthy();
         }
-        await page.goto(location);
+        await page.goto(PAGES.library);
         await expect(page.getByAltText("Inception")).not.toBeVisible();
         await apiContext.dispose();
     });

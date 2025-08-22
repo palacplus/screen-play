@@ -156,14 +156,14 @@ public class AuthService : IAuthService
             );
         }
 
-        if (result.Succeeded)
+        if (!result.Succeeded)
         {
-            var tokenInfo = await _tokenService.GetUserTokensAsync(user);
-            return new AuthResponse { Token = tokenInfo.AccessToken, RefreshToken = tokenInfo.RefreshToken };
+            _logger.LogError("User login failed with unexpected result: {result}", result.ToString());
+            return new AuthResponse() { ErrorMessage = result.ToString() };
         }
 
-        _logger.LogError("User login failed with unexpected result: {result}", result.ToString());
-        return new AuthResponse() { ErrorMessage = result.ToString() };
+        var tokenInfo = await _tokenService.GetUserTokensAsync(user);
+        return new AuthResponse { Token = tokenInfo.AccessToken, RefreshToken = tokenInfo.RefreshToken };
     }
 
     public async Task<AuthResponse> RefreshTokenAsync(TokenInfo tokenInfo)
@@ -198,7 +198,13 @@ public class AuthService : IAuthService
         var user = await _userManager.FindByEmailAsync(email);
         await _tokenService.RevokeTokensAsync(user);
         await _signInManager.SignOutAsync();
+        
+        if (await HasExternalLoginAsync(user) && _httpContextAccessor.HttpContext != null)
+        {
+            await _httpContextAccessor.HttpContext.SignOutAsync(IdentityConstants.ExternalScheme);
+        }
     }
+
 
     private AppUser CreateUser(string email, string role)
     {
@@ -219,6 +225,13 @@ public class AuthService : IAuthService
                     + $"override the register page in /Areas/Identity/Pages/Account/Register.cshtml"
             );
         }
+    }
+
+    private async Task<bool> HasExternalLoginAsync(AppUser user)
+    {
+        var externalLogins = await _userManager.GetLoginsAsync(user);
+        _logger.LogDebug("User {email} has {count} external logins", user.Email, externalLogins.Count);
+        return externalLogins.Any();
     }
 
     private AuthResponse GetFailureResponse(IdentityResult result)

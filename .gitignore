@@ -250,7 +250,7 @@ node_modules/
 appsettings.Development.json
 
 # Local files
-local
+.local
 .DS_Store
 .vscode/
 *.code-workspace
