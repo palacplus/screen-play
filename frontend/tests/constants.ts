@@ -1,5 +1,4 @@
 import { use } from "react";
-
 export const STORAGE_STATE_PATH = "playwright/.auth.json";
 
 export const ADMIN_USER = {
