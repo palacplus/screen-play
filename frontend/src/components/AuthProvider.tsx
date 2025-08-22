@@ -86,8 +86,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
             throw new Error('Max retry count exceeded');
           }
           try {
-            await refreshToken();
-            originalRequest.headers.Authorization = `Bearer ${token}`;
+            var newToken = await refreshToken();
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
             originalRequest._retry = true;
 
             return axios(originalRequest);
@@ -114,6 +114,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
       const resp = await requestToken(refreshTokenRequest);
       setToken(resp[1].token);
+
+      return resp[1].token;
   }
 
   async function handleLogin(request: LoginRequest) {
