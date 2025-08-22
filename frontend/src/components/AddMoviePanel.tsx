@@ -92,10 +92,15 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
     setExpanded(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
-    <div 
-    className={`add-movie-panel ${expanded ? "expanded" : ""}`}>
-    <LoadingOverlay isLoading={loading} />
+    <div className={`add-movie-panel ${expanded ? "expanded" : ""}`}>
+      <LoadingOverlay isLoading={loading} />
         <h3>Add a Movie</h3>
       <div className="new-search-container">
         <input
@@ -103,6 +108,7 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
           placeholder="Search for a movie..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
           className="search-input"
         />
         <button onClick={handleSearch} className="search-button">
