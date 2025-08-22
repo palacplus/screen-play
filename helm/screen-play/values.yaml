@@ -85,6 +85,8 @@ server:
   env:
     - name: ASPNETCORE_ENVIRONMENT
       value: Production
+    - name: SP_Logging__LogLevel__Default
+      value: Information
     - name: SP_AUTHENTICATION__GOOGLE__CLIENTID
       valueFrom:
         secretKeyRef:

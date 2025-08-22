@@ -13,11 +13,13 @@ namespace ScreenPlay.Server.Services;
 
 public class TokenService : ITokenService
 {
+    private readonly ILogger<TokenService> _logger;
     private readonly JwtConfiguration _jwtConfig;
     private readonly AppDbContext _dbContext;
 
-    public TokenService(AppDbContext dbContext, IOptions<JwtConfiguration> jwtOptions)
+    public TokenService(AppDbContext dbContext, IOptions<JwtConfiguration> jwtOptions, ILogger<TokenService> logger)
     {
+        _logger = logger;
         _dbContext = dbContext;
         _jwtConfig = jwtOptions.Value;
     }
@@ -102,6 +104,7 @@ public class TokenService : ITokenService
         var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.UserId == user.Id);
         if (tokenInfo == null)
         {
+            _logger.LogDebug("Creating new token for user {id}", user.Id);
             tokenInfo = new TokenInfo
             {
                 UserId = user.Id,
@@ -129,6 +132,7 @@ public class TokenService : ITokenService
             }
             catch (DbUpdateConcurrencyException ex)
             {
+                _logger.LogWarning("Concurrency conflict while saving token for user {id}: {message}", user.Id, ex.Message);
                 var entry = ex.Entries.First(e => e.Entity is TokenInfo || e.Entity is AppUser);
                 var databaseValues = await entry.GetDatabaseValuesAsync();
                 entry.OriginalValues.SetValues(databaseValues);
@@ -154,6 +158,7 @@ public class TokenService : ITokenService
         var tokenInfo = _dbContext.Tokens.FirstOrDefault(a => a.UserId == user.Id);
         if (tokenInfo != null)
         {
+            _logger.LogDebug("Removing token for user {id}", user.Id);
             _dbContext.Tokens.Remove(tokenInfo);
             await _dbContext.SaveChangesAsync();
         }
