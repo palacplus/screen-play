@@ -3,6 +3,7 @@ import Popup from "./Popup";
 import { Movie, MoviePartial } from "@/types/library";
 import Poster from "./Poster";
 import "./LibraryShelf.css";
+import "./shared.css";
 import LoadingOverlay from "./LoadingOverlay";
 
 interface LibraryShelfProps {
@@ -89,16 +90,17 @@ export default function LibraryShelf({ posters, isLoading }: LibraryShelfProps) 
   };
 
   return (
-    <div className="library-shelf">
+    <div className={`library-shelf ${isLoading ? 'loading' : ''}`}>
       <LoadingOverlay isLoading={isLoading} />
       {Object.entries(groupByGenre).map(([genre, movies], genreIndex) => (
-        <div key={genreIndex} className="library-shelf-row-container">
+        <div key={genreIndex} className="library-shelf-row-container fade-in">
           <h3 className="genre-label">{genre}</h3>
           <div className="scroll-buttons">
             {overflowStates[genre]?.left && (
               <button
                 className="scroll-button left"
                 onClick={() => scrollRow(genre, "left")}
+                aria-label={`Scroll ${genre} left`}
               >
                 &#8249;
               </button>
@@ -123,6 +125,7 @@ export default function LibraryShelf({ posters, isLoading }: LibraryShelfProps) 
               <button
                 className="scroll-button right"
                 onClick={() => scrollRow(genre, "right")}
+                aria-label={`Scroll ${genre} right`}
               >
                 &#8250;
               </button>
@@ -138,8 +141,11 @@ export default function LibraryShelf({ posters, isLoading }: LibraryShelfProps) 
         />
       )}
 
-      {posters.length === 0 && (
-        <p className="empty-library-message">No movies found.</p>
+      {posters.length === 0 && !isLoading && (
+        <div className="shared-empty">
+          <h3>No movies found</h3>
+          <p>Try adjusting your search criteria or check back later for new additions.</p>
+        </div>
       )}
     </div>
   );

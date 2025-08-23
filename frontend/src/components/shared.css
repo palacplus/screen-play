@@ -1,0 +1,200 @@
+/* Shared component styles for consistent theming */
+
+.shared-container {
+  background: #1e293b; /* Explicit fallback */
+  background: var(--secondary-bg, #1e293b);
+  border-radius: 0.75rem;
+  border-radius: var(--border-radius-lg, 0.75rem);
+  border: 1px solid #374151;
+  border: 1px solid var(--border-color, #374151);
+  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+  padding: 1.5rem;
+  transition: all 0.3s ease-in-out;
+  color: #f8fafc; /* Ensure text is light */
+  color: var(--primary-text, #f8fafc);
+}
+
+.shared-container:hover {
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  transform: translateY(-1px);
+}
+
+.shared-header {
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #374151;
+  border-bottom: 1px solid var(--border-color, #374151);
+}
+
+.shared-header h1,
+.shared-header h2,
+.shared-header h3,
+.shared-header h4 {
+  color: #f8fafc; /* Explicit fallback */
+  color: var(--primary-text, #f8fafc);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  margin: 0;
+}
+
+.shared-body {
+  color: #cbd5e1; /* Explicit fallback */
+  color: var(--secondary-text, #cbd5e1);
+  line-height: 1.6;
+}
+
+.shared-body p {
+  margin-bottom: 0.75rem;
+  color: #cbd5e1; /* Explicit fallback */
+  color: var(--secondary-text, #cbd5e1);
+}
+
+.shared-body p:last-child {
+  margin-bottom: 0;
+}
+
+/* About component specific styles */
+.about-features {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+
+.feature-item {
+  background: #334155; /* Explicit fallback */
+  background: var(--accent-bg, #334155);
+  padding: 1.5rem;
+  border-radius: 0.5rem;
+  border-radius: var(--border-radius-md, 0.5rem);
+  border: 1px solid #374151;
+  border: 1px solid var(--border-color, #374151);
+  transition: all 0.3s ease;
+}
+
+.feature-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  border-color: var(--accent-color, #3b82f6);
+}
+
+.feature-item h3 {
+  color: var(--primary-text, #f8fafc);
+  font-family: "Space Grotesk", sans-serif;
+  font-weight: 600;
+  margin-bottom: 0.75rem;
+  font-size: 1.125rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.feature-item p {
+  color: var(--secondary-text, #cbd5e1);
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Enhanced about container */
+.shared-container.about {
+  position: relative;
+  overflow: hidden;
+}
+
+.shared-container.about::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 50%, var(--success-color, #10b981) 100%);
+  border-radius: var(--border-radius-lg, 0.75rem) var(--border-radius-lg, 0.75rem) 0 0;
+}
+
+/* Stats specific styling */
+.stat-value {
+  color: var(--accent-color, #3b82f6);
+  font-weight: 600;
+  font-size: 1.125rem;
+  font-family: "Space Grotesk", sans-serif;
+}
+
+/* Error states */
+.shared-error {
+  background: var(--error-color, #ef4444);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md, 0.5rem);
+  margin: 1rem 0;
+  font-weight: 500;
+}
+
+/* Success states */
+.shared-success {
+  background: var(--success-color, #10b981);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md, 0.5rem);
+  margin: 1rem 0;
+  font-weight: 500;
+}
+
+/* Warning states */
+.shared-warning {
+  background: var(--warning-color, #f59e0b);
+  color: white;
+  padding: 0.75rem 1rem;
+  border-radius: var(--border-radius-md, 0.5rem);
+  margin: 1rem 0;
+  font-weight: 500;
+}
+
+/* Loading states */
+.shared-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  color: var(--secondary-text, #cbd5e1);
+}
+
+/* Empty states */
+.shared-empty {
+  text-align: center;
+  padding: 2rem;
+  color: var(--secondary-text, #cbd5e1);
+}
+
+.shared-empty h3 {
+  color: var(--primary-text, #f8fafc);
+  margin-bottom: 0.5rem;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .shared-container {
+    padding: 1rem;
+  }
+  
+  .shared-header {
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.5rem;
+  }
+  
+  .stat-value {
+    font-size: 1rem;
+  }
+  
+  .about-features {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-top: 1.5rem;
+  }
+  
+  .feature-item {
+    padding: 1rem;
+  }
+}

@@ -1,6 +1,7 @@
 import { MoviePartial } from "@/types/library";
 import { useState } from "react";
 import "./Popup.css";
+import "./shared.css";
 
 interface PopupProps {
   movie: MoviePartial;
@@ -12,6 +13,8 @@ export default function Popup({ movie, onClose }: PopupProps) {
   const [isReporting, setIsReporting] = useState(false);
   const [reportText, setReportText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+
+  // No scroll tracking needed - using pure CSS positioning
 
   const formatReleaseDate = (dateString: string) => {
     try {
@@ -54,10 +57,23 @@ export default function Popup({ movie, onClose }: PopupProps) {
     }, 2000);
   };
 
+  const handleClose = () => {
+    onClose();
+  };
+
+  const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).classList.contains("popup-backdrop")) {
+      handleClose();
+    }
+  };
+
   return (
-    <div className="popup-backdrop" onClick={onClose}>
+    <div 
+      className="popup-backdrop" 
+      onClick={handleBackdropClick}
+    >
       <div className="popup-content animate-popup" onClick={(e) => e.stopPropagation()}>
-        <button className="popup-close-btn" onClick={onClose} aria-label="Close">
+        <button className="popup-close-btn" onClick={handleClose} aria-label="Close">
           &times;
         </button>
         {!isReporting ? (

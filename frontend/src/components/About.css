@@ -1,0 +1,58 @@
+/* About component specific styling to ensure proper dark theme */
+
+.about {
+  background: #1e293b !important;
+  color: #f8fafc !important;
+  border: 1px solid #374151 !important;
+}
+
+.about .shared-header h1 {
+  color: #f8fafc !important;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.about .shared-body {
+  color: #cbd5e1 !important;
+}
+
+.about .shared-body p {
+  color: #cbd5e1 !important;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.about .feature-item {
+  background: #334155 !important;
+  border: 1px solid #374151 !important;
+  color: #f8fafc !important;
+}
+
+.about .feature-item:hover {
+  border-color: #3b82f6 !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2);
+}
+
+.about .feature-item h3 {
+  color: #f8fafc !important;
+  font-size: 1.125rem;
+  margin-bottom: 0.75rem;
+}
+
+.about .feature-item p {
+  color: #cbd5e1 !important;
+  margin: 0;
+}
+
+/* Ensure the gradient border shows */
+.about::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, #3b82f6 0%, #2563eb 50%, #10b981 100%);
+  border-radius: 0.75rem 0.75rem 0 0;
+}

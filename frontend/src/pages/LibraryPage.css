@@ -1,128 +1,135 @@
-/* Shared Container Styles */
-.shared-container {
-  text-align: center;
-  margin-bottom: 0.1rem;
-  background-color: #fff; /* White background */
-  border-radius: 15px; /* Rounded corners */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+/* Library Page - Modern Dark Theme */
+.lib-page {
+  background: var(--bg-primary, #0f0f0f) !important;
+  color: var(--text-primary, #ffffff) !important;
+  min-height: 100vh;
+  background-image: 
+    radial-gradient(at 20% 80%, hsla(240, 100%, 20%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, hsla(260, 100%, 20%, 0.1) 0px, transparent 50%);
 }
 
-/* Shared Header Styles */
-.shared-header {
-  background: linear-gradient(to right, #344157, #1e293b); /* Gradient background */
-  border-radius: 15px 15px 0 0; /* Rounded corners for the top */
-  padding: 1rem;
-  color: #fff; /* White text for contrast */
-}
-
-.shared-header h1,
-.shared-header h3 {
-  margin: 0;
-}
-
-/* Shared Body Styles */
-.shared-body {
-  font-size: 1rem;
-  color: #495057; /* Dark grey text */
-  line-height: 1.5;
-  padding: 1rem;
-  text-align: left; /* Default alignment for shared body text */
-}
-
-/* About Component Specific Styles */
-.about .shared-body {
-  text-align: center; /* Override to center-align text for the About component */
-}
-
-/* Library Stats Container */
-.library-stats {
-  flex: 1;
-  padding: 1rem;
-  background-color: #fff; /* Match the LoginPanel background */
-  border-radius: 15px; /* Match the LoginPanel border radius */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.35); /* Match the LoginPanel shadow */
-}
-
-/* Header Section */
-.library-stats-header {
-  background: linear-gradient(to right, #344157, #1e293b); /* Gradient background */
-  border-radius: 15px 15px 0 0; /* Rounded corners for the top */
-  padding: 1rem;
-  text-align: center;
-  color: #fff; /* White text for contrast */
-}
-
-.library-stats-header h3 {
-  margin: 0;
-}
-
-/* Body Section */
-.library-stats-body {
-  padding: 1rem;
-  text-align: left; /* Align text to the left */
-}
-
-/* LibraryStats-Specific Styles */
-.stat-value {
-  font-size: 1.5rem;
-  color: #007bff; /* Blue color for emphasis */
-  font-weight: bold;
-}
-
-.top-titles-header {
-  margin-top: 1rem;
-  color: #495057; /* Dark grey for the header */
-}
-
-.top-titles-list {
-  padding-left: 1.5rem; /* Indent the list */
-}
-
-.top-title-item {
-  color: #007bff; /* Blue color for titles */
-  font-weight: bold;
-}
-
-/* Left Side of Library Page */
-.left-side {
-  flex: 0 0 30%; /* Fixed width as a percentage of the page */
+/* Main Content Container - Styled like component containers */
+.lib-page .main-content {
   display: flex;
-  flex-direction: column;
-  gap: 1rem;
+  flex-direction: row;
+  gap: 2rem;
+  width: 100%;
+  max-width: 1400px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.02)) !important;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Right Side of Library Page */
-.right-side {
+/* Right Side: Library Shelf */
+.lib-page .right-side {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
 }
 
-/* Add Movie Button */
+/* Add Movie Button - Modern Dark Theme */
 .add-movie-btn {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
-  background-color: #ff8700;
+  top: 2rem;
+  right: 2rem;
+  background: var(--gradient-primary, linear-gradient(135deg, #7c3aed, #a855f7));
   color: white;
   border: none;
   border-radius: 50%;
-  width: 3rem;
-  height: 3rem;
+  width: 3.5rem;
+  height: 3.5rem;
   font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.3);
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
 .add-movie-btn:hover {
-  transform: scale(1.1);
-  box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+  transform: scale(1.1) translateY(-2px);
+  box-shadow: 0 12px 40px rgba(124, 58, 237, 0.4);
+  background: var(--gradient-hover, linear-gradient(135deg, #8b5cf6, #a855f7));
+}
+
+.add-movie-btn:active {
+  transform: scale(0.95);
+}
+
+/* Popup Styling */
+.popup-backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.8);
+  backdrop-filter: blur(8px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+/* Popup Content */
+.popup-content {
+  position: relative;
+  background: var(--secondary-bg, #1e293b);
+  padding: 2rem;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border-color, #374151);
+  max-width: min(600px, calc(100vw - 2rem));
+  width: 90%;
+  max-height: min(90vh, calc(100vh - 2rem));
+  overflow-y: auto;
+  overflow-x: hidden;
+  text-align: center;
+  animation: popup-fade-in 0.3s ease-out;
+  color: var(--primary-text, #f8fafc);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.3) transparent;
 }
 
 .popup-content.add-movie-popup {
   padding: 0;
-  width: 30%;
+  width: 90%;
+  max-width: 500px;
+  border-radius: 16px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .lib-page .main-content {
+    flex-direction: column;
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .lib-page .main-content {
+    padding: 1rem;
+    border-radius: 16px;
+    margin: 0.5rem auto;
+  }
+  
+  .add-movie-btn {
+    top: 1rem;
+    right: 1rem;
+    width: 3rem;
+    height: 3rem;
+    font-size: 1.25rem;
+  }
+  
+  .popup-content.add-movie-popup {
+    width: 95%;
+    margin: 1rem;
+  }
 }

@@ -2,121 +2,274 @@
 .library-shelf {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
-  padding: 1rem;
-  background-color: #1c1917; /* Dark background for the shelf */
-  border-radius: 8px;
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  gap: 2.5rem;
+  background: transparent;
+  border-radius: var(--border-radius-xl, 1rem);
 }
 
 /* Empty Library Message */
 .empty-library-message {
-  color: white;
+  color: var(--secondary-text, #cbd5e1);
   text-align: center;
-  font-size: 1.2rem;
-  margin: 1rem 0;
+  font-size: 1.125rem;
+  margin: 2rem 0;
+  padding: 2rem;
+  background: var(--secondary-bg, #1e293b);
+  border-radius: var(--border-radius-lg, 0.75rem);
+  border: 1px solid var(--border-color, #374151);
+  font-family: "Inter", sans-serif;
 }
 
 /* Library Shelf Row Container */
 .library-shelf-row-container {
-  position: relative; /* Ensure scroll buttons are positioned relative to this container */
+  position: relative;
   overflow: visible;
+  margin-bottom: 1rem;
+  padding: 0 1rem; /* Add padding to prevent extending too far left/right */
 }
 
 /* Genre Label */
 .genre-label {
-  position: absolute;
-  top: -1.5rem;
-  left: 1rem;
-  color: white;
-  font-size: 1.2rem;
-  font-weight: bold;
+  color: var(--primary-text, #f8fafc);
+  font-size: 1.25rem;
+  font-weight: 600;
+  font-family: "Space Grotesk", sans-serif;
+  margin-bottom: 1rem;
+  padding-left: 1rem; /* Align with the row content */
+  letter-spacing: -0.025em;
 }
 
-/* Library Shelf Row */
-.library-shelf-row {
-  display: flex;
-  flex-wrap: nowrap; /* Prevent wrapping of items */
-  overflow-x: hidden;
-  overflow-y: hidden;
-  scroll-behavior: smooth; /* Smooth scrolling for button clicks */
-  gap: 3.5rem; /* Space between posters */
-  justify-content: flex-start; /* Align items to the start of the row */
-  align-items: center; /* Vertically center posters */
-  min-width: 0; /* Prevent content from overflowing */
-  width: 100%; /* Ensure the row takes up the full width of the container */
-  box-sizing: border-box; /* Include padding and border in width calculations */
-  scrollbar-width: none; /* Hide scrollbar for Firefox */
-  width: 1260px;
-  padding-top: 2%;
-  padding-left: 2%;
-  padding-bottom: 2%;
-  position: relative; /* Ensure the shadow is positioned correctly */
-  box-shadow: 0 8px 10px rgba(0, 0, 0, 0.3); /* Add shadow to the bottom of the row */
-  border-radius: 8px; /* Optional: Add rounded corners to the row */
-  background-color: #1c1917; /* Optional: Add a subtle background color for the shelf */
-}
-
-.library-shelf-row::after {
-  content: "";
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 100%;
-  height: 10px;
-  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.3), transparent);
-  z-index: -1; /* Ensure the shadow appears behind the row */
-}
-
-.library-shelf-row::-webkit-scrollbar {
-  display: none; /* Hide scrollbar for Chrome, Safari, and Edge */
-}
-
-/* Library Shelf Poster */
-.library-shelf-poster {
-  flex: 0 0 auto; /* Prevent shrinking */
-  width: 150px; /* Fixed width for posters */
-  height: auto; /* Maintain aspect ratio */
-  border-radius: 8px;
-  transition: transform 0.2s ease, box-shadow 0.2s ease; /* Smooth animation for hover effect */
-}
-
-.library-shelf-poster:hover {
-  transform: translate(-10%, -5%); /* Move up and to the left */
-}
-
-/* Scroll Buttons */
+/* Scroll Buttons Container */
 .scroll-buttons {
   position: relative;
   display: flex;
   align-items: center;
 }
 
+/* Library Shelf Row */
+.library-shelf-row {
+  display: flex;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-behavior: smooth;
+  gap: 1.5rem;
+  justify-content: flex-start;
+  align-items: center;
+  min-width: 0;
+  width: 100%;
+  max-width: calc(100vw - 8rem); /* Prevent extending too far */
+  box-sizing: border-box;
+  scrollbar-width: none;
+  padding: 1rem 2rem 1rem 1rem; /* More padding on right for scroll button */
+  position: relative;
+  border-radius: var(--border-radius-lg, 0.75rem);
+  background: linear-gradient(135deg, var(--secondary-bg, #1e293b) 0%, var(--accent-bg, #334155) 100%);
+  border: 1px solid var(--border-color, #374151);
+  box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
+  margin-left: 1rem; /* Prevent extending too far left */
+  margin-right: 1rem; /* Prevent extending too far right */
+}
+
+.library-shelf-row::-webkit-scrollbar {
+  display: none;
+}
+
+/* Library Shelf Poster */
+.library-shelf-poster {
+  flex: 0 0 auto;
+  width: 200px;
+  height: auto;
+  border-radius: var(--border-radius-md, 0.5rem);
+  transition: all 0.3s ease;
+  cursor: pointer;
+  position: relative;
+}
+
+.library-shelf-poster:hover {
+  transform: translateY(-8px) scale(1.05);
+  z-index: 5;
+}
+
+.library-shelf-poster:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(37, 99, 235, 0.1) 100%);
+  border-radius: var(--border-radius-md, 0.5rem);
+  pointer-events: none;
+}
+
+/* Scroll Buttons */
 .scroll-button {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  background-color: rgba(0, 0, 0, 0.5);
-  color: white;
-  border: none;
+  background: linear-gradient(135deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 100%);
+  color: var(--primary-text, #f8fafc);
+  border: 1px solid var(--border-color, #374151);
   border-radius: 50%;
-  width: 2rem;
-  height: 2rem;
+  width: 3rem;
+  height: 3rem;
   cursor: pointer;
-  z-index: 10; /* Ensure buttons are above other elements */
-  display: flex; /* Ensure buttons are visible */
+  z-index: 15;
+  display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 1.25rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  backdrop-filter: blur(10px);
+  opacity: 0.9;
 }
 
 .scroll-button.left {
-  left: -1.8rem; /* Position the left button slightly outside the container */
+  left: -1rem;
 }
 
 .scroll-button.right {
-  right: -1.8rem; /* Position the right button slightly outside the container */
+  right: -1rem;
 }
 
 .scroll-button:hover {
-  background-color: rgba(0, 0, 0, 0.8);
+  transform: translateY(-50%) scale(1.1);
+  box-shadow: var(--shadow-xl, 0 20px 25px -5px rgb(0 0 0 / 0.1));
+  background: linear-gradient(135deg, var(--accent-hover, #2563eb) 0%, #1d4ed8 100%);
+  opacity: 1;
+}
+
+.scroll-button:active {
+  transform: translateY(-50%) scale(0.95);
+}
+
+/* Ensure scroll buttons are visible and clickable */
+.scroll-buttons {
+  position: relative;
+  display: flex;
+  align-items: center;
+  width: 100%;
+}
+
+/* Add visual indicator when buttons are available */
+.scroll-button.left::before,
+.scroll-button.right::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 100%;
+  background: linear-gradient(to right, rgba(30, 41, 59, 0.3), transparent);
+  pointer-events: none;
+}
+
+.scroll-button.left::before {
+  right: 100%;
+}
+
+.scroll-button.right::after {
+  left: 100%;
+  background: linear-gradient(to left, rgba(30, 41, 59, 0.3), transparent);
+}
+
+/* Loading state */
+.library-shelf.loading {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+/* Animation for shelf appearance */
+.library-shelf-row-container {
+  animation: slideInFromLeft 0.6s ease-out;
+}
+
+@keyframes slideInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Responsive design */
+@media (max-width: 1024px) {
+  .library-shelf {
+    padding: 1rem 0.5rem;
+    gap: 2rem;
+  }
+  
+  .library-shelf-row-container {
+    padding: 0 0.5rem;
+  }
+  
+  .library-shelf-row {
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
+    max-width: calc(100vw - 6rem);
+  }
+  
+  .library-shelf-poster {
+    width: 160px;
+  }
+  
+  .scroll-button {
+    width: 2.5rem;
+    height: 2.5rem;
+    font-size: 1rem;
+  }
+  
+  .scroll-button.left {
+    left: -0.75rem;
+  }
+  
+  .scroll-button.right {
+    right: -0.75rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .library-shelf {
+    padding: 0.75rem 0.25rem;
+    gap: 1.5rem;
+  }
+  
+  .library-shelf-row-container {
+    padding: 0 0.25rem;
+  }
+  
+  .library-shelf-row {
+    margin-left: 0.25rem;
+    margin-right: 0.25rem;
+    max-width: calc(100vw - 4rem);
+    padding: 0.75rem 1.5rem 0.75rem 0.75rem;
+  }
+  
+  .library-shelf-poster {
+    width: 140px;
+  }
+  
+  .genre-label {
+    font-size: 1.125rem;
+    margin-bottom: 0.75rem;
+    padding-left: 0.75rem;
+  }
+  
+  .scroll-button {
+    width: 2rem;
+    height: 2rem;
+    font-size: 0.875rem;
+  }
+  
+  .scroll-button.left {
+    left: -0.5rem;
+  }
+  
+  .scroll-button.right {
+    right: -0.5rem;
+  }
 }

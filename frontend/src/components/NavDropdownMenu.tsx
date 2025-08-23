@@ -9,6 +9,7 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import "./NavDropdownMenu.css";
+import "./shared.css";
 
 export default function NavDropdownMenu() {
   const [dropdownOpen, setDropdownOpen] = useState(false);

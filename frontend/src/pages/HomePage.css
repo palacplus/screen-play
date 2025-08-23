@@ -1,22 +1,39 @@
-/* Home Page Container */
+/* Home Page Container - Modern Dark Theme */
 .page {
   display: flex;
   flex-direction: column;
   gap: 2rem;
   width: 100%;
-  padding: 1rem;
+  min-height: 100vh;
+  padding: 0;
   box-sizing: border-box;
+  background: var(--bg-primary, #0f0f0f) !important;
+  border: 0.1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
+  border-radius: 20px;
+  color: var(--text-primary, #ffffff) !important;
+  background-image: 
+    radial-gradient(at 20% 80%, hsla(240, 100%, 20%, 0.1) 0px, transparent 50%),
+    radial-gradient(at 80% 20%, hsla(260, 100%, 20%, 0.1) 0px, transparent 50%);
 }
 
-/* Main Content */
+/* Main Content Container - Styled like component containers */
 .main-content {
   display: flex;
   flex-direction: row;
   gap: 2rem;
   width: 100%;
+  max-width: 1400px;
+  background: var(--card-bg, rgba(255, 255, 255, 0.02)) !important;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
+  border-radius: 20px;
+  padding: 2rem;
+  backdrop-filter: blur(10px);
+  box-shadow: 
+    0 8px 32px rgba(0, 0, 0, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
 }
 
-/* Left Side: About and Library Metrics */
+/* Left Side: Library Stats */
 .left-side {
   flex: 1;
   display: flex;
@@ -24,23 +41,58 @@
   gap: 2rem;
 }
 
-/* Right Side: Login Panel */
+/* Right Side: Login Panel and About */
 .right-side {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
 }
 
 /* GitHub Icon Link */
 .github-link {
   text-align: center;
-  margin-top: 5rem;
+  margin-top: 3rem;
 }
 
 .github-anchor {
   text-decoration: none;
-  color: #1e293b;
+  color: var(--text-secondary, rgba(255, 255, 255, 0.7));
   font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.github-anchor:hover {
+  color: var(--accent-primary, #7c3aed);
 }
 
 .github-icon {
   margin-right: 0.5rem;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .main-content {
+    flex-direction: column;
+    padding: 1.5rem;
+    margin: 1rem auto;
+  }
+}
+
+@media (max-width: 768px) {
+  .page {
+    gap: 1rem;
+  }
+  
+  .main-content {
+    gap: 1rem;
+    padding: 1rem;
+    border-radius: 16px;
+    margin: 0.5rem auto;
+  }
+  
+  .left-side,
+  .right-side {
+    gap: 1rem;
+  }
 }

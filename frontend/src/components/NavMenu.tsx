@@ -3,6 +3,7 @@ import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from "
 import { Link, useNavigate } from "react-router-dom";
 import LogoImage from "./Logo";
 import "./NavMenu.css";
+import "./shared.css";
 import NavDropdownMenu from "./NavDropdownMenu";
 import LoadingOverlay from "./LoadingOverlay";
 import { useAuth } from "./AuthProvider";
