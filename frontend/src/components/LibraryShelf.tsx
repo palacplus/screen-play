@@ -1,5 +1,4 @@
 import { memo, useMemo, useRef, useEffect, useState } from "react";
-import Popup from "./Popup";
 import { Movie, MoviePartial } from "@/types/library";
 import Poster from "./Poster";
 import "./LibraryShelf.css";
@@ -9,14 +8,14 @@ import LoadingOverlay from "./LoadingOverlay";
 interface LibraryShelfProps {
   posters: MoviePartial[];
   isLoading: boolean;
+  onMovieSelect: (movie: MoviePartial) => void;
 }
 
-export default function LibraryShelf({ posters, isLoading }: LibraryShelfProps) {
+export default function LibraryShelf({ posters, isLoading, onMovieSelect }: LibraryShelfProps) {
   const rowRefs = useRef<{ [genre: string]: HTMLDivElement | null }>({});
   const [overflowStates, setOverflowStates] = useState<{
     [genre: string]: { left: boolean; right: boolean };
   }>({});
-  const [selectedMovie, setSelectedMovie] = useState<MoviePartial | null>(null);
 
   const groupByGenre = useMemo(() => {
     const genreMap: { [genre: string]: MoviePartial[] } = {};
@@ -115,7 +114,7 @@ export default function LibraryShelf({ posters, isLoading }: LibraryShelfProps) 
                 <div
                   key={index}
                   className="library-shelf-poster"
-                  onClick={() => setSelectedMovie(movie)}
+                  onClick={() => onMovieSelect(movie)}
                 >
                   <MemoizedPoster movie={movie} />
                 </div>
@@ -133,13 +132,6 @@ export default function LibraryShelf({ posters, isLoading }: LibraryShelfProps) 
           </div>
         </div>
       ))}
-
-      {selectedMovie && (
-        <Popup
-          movie={selectedMovie}
-          onClose={() => setSelectedMovie(null)}
-        />
-      )}
 
       {posters.length === 0 && !isLoading && (
         <div className="shared-empty">

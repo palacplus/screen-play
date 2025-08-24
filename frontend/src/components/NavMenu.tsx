@@ -6,6 +6,7 @@ import "./NavMenu.css";
 import "./shared.css";
 import NavDropdownMenu from "./NavDropdownMenu";
 import LoadingOverlay from "./LoadingOverlay";
+import ThemeToggle from "./ThemeToggle";
 import { useAuth } from "./AuthProvider";
 
 export default function NavMenu() {
@@ -41,6 +42,7 @@ export default function NavMenu() {
             <NavItem className="nav-item-logo">
               <NavbarBrand tag={Link} to="/home" className="nav-title">
                 <LogoImage />
+                <span className="site-title">Screenplay</span>
               </NavbarBrand>
             </NavItem>
 
@@ -67,6 +69,12 @@ export default function NavMenu() {
                 </NavItem>
               </>
             )}
+            
+            {/* Theme Toggle */}
+            <NavItem className="nav-item-container theme-toggle-nav">
+              <ThemeToggle />
+            </NavItem>
+            
             {/* Dropdown Menu */}
             <NavDropdownMenu />
           </ul>

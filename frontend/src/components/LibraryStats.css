@@ -2,23 +2,23 @@
 
 /* Library stats container styling to match About component */
 .library-stats {
-  background: #1e293b !important;
-  color: #f8fafc !important;
-  border: 1px solid #374151 !important;
+  background: var(--card-bg, rgba(255, 255, 255, 0.02)) !important;
+  color: var(--text-primary, #ffffff) !important;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
 }
 
 .library-stats .shared-header h1 {
-  color: #f8fafc !important;
+  color: var(--text-primary, #ffffff) !important;
   text-align: center;
   margin-bottom: 0.5rem;
 }
 
 .library-stats .shared-body {
-  color: #cbd5e1 !important;
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
 }
 
 .library-stats .shared-body p {
-  color: #cbd5e1 !important;
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
   font-size: 1.1rem;
   line-height: 1.7;
 }
@@ -32,9 +32,9 @@
 }
 
 .stat-card {
-  background: #334155 !important;
-  border: 1px solid #374151 !important;
-  color: #f8fafc !important;
+  background: var(--secondary-bg, #1e293b) !important;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
+  color: var(--text-primary, #ffffff) !important;
   border-radius: 16px;
   padding: 1.5rem;
   text-align: center;
@@ -45,15 +45,15 @@
 .stat-card:hover {
   transform: translateY(-2px);
   box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2);
-  border-color: #3b82f6 !important;
+  border-color: var(--accent-color, #3b82f6) !important;
 }
 
 .stat-value {
   display: block;
   font-size: 2.5rem;
   font-weight: 700;
-  color: #f8fafc !important;
-  background: linear-gradient(135deg, #3b82f6, #2563eb, #10b981);
+  color: var(--text-primary, #ffffff) !important;
+  background: linear-gradient(135deg, var(--accent-color, #3b82f6), var(--accent-hover, #2563eb), var(--success-color, #10b981));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -61,7 +61,7 @@
 }
 
 .stat-label {
-  color: #cbd5e1 !important;
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
   font-size: 0.9rem;
   font-weight: 500;
   text-transform: uppercase;
@@ -74,7 +74,7 @@
   justify-content: center;
   align-items: center;
   min-height: 200px;
-  color: #cbd5e1 !important;
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
   font-size: 1.1rem;
 }
 

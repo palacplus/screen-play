@@ -1,22 +1,17 @@
 /* Shared component styles for consistent theming */
 
 .shared-container {
-  background: #1e293b; /* Explicit fallback */
-  background: var(--secondary-bg, #1e293b);
-  border-radius: 0.75rem;
+  background: var(--card-bg, rgba(255, 255, 255, 0.02)) !important;
   border-radius: var(--border-radius-lg, 0.75rem);
-  border: 1px solid #374151;
-  border: 1px solid var(--border-color, #374151);
-  box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
   padding: 1.5rem;
   transition: all 0.3s ease-in-out;
-  color: #f8fafc; /* Ensure text is light */
-  color: var(--primary-text, #f8fafc);
+  color: var(--text-primary, #ffffff) !important;
+  backdrop-filter: blur(10px);
 }
 
 .shared-container:hover {
-  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
   transform: translateY(-1px);
 }
@@ -24,31 +19,27 @@
 .shared-header {
   margin-bottom: 1rem;
   padding-bottom: 0.75rem;
-  border-bottom: 1px solid #374151;
-  border-bottom: 1px solid var(--border-color, #374151);
+  border-bottom: 1px solid var(--border-color, rgba(255, 255, 255, 0.1));
 }
 
 .shared-header h1,
 .shared-header h2,
 .shared-header h3,
 .shared-header h4 {
-  color: #f8fafc; /* Explicit fallback */
-  color: var(--primary-text, #f8fafc);
+  color: var(--text-primary, #ffffff) !important;
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
   margin: 0;
 }
 
 .shared-body {
-  color: #cbd5e1; /* Explicit fallback */
-  color: var(--secondary-text, #cbd5e1);
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
   line-height: 1.6;
 }
 
 .shared-body p {
   margin-bottom: 0.75rem;
-  color: #cbd5e1; /* Explicit fallback */
-  color: var(--secondary-text, #cbd5e1);
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
 }
 
 .shared-body p:last-child {
@@ -64,13 +55,10 @@
 }
 
 .feature-item {
-  background: #334155; /* Explicit fallback */
-  background: var(--accent-bg, #334155);
+  background: var(--secondary-bg, #1e293b) !important;
   padding: 1.5rem;
-  border-radius: 0.5rem;
   border-radius: var(--border-radius-md, 0.5rem);
-  border: 1px solid #374151;
-  border: 1px solid var(--border-color, #374151);
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
   transition: all 0.3s ease;
 }
 
@@ -81,7 +69,7 @@
 }
 
 .feature-item h3 {
-  color: var(--primary-text, #f8fafc);
+  color: var(--text-primary, #ffffff) !important;
   font-family: "Space Grotesk", sans-serif;
   font-weight: 600;
   margin-bottom: 0.75rem;
@@ -92,7 +80,7 @@
 }
 
 .feature-item p {
-  color: var(--secondary-text, #cbd5e1);
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
   margin: 0;
   line-height: 1.5;
 }
@@ -116,7 +104,7 @@
 
 /* Stats specific styling */
 .stat-value {
-  color: var(--accent-color, #3b82f6);
+  color: var(--accent-color, #3b82f6) !important;
   font-weight: 600;
   font-size: 1.125rem;
   font-family: "Space Grotesk", sans-serif;
@@ -158,18 +146,18 @@
   align-items: center;
   justify-content: center;
   padding: 2rem;
-  color: var(--secondary-text, #cbd5e1);
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
 }
 
 /* Empty states */
 .shared-empty {
   text-align: center;
   padding: 2rem;
-  color: var(--secondary-text, #cbd5e1);
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
 }
 
 .shared-empty h3 {
-  color: var(--primary-text, #f8fafc);
+  color: var(--text-primary, #ffffff) !important;
   margin-bottom: 0.5rem;
 }
 

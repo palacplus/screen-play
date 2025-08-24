@@ -5,6 +5,9 @@
   gap: 2.5rem;
   background: transparent;
   border-radius: var(--border-radius-xl, 1rem);
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; /* Prevent any child from extending beyond */
 }
 
 /* Empty Library Message */
@@ -23,9 +26,10 @@
 /* Library Shelf Row Container */
 .library-shelf-row-container {
   position: relative;
-  overflow: visible;
+  overflow: hidden; /* Prevent children from extending beyond container */
   margin-bottom: 1rem;
-  padding: 0 1rem; /* Add padding to prevent extending too far left/right */
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Genre Label */
@@ -35,7 +39,7 @@
   font-weight: 600;
   font-family: "Space Grotesk", sans-serif;
   margin-bottom: 1rem;
-  padding-left: 1rem; /* Align with the row content */
+  padding-left: 1rem;
   letter-spacing: -0.025em;
 }
 
@@ -44,6 +48,8 @@
   position: relative;
   display: flex;
   align-items: center;
+  width: 100%;
+  max-width: 100%;
 }
 
 /* Library Shelf Row */
@@ -58,17 +64,15 @@
   align-items: center;
   min-width: 0;
   width: 100%;
-  max-width: calc(100vw - 8rem); /* Prevent extending too far */
+  max-width: 100%;
   box-sizing: border-box;
   scrollbar-width: none;
-  padding: 1rem 2rem 1rem 1rem; /* More padding on right for scroll button */
+  padding: 1rem;
   position: relative;
   border-radius: var(--border-radius-lg, 0.75rem);
   background: linear-gradient(135deg, var(--secondary-bg, #1e293b) 0%, var(--accent-bg, #334155) 100%);
   border: 1px solid var(--border-color, #374151);
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
-  margin-left: 1rem; /* Prevent extending too far left */
-  margin-right: 1rem; /* Prevent extending too far right */
 }
 
 .library-shelf-row::-webkit-scrollbar {

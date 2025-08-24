@@ -30,6 +30,10 @@
   flex: 1;
   display: flex;
   flex-direction: column;
+  min-width: 0; /* Allows flex item to shrink below content size */
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden; /* Prevent children from overflowing */
 }
 
 /* Add Movie Button - Modern Dark Theme */
@@ -37,7 +41,7 @@
   position: fixed;
   top: 2rem;
   right: 2rem;
-  background: var(--gradient-primary, linear-gradient(135deg, #7c3aed, #a855f7));
+  background: linear-gradient(135deg, #0ea5e9, #06b6d4);
   color: white;
   border: none;
   border-radius: 50%;
@@ -46,15 +50,15 @@
   font-size: 1.5rem;
   font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 8px 32px rgba(124, 58, 237, 0.3);
+  box-shadow: 0 8px 32px rgba(14, 165, 233, 0.3);
   transition: all 0.3s ease;
   z-index: 1000;
 }
 
 .add-movie-btn:hover {
   transform: scale(1.1) translateY(-2px);
-  box-shadow: 0 12px 40px rgba(124, 58, 237, 0.4);
-  background: var(--gradient-hover, linear-gradient(135deg, #8b5cf6, #a855f7));
+  box-shadow: 0 12px 40px rgba(14, 165, 233, 0.4);
+  background: linear-gradient(135deg, #0284c7, #0891b2);
 }
 
 .add-movie-btn:active {

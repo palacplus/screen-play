@@ -4,6 +4,7 @@ import AddMoviePanel from "../components/AddMoviePanel";
 import { MoviePartial } from "@/types/library";
 import LibraryShelf from "../components/LibraryShelf";
 import GitHubLink from "../components/GitHubLink";
+import Popup from "../components/Popup";
 import { useState, useMemo, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
 import { getAllMovies } from "../services/api/library";
@@ -11,6 +12,7 @@ import { getAllMovies } from "../services/api/library";
 export default function LibraryPage() {
     const [posters, setPosters] = usePersistedState<MoviePartial[]>("posters", []);
     const [isAddMovieOpen, setIsAddMovieOpen] = useState(false);
+    const [selectedMovie, setSelectedMovie] = useState<MoviePartial | null>(null);
     const [searchParams] = useSearchParams();
     const [loading, setLoading] = useState(false);
 
@@ -32,7 +34,7 @@ export default function LibraryPage() {
         };
 
         fetchMovies();
-    }, []);
+    }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
     const handlePopupClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if ((e.target as HTMLElement).classList.contains("popup-backdrop")) {
@@ -73,9 +75,21 @@ export default function LibraryPage() {
 
             <div className="main-content">
                 <div className="right-side">
-                    <LibraryShelf posters={filteredPosters} isLoading={loading}/>
+                    <LibraryShelf 
+                        posters={filteredPosters} 
+                        isLoading={loading}
+                        onMovieSelect={setSelectedMovie}
+                    />
                 </div>
             </div>
+            
+            {selectedMovie && (
+                <Popup
+                    movie={selectedMovie}
+                    onClose={() => setSelectedMovie(null)}
+                />
+            )}
+            
             <GitHubLink />
         </div>
     );

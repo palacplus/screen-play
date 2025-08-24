@@ -1,5 +1,5 @@
 import { MoviePartial } from "@/types/library";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./Popup.css";
 import "./shared.css";
 
@@ -10,9 +10,20 @@ interface PopupProps {
 
 export default function Popup({ movie, onClose }: PopupProps) {
   const [rating, setRating] = useState<number | null>(null);
+  const [hoveredRating, setHoveredRating] = useState<number | null>(null);
   const [isReporting, setIsReporting] = useState(false);
   const [reportText, setReportText] = useState("");
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [isVisible, setIsVisible] = useState(false);
+
+  // Smooth rendering - delay visibility to allow content to load
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 100); // Increased delay to ensure content is fully rendered
+
+    return () => clearTimeout(timer);
+  }, []);
 
   // No scroll tracking needed - using pure CSS positioning
 
@@ -72,15 +83,12 @@ export default function Popup({ movie, onClose }: PopupProps) {
       className="popup-backdrop" 
       onClick={handleBackdropClick}
     >
-      <div className="popup-content animate-popup" onClick={(e) => e.stopPropagation()}>
+      <div className={`popup-content ${isVisible ? 'animate-popup' : 'popup-hidden'}`} onClick={(e) => e.stopPropagation()}>
         <button className="popup-close-btn" onClick={handleClose} aria-label="Close">
           &times;
         </button>
         {!isReporting ? (
           <>
-            <button className="popup-report-btn" onClick={() => setIsReporting(true)}>
-              Report an Issue
-            </button>
             <div className="popup-header">
               <img className="popup-image" src={movie.poster} alt={movie.title} />
               <div className="popup-header-details">
@@ -133,18 +141,34 @@ export default function Popup({ movie, onClose }: PopupProps) {
             </div>
             <div className="popup-rating">
               <h3>Rate this movie:</h3>
-              <div className="popup-stars">
-                {[1, 2, 3, 4, 5].map((star) => (
-                  <span
-                    key={star}
-                    onClick={() => handleRating(star)}
-                    className={`popup-star ${rating && star <= rating ? "selected" : ""}`}
-                  >
-                    ★
-                  </span>
-                ))}
+              <div 
+                className="popup-stars"
+                onMouseLeave={() => setHoveredRating(null)}
+              >
+                {[1, 2, 3, 4, 5].map((star) => {
+                  const isSelected = rating && star <= rating;
+                  const isHovered = hoveredRating && star <= hoveredRating;
+                  const shouldHighlight = isHovered || (!hoveredRating && isSelected);
+                  
+                  return (
+                    <span
+                      key={star}
+                      onClick={() => handleRating(star)}
+                      onMouseEnter={() => setHoveredRating(star)}
+                      className={`popup-star ${shouldHighlight ? "highlighted" : ""} ${isSelected ? "selected" : ""}`}
+                      data-rating={star}
+                    >
+                      ★
+                    </span>
+                  );
+                })}
               </div>
               {rating && <p className="popup-rating-value">You rated this {rating} / 5</p>}
+            </div>
+            <div className="popup-footer">
+              <button className="popup-report-btn" onClick={() => setIsReporting(true)}>
+                Report an Issue
+              </button>
             </div>
           </>
         ) : showConfirmation ? (
