@@ -1,5 +1,5 @@
 import { memo, useMemo, useRef, useEffect, useState } from "react";
-import { Movie, MoviePartial } from "@/types/library";
+import { MoviePartial } from "@/types/library";
 import Poster from "./Poster";
 import "./LibraryShelf.css";
 import "./shared.css";

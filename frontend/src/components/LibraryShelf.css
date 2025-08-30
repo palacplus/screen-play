@@ -1,4 +1,3 @@
-/* Library Shelf Container */
 .library-shelf {
   display: flex;
   flex-direction: column;
@@ -7,10 +6,8 @@
   border-radius: var(--border-radius-xl, 1rem);
   width: 100%;
   max-width: 100%;
-  overflow: hidden; /* Prevent any child from extending beyond */
+  overflow: hidden; 
 }
-
-/* Empty Library Message */
 .empty-library-message {
   color: var(--secondary-text, #cbd5e1);
   text-align: center;
@@ -22,17 +19,13 @@
   border: 1px solid var(--border-color, #374151);
   font-family: "Inter", sans-serif;
 }
-
-/* Library Shelf Row Container */
 .library-shelf-row-container {
   position: relative;
-  overflow: hidden; /* Prevent children from extending beyond container */
+  overflow: hidden; 
   margin-bottom: 1rem;
   width: 100%;
   max-width: 100%;
 }
-
-/* Genre Label */
 .genre-label {
   color: var(--primary-text, #f8fafc);
   font-size: 1.25rem;
@@ -42,8 +35,6 @@
   padding-left: 1rem;
   letter-spacing: -0.025em;
 }
-
-/* Scroll Buttons Container */
 .scroll-buttons {
   position: relative;
   display: flex;
@@ -51,8 +42,6 @@
   width: 100%;
   max-width: 100%;
 }
-
-/* Library Shelf Row */
 .library-shelf-row {
   display: flex;
   flex-wrap: nowrap;
@@ -78,8 +67,6 @@
 .library-shelf-row::-webkit-scrollbar {
   display: none;
 }
-
-/* Library Shelf Poster */
 .library-shelf-poster {
   flex: 0 0 auto;
   width: 200px;
@@ -106,8 +93,6 @@
   border-radius: var(--border-radius-md, 0.5rem);
   pointer-events: none;
 }
-
-/* Scroll Buttons */
 .scroll-button {
   position: absolute;
   top: 50%;
@@ -149,16 +134,12 @@
 .scroll-button:active {
   transform: translateY(-50%) scale(0.98);
 }
-
-/* Ensure scroll buttons are visible and clickable */
 .scroll-buttons {
   position: relative;
   display: flex;
   align-items: center;
   width: 100%;
 }
-
-/* Add visual indicator when buttons are available */
 .scroll-button.left::before,
 .scroll-button.right::after {
   content: '';
@@ -177,14 +158,10 @@
   left: 100%;
   background: linear-gradient(to left, rgba(30, 41, 59, 0.3), transparent);
 }
-
-/* Loading state */
 .library-shelf.loading {
   opacity: 0.7;
   pointer-events: none;
 }
-
-/* Animation for shelf appearance */
 .library-shelf-row-container {
   animation: slideInFromLeft 0.6s ease-out;
 }
@@ -199,8 +176,6 @@
     transform: translateX(0);
   }
 }
-
-/* Responsive design */
 @media (max-width: 1024px) {
   .library-shelf {
     padding: 1rem 0.5rem;

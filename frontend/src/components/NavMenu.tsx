@@ -18,7 +18,6 @@ export default function NavMenu() {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Check if we're on the library page
   const isOnLibraryPage = location.pathname === Path.LIBRARY;
 
   const toggleNavbar = () => {
@@ -66,7 +65,7 @@ export default function NavMenu() {
 
                 <NavItem className="nav-item-container">
                   <form className="search-container" onSubmit={handleSearchSubmit} aria-label="Search library">
-                    <LoadingOverlay isLoading={false} />
+                    <LoadingOverlay isLoading={isLoading} />
                     <input
                       type="text"
                       placeholder="Search library..."

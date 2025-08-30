@@ -29,7 +29,7 @@ export default function LoginPanel() {
       setLoginSucceeded(false);
       nav(Path.LIBRARY);
     }
-  }, [auth.token, nav]);
+  }, [loginSuccessful, auth.token, nav]);
 
   function handleReset() {
     if (formErrors || auth.error) {

@@ -1,4 +1,3 @@
-/* Theme Toggle Component */
 .theme-toggle {
   position: fixed;
   top: 2rem;
@@ -6,13 +5,13 @@
   background: transparent !important;
   border: none !important;
   cursor: pointer;
-  padding: 4px !important; /* Add padding to prevent clipping */
+  padding: 4px !important; 
   z-index: 1001;
   transition: none !important;
   will-change: transform;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
-  /* Override global button styles */
+  
   transform: none !important;
   box-shadow: none !important;
   font-weight: normal !important;
@@ -22,14 +21,14 @@
 }
 
 .theme-toggle:hover {
-  /* Remove any inherited hover effects */
+  
   transform: none !important;
   box-shadow: none !important;
   background: transparent !important;
 }
 
 .theme-toggle:active {
-  /* Remove any inherited active effects */
+  
   transform: none !important;
 }
 
@@ -38,8 +37,6 @@
   opacity: 0.8;
   pointer-events: none;
 }
-
-/* Toggle Track */
 .theme-toggle-track {
   width: 60px;
   height: 32px;
@@ -50,7 +47,7 @@
   transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
-  overflow: visible; /* Allow box-shadows to show */
+  overflow: visible; 
   will-change: background, border-color, box-shadow;
 }
 
@@ -69,8 +66,6 @@
     inset 0 2px 4px rgba(0, 0, 0, 0.05),
     0 4px 12px rgba(15, 23, 42, 0.1);
 }
-
-/* Toggle Thumb */
 .theme-toggle-thumb {
   width: 24px;
   height: 24px;
@@ -104,8 +99,6 @@
     0 4px 8px rgba(14, 165, 233, 0.25),
     0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* Theme Icon */
 .theme-icon {
   font-size: 12px;
   line-height: 1;
@@ -131,16 +124,12 @@
   opacity: 0.7;
   filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
 }
-
-/* Hover Effects */
 .theme-toggle:hover .theme-toggle-track {
   transform: scale(1.03);
   box-shadow: 
     var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1)),
     0 0 0 4px rgba(14, 165, 233, 0.08);
 }
-
-/* Hover effects for toggle track */
 .theme-toggle:hover .theme-toggle-track {
   border-color: var(--accent-color, #0ea5e9);
   box-shadow: 
@@ -167,8 +156,6 @@
     0 6px 12px rgba(245, 158, 11, 0.3),
     0 2px 4px rgba(0, 0, 0, 0.1);
 }
-
-/* Responsive Design */
 @media (max-width: 768px) {
   .theme-toggle {
     top: 1rem;
@@ -197,8 +184,6 @@
     font-size: 10px;
   }
 }
-
-/* Focus States for Accessibility */
 .theme-toggle:focus {
   outline: none;
 }
@@ -208,8 +193,6 @@
     var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1)),
     0 0 0 4px rgba(99, 102, 241, 0.2);
 }
-
-/* Enhanced Animation Keyframes */
 @keyframes theme-change-pulse {
   0% {
     transform: scale(1);
@@ -249,8 +232,6 @@
 .theme-toggle.transitioning .theme-toggle-track {
   animation: theme-change-pulse 0.25s ease-out;
 }
-
-/* Prefers reduced motion */
 @media (prefers-reduced-motion: reduce) {
   .theme-toggle,
   .theme-toggle-track,
@@ -268,10 +249,8 @@
     transform: translateX(0) !important;
   }
 }
-
-/* Performance optimizations for ultra-smooth transitions */
 @media (prefers-reduced-motion: no-preference) {
-  /* Enable hardware acceleration for critical elements */
+  
   .theme-toggle-track,
   .theme-toggle-thumb,
   .theme-icon {
@@ -282,13 +261,13 @@
     -webkit-transform-style: preserve-3d;
   }
   
-  /* Force GPU acceleration */
+  
   .theme-toggle-thumb {
     transform: translateZ(0);
     -webkit-transform: translateZ(0);
   }
   
-  /* Optimize rendering */
+  
   .theme-toggle {
     contain: layout style paint;
   }

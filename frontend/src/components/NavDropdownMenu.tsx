@@ -33,6 +33,7 @@ export default function NavDropdownMenu() {
           caret={false}
           onClick={toggle}
           className="dropdown-toggle-btn"
+          title="Menu (disabled)"
         >
           <span className="material-symbols-outlined">menu</span>
         </DropdownToggle>

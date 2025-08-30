@@ -16,16 +16,13 @@ export default function Popup({ movie, onClose }: PopupProps) {
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  // Smooth rendering - delay visibility to allow content to load
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsVisible(true);
-    }, 100); // Increased delay to ensure content is fully rendered
+    }, 100);
 
     return () => clearTimeout(timer);
   }, []);
-
-  // No scroll tracking needed - using pure CSS positioning
 
   const formatReleaseDate = (dateString: string) => {
     try {

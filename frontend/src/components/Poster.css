@@ -32,8 +32,6 @@
 .poster-image.loaded {
   opacity: 1;
 }
-
-/* Fallback: show image after 2 seconds even if onLoad doesn't fire */
 .poster-image {
   animation: fadeInFallback 2s ease-out forwards;
 }

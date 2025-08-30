@@ -154,8 +154,6 @@ header {
 .search-input::placeholder {
   color: var(--secondary-text, #cbd5e1);
 }
-
-/* Theme Toggle in Navbar */
 .theme-toggle-nav {
   display: flex;
   align-items: center;
@@ -169,8 +167,6 @@ header {
   right: auto;
   z-index: auto;
 }
-
-/* Responsive design */
 @media (max-width: 768px) {
   .navbar-expand-sm {
     width: 95%;
@@ -185,8 +181,6 @@ header {
     font-size: 0.8rem;
   }
 }
-
-/* Responsive design for site title */
 @media (max-width: 768px) {
   .site-title {
     font-size: 1.25rem;

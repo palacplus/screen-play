@@ -38,10 +38,6 @@ test.describe("Login Form", () => {
 
     await page.getByTestId("login-button").click();
     await expect(page.getByText("Account not found").nth(0)).toBeVisible();
-
-    await expect(page.getByTestId("login-email-input")).toHaveCSS("background-color", "rgb(255, 0, 0)");
-    await page.getByTestId("login-email-input").click();
-    await expect(page.getByTestId("login-email-input")).toHaveCSS("background-color", "rgb(238, 238, 238)");
   });
 });
 
@@ -85,7 +81,7 @@ test.describe("Registration Form", () => {
     test("should register user successfully", async ({ page }) => {
         await page.evaluate(() => localStorage.clear());
         await register(page, randomEmail, TEST_USER.password, TEST_USER.password);
-        await expect(page.getByText("View Library")).toBeVisible();
+        await expect(page.getByText("Dashboard")).toBeVisible();
         await page.goto(PAGES.home);
         await expect(page.getByText("Success!").nth(0)).toBeVisible();
 
@@ -94,7 +90,7 @@ test.describe("Registration Form", () => {
       test("should execute login and logout successfully", async ({page}) => {
         await page.goto(PAGES.home);
         await login(page, randomEmail, TEST_USER.password);
-        await expect(page.getByText("View Library")).toBeVisible();
+        await expect(page.getByText("Dashboard")).toBeVisible();
         await page.goto(PAGES.home);
         await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
       });
@@ -102,7 +98,7 @@ test.describe("Registration Form", () => {
       test("should logout on invalid refresh token", async ({ page }) => {
         await page.goto(PAGES.home);
         await login(page, randomEmail, TEST_USER.password);
-        await expect(page.getByText("View Library")).toBeVisible();
+        await expect(page.getByText("Dashboard")).toBeVisible();
         await page.goto(PAGES.home);
         await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
 

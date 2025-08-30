@@ -1,9 +1,15 @@
 import "@testing-library/jest-dom";
-import { render, screen } from "@testing-library/react";
+import { render, screen, fireEvent } from "@testing-library/react";
 import LibraryShelf from "../LibraryShelf";
 import { MoviePartial } from "@/types/library";
 
 describe("LibraryShelf Component", () => {
+  const mockOnMovieSelect = jest.fn();
+
+  beforeEach(() => {
+    mockOnMovieSelect.mockClear();
+  });
+
   const movies: MoviePartial[] = [
     {
       poster: "https://example.com/poster.jpg",
@@ -62,15 +68,15 @@ describe("LibraryShelf Component", () => {
   ];
 
   test("renders all posters", () => {
-    render(<LibraryShelf posters={movies} isLoading={false}/>);
+    render(<LibraryShelf posters={movies} isLoading={false} onMovieSelect={mockOnMovieSelect} />);
     movies.forEach((movie) => {
       expect(screen.getByAltText(movie.title)).toBeInTheDocument();
     });
   });
 
   test("renders no posters when the list is empty", () => {
-    render(<LibraryShelf posters={[]} isLoading={false}/>);
-    expect(screen.getByText("No movies found.")).toBeInTheDocument();
+    render(<LibraryShelf posters={[]} isLoading={false} onMovieSelect={mockOnMovieSelect} />);
+    expect(screen.getByText("No movies found")).toBeInTheDocument();
   });
 
   test("renders a poster with missing optional fields", () => {
@@ -98,14 +104,31 @@ describe("LibraryShelf Component", () => {
       boxOffice: null,
     };
 
-    render(<LibraryShelf posters={[incompleteMovie]} isLoading={false}/>);
+    render(<LibraryShelf posters={[incompleteMovie]} isLoading={false} onMovieSelect={mockOnMovieSelect} />);
     expect(screen.getByAltText(incompleteMovie.title)).toBeInTheDocument();
     expect(screen.getByText("Sci-Fi")).toBeInTheDocument();
   });
 
   test("renders genres correctly when grouped by genre", () => {
-    render(<LibraryShelf posters={movies} isLoading={false}/>);
+    render(<LibraryShelf posters={movies} isLoading={false} onMovieSelect={mockOnMovieSelect} />);
     expect(screen.getByText("Action")).toBeInTheDocument();
     expect(screen.getByText("Sci-Fi")).toBeInTheDocument();
+  });  
+  
+  test("calls onMovieSelect when a movie poster is clicked", () => {
+    render(<LibraryShelf posters={movies} isLoading={false} onMovieSelect={mockOnMovieSelect} />);
+    
+    const firstMoviePoster = screen.getByAltText("Inception");
+    fireEvent.click(firstMoviePoster);
+    
+    expect(mockOnMovieSelect).toHaveBeenCalledTimes(1);
+    expect(mockOnMovieSelect).toHaveBeenCalledWith(movies[0]);
+  });
+
+  test("renders loading state correctly", () => {
+    render(<LibraryShelf posters={movies} isLoading={true} onMovieSelect={mockOnMovieSelect} />);
+
+    const libraryShelf = document.querySelector(".library-shelf");
+    expect(libraryShelf).toHaveClass("loading");
   });
 });

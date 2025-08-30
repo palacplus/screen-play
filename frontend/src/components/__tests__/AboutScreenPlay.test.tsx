@@ -5,7 +5,7 @@ import About from "../About";
 describe("About Component", () => {
   test("renders the welcome message", () => {
     render(<About />);
-    expect(screen.getByText("Welcome!")).toBeInTheDocument();
+    expect(screen.getByText("Welcome to ScreenPlay!")).toBeInTheDocument();
   });
 
   test("renders the description text", () => {

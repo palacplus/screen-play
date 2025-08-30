@@ -36,7 +36,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     async function refreshTokenOnMount() {
-      if (currentUser?.email && currentUser?.refreshToken && token) {
+      if (token) {
         try {
           await refreshToken();
         } catch (err) {
@@ -47,7 +47,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
     }
     refreshTokenOnMount();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useLayoutEffect(() => {
     const authInterceptor = axios.interceptors.request.use((config) => {
@@ -105,7 +105,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       axios.interceptors.response.eject(refreshTokenInterceptor);
     };
-  }, [token]);
+  }, [token, retryCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function refreshToken() {
       const refreshTokenRequest = {
@@ -162,7 +162,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   async function handleExternalLogin(credentialResponse: CredentialResponse) {
     try {
       const response = await externalLogin(credentialResponse);
-      const user = response[1];
       setToken(response[2]);
       setCurrentUser(response[1]);
     } catch (error: any) {

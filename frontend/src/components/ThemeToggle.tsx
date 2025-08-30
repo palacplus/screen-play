@@ -29,7 +29,6 @@ export default function ThemeToggle() {
   const [isDarkMode, setIsDarkMode] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
-  // Pre-calculate theme configurations for optimal performance
   const themeConfigs = useMemo<{ dark: ThemeColors; light: ThemeColors }>(() => ({
     dark: {
       "--bg-primary": "#0f0f0f",
@@ -79,14 +78,11 @@ export default function ThemeToggle() {
     }
   }), []);
 
-  // Optimized theme application using batch CSS property updates
   const applyTheme = useCallback((isDark: boolean) => {
     const root = document.documentElement;
     const config = isDark ? themeConfigs.dark : themeConfigs.light;
     
-    // Use requestAnimationFrame for smoother transitions
     requestAnimationFrame(() => {
-      // Batch all CSS property updates for better performance
       Object.entries(config).forEach(([property, value]) => {
         root.style.setProperty(property, value);
       });
@@ -96,33 +92,29 @@ export default function ThemeToggle() {
   }, [themeConfigs]);
 
   useEffect(() => {
-    // Check for saved theme preference or default to dark mode
     const savedTheme = localStorage.getItem("theme");
     if (savedTheme) {
       const isDark = savedTheme === "dark";
       setIsDarkMode(isDark);
       applyTheme(isDark);
     } else {
-      // Default to dark mode
       applyTheme(true);
     }
   }, [applyTheme]);
 
   const toggleTheme = useCallback(() => {
-    if (isTransitioning) return; // Prevent rapid clicking
+    if (isTransitioning) return;
     
     const newIsDarkMode = !isDarkMode;
     
-    // Immediately update states and apply theme for smooth response
     setIsDarkMode(newIsDarkMode);
     setIsTransitioning(true);
     applyTheme(newIsDarkMode);
     localStorage.setItem("theme", newIsDarkMode ? "dark" : "light");
     
-    // Reset transition state after animation completes (match CSS transition duration)
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 300); // Matched to CSS transition duration of 0.3s
+    }, 300);
   }, [isDarkMode, isTransitioning, applyTheme]);
 
   return (

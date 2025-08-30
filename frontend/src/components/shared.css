@@ -1,5 +1,3 @@
-/* Shared component styles for consistent theming */
-
 .shared-container {
   background: var(--card-bg, rgba(255, 255, 255, 0.02)) !important;
   border-radius: var(--border-radius-lg, 0.75rem);
@@ -45,8 +43,6 @@
 .shared-body p:last-child {
   margin-bottom: 0;
 }
-
-/* About component specific styles */
 .about-features {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -84,8 +80,6 @@
   margin: 0;
   line-height: 1.5;
 }
-
-/* Standardized Button Styles */
 .btn-standard {
   background: linear-gradient(135deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 100%);
   color: white;
@@ -121,8 +115,6 @@
   cursor: not-allowed;
   transform: none;
 }
-
-/* Secondary button variant */
 .btn-secondary {
   background: var(--secondary-bg, #334155);
   color: var(--primary-text, #f8fafc);
@@ -133,8 +125,6 @@
   background: var(--accent-bg, #475569);
   border-color: var(--accent-color, #3b82f6);
 }
-
-/* Success button variant */
 .btn-success {
   background: linear-gradient(135deg, var(--success-color, #10b981) 0%, #059669 100%);
 }
@@ -142,8 +132,6 @@
 .btn-success:hover {
   background: linear-gradient(135deg, #059669 0%, #047857 100%);
 }
-
-/* Danger button variant */
 .btn-danger {
   background: linear-gradient(135deg, var(--error-color, #ef4444) 0%, #dc2626 100%);
 }
@@ -151,8 +139,6 @@
 .btn-danger:hover {
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
 }
-
-/* Ghost button variant */
 .btn-ghost {
   background: transparent;
   color: var(--primary-text, #f8fafc);
@@ -163,8 +149,6 @@
   background: var(--secondary-bg, rgba(255, 255, 255, 0.05));
   border-color: var(--accent-color, #3b82f6);
 }
-
-/* Enhanced about container */
 .shared-container.about {
   position: relative;
   overflow: hidden;
@@ -180,16 +164,12 @@
   background: linear-gradient(90deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 50%, var(--success-color, #10b981) 100%);
   border-radius: var(--border-radius-lg, 0.75rem) var(--border-radius-lg, 0.75rem) 0 0;
 }
-
-/* Stats specific styling */
 .stat-value {
   color: var(--accent-color, #3b82f6) !important;
   font-weight: 600;
   font-size: 1.125rem;
   font-family: "Space Grotesk", sans-serif;
 }
-
-/* Error states */
 .shared-error {
   background: var(--error-color, #ef4444);
   color: white;
@@ -198,8 +178,6 @@
   margin: 1rem 0;
   font-weight: 500;
 }
-
-/* Success states */
 .shared-success {
   background: var(--success-color, #10b981);
   color: white;
@@ -208,8 +186,6 @@
   margin: 1rem 0;
   font-weight: 500;
 }
-
-/* Warning states */
 .shared-warning {
   background: var(--warning-color, #f59e0b);
   color: white;
@@ -218,8 +194,6 @@
   margin: 1rem 0;
   font-weight: 500;
 }
-
-/* Loading states */
 .shared-loading {
   display: flex;
   align-items: center;
@@ -227,8 +201,6 @@
   padding: 2rem;
   color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
 }
-
-/* Empty states */
 .shared-empty {
   text-align: center;
   padding: 2rem;
@@ -239,8 +211,6 @@
   color: var(--text-primary, #ffffff) !important;
   margin-bottom: 0.5rem;
 }
-
-/* Responsive design */
 @media (max-width: 768px) {
   .shared-container {
     padding: 1rem;

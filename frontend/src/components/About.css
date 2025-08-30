@@ -1,5 +1,3 @@
-/* About component specific styling to ensure proper theming */
-
 .about {
   background: var(--card-bg, rgba(255, 255, 255, 0.02)) !important;
   color: var(--text-primary, #ffffff) !important;
@@ -44,8 +42,6 @@
   color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
   margin: 0;
 }
-
-/* Ensure the gradient border shows */
 .about::before {
   content: '';
   position: absolute;

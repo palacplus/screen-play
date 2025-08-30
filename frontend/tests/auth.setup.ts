@@ -7,7 +7,7 @@ test.describe.serial("Authentication Setup", () => {
   test("authenticate admin user", async ({ page }) => {
     await page.goto(PAGES.home);
     await login(page, ADMIN_USER.email, ADMIN_USER.password);
-    await expect(page.getByText("View Library")).toBeVisible();
+    await expect(page.getByText("Dashboard")).toBeVisible();
     await page.goto(PAGES.home);
     await expect(page.getByText("You are signed in").nth(0)).toBeVisible();
     await page.context().storageState({ path: STORAGE_STATE_PATH });
