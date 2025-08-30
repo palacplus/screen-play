@@ -34,7 +34,7 @@ export default function LibraryPage() {
         };
 
         fetchMovies();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [setPosters, getAllMovies]);
 
     const handlePopupClick = (e: React.MouseEvent<HTMLDivElement>) => {
         if ((e.target as HTMLElement).classList.contains("popup-backdrop")) {
