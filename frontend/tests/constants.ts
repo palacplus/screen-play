@@ -11,7 +11,7 @@ export const TEST_USER = {
 }
 
 export const PAGES = {
-    home: "/home",
+    home: "/dashboard",
     library: "/library"
 }
 

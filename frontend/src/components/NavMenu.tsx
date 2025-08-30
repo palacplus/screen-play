@@ -1,10 +1,13 @@
 import { useState } from "react";
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from "reactstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import LogoImage from "./Logo";
 import "./NavMenu.css";
+import "./shared.css";
 import NavDropdownMenu from "./NavDropdownMenu";
 import LoadingOverlay from "./LoadingOverlay";
+import ThemeToggle from "./ThemeToggle";
+import { Path } from "../types/endpoints";
 import { useAuth } from "./AuthProvider";
 
 export default function NavMenu() {
@@ -13,6 +16,9 @@ export default function NavMenu() {
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const isOnLibraryPage = location.pathname === Path.LIBRARY;
 
   const toggleNavbar = () => {
     setCollapsed(!collapsed);
@@ -22,9 +28,9 @@ export default function NavMenu() {
     e.preventDefault();
     setIsLoading(true);
     if (searchQuery.trim()) {
-      navigate(`/library?title=${encodeURIComponent(searchQuery)}`);
+      navigate(`${Path.LIBRARY}?title=${encodeURIComponent(searchQuery)}`);
     } else {
-      navigate("/library");
+      navigate(Path.LIBRARY);
     }
     setSearchQuery("");
     setIsLoading(false);
@@ -38,23 +44,28 @@ export default function NavMenu() {
         <Collapse className="d-sm-inline-flex flex-sm-row-reverse" isOpen={!collapsed} navbar>
           <ul className="navbar-nav flex-grow align-items-center">
             <NavItem className="nav-item-logo">
-              <NavbarBrand tag={Link} to="/home" className="nav-title">
+              <NavbarBrand tag={Link} to={Path.DASHBOARD} className="nav-title">
                 <LogoImage />
+                <span className="site-title">Screenplay</span>
               </NavbarBrand>
             </NavItem>
 
-            {/* Go to Library Link */}
+            {/* Navigation Link - Changes based on current page */}
             {auth.currentUser && (
               <>
                 <NavItem className="nav-item-container">
-                  <NavLink tag={Link} to="/library" className="btn nav-btn">
-                    View Library
+                  <NavLink
+                    tag={Link}
+                    to={isOnLibraryPage ? Path.DASHBOARD : Path.LIBRARY}
+                    className="btn nav-btn"
+                  >
+                    {isOnLibraryPage ? "Dashboard" : "View Library"}
                   </NavLink>
                 </NavItem>
 
                 <NavItem className="nav-item-container">
                   <form className="search-container" onSubmit={handleSearchSubmit} aria-label="Search library">
-                    <LoadingOverlay isLoading={false} />
+                    <LoadingOverlay isLoading={isLoading} />
                     <input
                       type="text"
                       placeholder="Search library..."
@@ -66,6 +77,12 @@ export default function NavMenu() {
                 </NavItem>
               </>
             )}
+            
+            {/* Theme Toggle */}
+            <NavItem className="nav-item-container theme-toggle-nav">
+              <ThemeToggle />
+            </NavItem>
+            
             {/* Dropdown Menu */}
             <NavDropdownMenu />
           </ul>

@@ -1,3 +1,5 @@
+import "./GitHubLink.css";
+
 export default function GitHubLink() {
     return (
         <div className="github-link">

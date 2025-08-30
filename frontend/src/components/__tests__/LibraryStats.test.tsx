@@ -22,7 +22,6 @@ describe("LibraryStats Component", () => {
   test("renders the title and loading state initially", () => {
     render(<LibraryStats />);
     expect(screen.getByText("Library Overview")).toBeInTheDocument();
-    expect(screen.queryByText(/Total Movies/i)).toBeInTheDocument();
   });
 
   test("fetches and displays stats correctly", async () => {
@@ -31,6 +30,7 @@ describe("LibraryStats Component", () => {
     render(<LibraryStats />);
 
     await waitFor(() => {
+      expect(screen.getByText("Total Movies")).toBeInTheDocument();
       expect(screen.getByText("120")).toBeInTheDocument();
       expect(screen.getByText("45")).toBeInTheDocument();
       expect(screen.getByText("300")).toBeInTheDocument();

@@ -1,0 +1,54 @@
+.about {
+  background: var(--card-bg, rgba(255, 255, 255, 0.02)) !important;
+  color: var(--text-primary, #ffffff) !important;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
+}
+
+.about .shared-header h1 {
+  color: var(--text-primary, #ffffff) !important;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.about .shared-body {
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
+}
+
+.about .shared-body p {
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+
+.about .feature-item {
+  background: var(--secondary-bg, #1e293b) !important;
+  border: 1px solid var(--border-color, rgba(255, 255, 255, 0.1)) !important;
+  color: var(--text-primary, #ffffff) !important;
+}
+
+.about .feature-item:hover {
+  border-color: var(--accent-color, #3b82f6) !important;
+  transform: translateY(-2px);
+  box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.2);
+}
+
+.about .feature-item h3 {
+  color: var(--text-primary, #ffffff) !important;
+  font-size: 1.125rem;
+  margin-bottom: 0.75rem;
+}
+
+.about .feature-item p {
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7)) !important;
+  margin: 0;
+}
+.about::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 50%, var(--success-color, #10b981) 100%);
+  border-radius: 0.75rem 0.75rem 0 0;
+}

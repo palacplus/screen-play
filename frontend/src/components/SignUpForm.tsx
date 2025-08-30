@@ -26,6 +26,8 @@ export default function SignUpForm(props: LoginFormProps) {
                                 onSuccess={props.authContext.handleExternalLogin}
                                 onError={() => { console.error("Google Login Failed"); }}
                                 text="signup_with"
+                                theme="filled_blue"
+                                shape="pill"
                             />
                         </div>
                         <input

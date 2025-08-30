@@ -25,4 +25,22 @@
   cursor: pointer;
   border-radius: 8px;
   border: 3px solid #007bff;
+  opacity: 0;
+  transition: opacity 0.6s ease-out;
+}
+
+.poster-image.loaded {
+  opacity: 1;
+}
+.poster-image {
+  animation: fadeInFallback 2s ease-out forwards;
+}
+
+@keyframes fadeInFallback {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
 }

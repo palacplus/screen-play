@@ -9,12 +9,14 @@ import {
 } from "reactstrap";
 import { Link } from "react-router-dom";
 import "./NavDropdownMenu.css";
+import "./shared.css";
 
 export default function NavDropdownMenu() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggle = () => {
-    setDropdownOpen(!dropdownOpen);
+    // TODO: Fix dropdown toggle issue
+    // setDropdownOpen(!dropdownOpen);
   };
 
   const items = [
@@ -31,6 +33,7 @@ export default function NavDropdownMenu() {
           caret={false}
           onClick={toggle}
           className="dropdown-toggle-btn"
+          title="Menu (disabled)"
         >
           <span className="material-symbols-outlined">menu</span>
         </DropdownToggle>

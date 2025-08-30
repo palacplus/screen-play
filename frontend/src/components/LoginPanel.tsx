@@ -3,10 +3,10 @@ import { useEffect, useState, useTransition } from "react";
 import { useNavigate } from "react-router-dom";
 import LoginForm from "./LoginForm";
 import SignUpForm from "./SignUpForm";
-import { LoginSchema, LoginRequest } from "../types/auth";
+import { LoginSchema, LoginRequest, AuthContextProps } from "../types/auth";
+import {Path } from "../types/endpoints";
 import { set, ZodFormattedError } from "zod";
 import { useAuth } from "./AuthProvider";
-import { AuthContextProps } from "../types/auth";
 
 import "./LoginPanel.css";
 
@@ -27,9 +27,9 @@ export default function LoginPanel() {
   useEffect(() => {
     if (loginSuccessful && auth.token) {
       setLoginSucceeded(false);
-      nav("/library");
+      nav(Path.LIBRARY);
     }
-  }, [auth.token, nav]);
+  }, [loginSuccessful, auth.token, nav]);
 
   function handleReset() {
     if (formErrors || auth.error) {

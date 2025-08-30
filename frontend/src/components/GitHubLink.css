@@ -1,0 +1,19 @@
+.github-link {
+  text-align: center;
+  margin-top: 3rem;
+}
+
+.github-anchor {
+  text-decoration: none;
+  color: var(--secondary-text, rgba(255, 255, 255, 0.7));
+  font-size: 1.5rem;
+  transition: color 0.3s ease;
+}
+
+.github-anchor:hover {
+  color: var(--accent-color, #0ea5e9);
+}
+
+.github-icon {
+  margin-right: 0.5rem;
+}

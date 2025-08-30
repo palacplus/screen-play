@@ -13,6 +13,7 @@ import { LoginRequest, TokenRequest } from '../types/auth';
 import { usePersistedState } from '../hooks/usePersistedState';
 import { User } from '../types/user';
 import { AuthContextProps } from '../types/auth';
+import { Path } from '../types/endpoints';
 import { useNavigate } from 'react-router-dom';
 
 declare module 'axios' {
@@ -35,18 +36,18 @@ export default function AuthProvider({ children }: AuthProviderProps) {
 
   useEffect(() => {
     async function refreshTokenOnMount() {
-      if (currentUser?.email && currentUser?.refreshToken && token) {
+      if (token) {
         try {
           await refreshToken();
         } catch (err) {
           setToken(null);
           setCurrentUser(null);
-          nav('/home');
+          nav(Path.DASHBOARD);
         }
       }
     }
     refreshTokenOnMount();
-  }, []);
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   useLayoutEffect(() => {
     const authInterceptor = axios.interceptors.request.use((config) => {
@@ -72,8 +73,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         const originalRequest = error.config;
 
         if (error.response.status === 401) {
-          if (window.location.pathname !== '/home') {
-            nav('/home');
+          if (window.location.pathname !== Path.DASHBOARD) {
+            nav(Path.DASHBOARD);
           }
           setToken(null);
           setCurrentUser(null);
@@ -104,7 +105,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       axios.interceptors.response.eject(refreshTokenInterceptor);
     };
-  }, [token]);
+  }, [token, retryCount]); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function refreshToken() {
       const refreshTokenRequest = {
@@ -161,7 +162,6 @@ export default function AuthProvider({ children }: AuthProviderProps) {
   async function handleExternalLogin(credentialResponse: CredentialResponse) {
     try {
       const response = await externalLogin(credentialResponse);
-      const user = response[1];
       setToken(response[2]);
       setCurrentUser(response[1]);
     } catch (error: any) {

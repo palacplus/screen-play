@@ -9,11 +9,11 @@ export default function HomePage() {
     <div className="page">
       <div className="main-content">
         <div className="left-side">
-          <About />
           <LibraryStats />
         </div>
         <div className="right-side">
           <LoginPanel />
+          <About />
         </div>
       </div>
       <GitHubLink />

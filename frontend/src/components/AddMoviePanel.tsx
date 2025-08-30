@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import "./AddMoviePanel.css";
+import "./shared.css";
 import { MoviePartial } from "../types/library";
 import LoadingOverlay from "./LoadingOverlay";
 import { addNewMovie } from "../services/api/library";
@@ -92,21 +93,27 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
     setExpanded(false);
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
   return (
-    <div 
-    className={`add-movie-panel ${expanded ? "expanded" : ""}`}>
-    <LoadingOverlay isLoading={loading} />
-        <h3>Add a Movie</h3>
+    <div className={`add-movie-panel ${expanded ? "expanded" : ""} ${loading ? "loading" : ""}`}>
+      <LoadingOverlay isLoading={loading} />
+      <h3>Add a Movie</h3>
       <div className="new-search-container">
         <input
           type="text"
           placeholder="Search for a movie..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
+          onKeyDown={handleKeyDown}
           className="search-input"
         />
-        <button onClick={handleSearch} className="search-button">
-          Search
+        <button onClick={handleSearch} className="search-button" disabled={loading}>
+          {loading ? "Searching..." : "Search"}
         </button>
       </div>
       {error && <p className="error-message">{error}</p>}
@@ -117,12 +124,14 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
             <h4>
               {movie.title} ({movie.year})
             </h4>
-            <button onClick={handleAddMovie} className="add-button">
-              Add to Library
-            </button>
-            <button onClick={resetForm} className="cancel-button">
-              Cancel
-            </button>
+            <div className="button-container">
+              <button onClick={handleAddMovie} className="add-button" disabled={loading}>
+                {loading ? "Adding..." : "Add to Library"}
+              </button>
+              <button onClick={resetForm} className="cancel-button" disabled={loading}>
+                Cancel
+              </button>
+            </div>
           </div>
         </div>
       )}
