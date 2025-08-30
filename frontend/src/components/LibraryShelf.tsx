@@ -3,7 +3,6 @@ import { Movie, MoviePartial } from "@/types/library";
 import Poster from "./Poster";
 import "./LibraryShelf.css";
 import "./shared.css";
-import LoadingOverlay from "./LoadingOverlay";
 
 interface LibraryShelfProps {
   posters: MoviePartial[];
@@ -90,7 +89,6 @@ export default function LibraryShelf({ posters, isLoading, onMovieSelect }: Libr
 
   return (
     <div className={`library-shelf ${isLoading ? 'loading' : ''}`}>
-      <LoadingOverlay isLoading={isLoading} />
       {Object.entries(groupByGenre).map(([genre, movies], genreIndex) => (
         <div key={genreIndex} className="library-shelf-row-container fade-in">
           <h3 className="genre-label">{genre}</h3>

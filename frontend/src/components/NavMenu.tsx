@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Collapse, Navbar, NavbarBrand, NavbarToggler, NavItem, NavLink } from "reactstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import LogoImage from "./Logo";
 import "./NavMenu.css";
 import "./shared.css";
@@ -15,6 +15,10 @@ export default function NavMenu() {
   const [isLoading, setIsLoading] = useState(false);
   const auth = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Check if we're on the library page
+  const isOnLibraryPage = location.pathname === '/library';
 
   const toggleNavbar = () => {
     setCollapsed(!collapsed);
@@ -46,12 +50,16 @@ export default function NavMenu() {
               </NavbarBrand>
             </NavItem>
 
-            {/* Go to Library Link */}
+            {/* Navigation Link - Changes based on current page */}
             {auth.currentUser && (
               <>
                 <NavItem className="nav-item-container">
-                  <NavLink tag={Link} to="/library" className="btn nav-btn">
-                    View Library
+                  <NavLink 
+                    tag={Link} 
+                    to={isOnLibraryPage ? "/home" : "/library"} 
+                    className="btn nav-btn"
+                  >
+                    {isOnLibraryPage ? "Dashboard" : "View Library"}
                   </NavLink>
                 </NavItem>
 
