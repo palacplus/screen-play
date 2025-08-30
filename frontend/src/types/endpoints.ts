@@ -1,3 +1,8 @@
+export enum Path {
+    LIBRARY = "/library",
+    DASHBOARD = "/dashboard",
+}
+
 export enum AuthEndpoints {
     EXTERNAL_LOGIN = "api/auth/external-login",
     REGISTER = "api/auth/register",
@@ -12,3 +17,4 @@ export enum LibraryEndpoints {
     ADD_MOVIE = "api/movies/queue",
     GET_STATS = "api/movies/stats",
 }
+

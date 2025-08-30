@@ -13,6 +13,7 @@ import { LoginRequest, TokenRequest } from '../types/auth';
 import { usePersistedState } from '../hooks/usePersistedState';
 import { User } from '../types/user';
 import { AuthContextProps } from '../types/auth';
+import { Path } from '../types/endpoints';
 import { useNavigate } from 'react-router-dom';
 
 declare module 'axios' {
@@ -41,7 +42,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         } catch (err) {
           setToken(null);
           setCurrentUser(null);
-          nav('/home');
+          nav(Path.DASHBOARD);
         }
       }
     }
@@ -72,8 +73,8 @@ export default function AuthProvider({ children }: AuthProviderProps) {
         const originalRequest = error.config;
 
         if (error.response.status === 401) {
-          if (window.location.pathname !== '/home') {
-            nav('/home');
+          if (window.location.pathname !== Path.DASHBOARD) {
+            nav(Path.DASHBOARD);
           }
           setToken(null);
           setCurrentUser(null);
