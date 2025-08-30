@@ -168,6 +168,10 @@
   transform: translateY(-1px);
 }
 
+.social-icons span {
+  color: white
+}
+
 .toggle-container {
   position: absolute;
   top: 0;

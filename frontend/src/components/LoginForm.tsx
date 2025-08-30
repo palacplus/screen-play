@@ -23,6 +23,8 @@ export default function LoginForm(props: LoginFormProps) {
                             <GoogleLogin
                                 onSuccess={props.authContext.handleExternalLogin}
                                 onError={() => { console.error("Login Failed"); }}
+                                theme="filled_blue"
+                                shape="pill"
                             />
                         </div>
                         <input
