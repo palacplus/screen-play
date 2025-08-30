@@ -1,7 +1,7 @@
 {
   "name": "ScreenPlay",
   "version": "1.0.6",
-  "commitHash": "b0336c56a3faffe9986ef2d62dafad2601b01ca9",
+  "commitHash": "304ed4d336d114a4a498a4d17973993df1c2e715",
   "private": true,
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
