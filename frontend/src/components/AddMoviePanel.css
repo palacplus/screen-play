@@ -77,13 +77,15 @@
 .search-button {
   padding: 0.75rem 1.5rem;
   background: linear-gradient(135deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 100%);
-  color: var(--primary-text, #f8fafc);
-  border: none;
-  border-radius: var(--border-radius-md, 0.5rem);
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   font-family: "Inter", sans-serif;
-  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease-in-out;
   min-width: 100px;
 }
 
@@ -178,14 +180,15 @@
 .add-button,
 .cancel-button {
   flex: 1;
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: var(--border-radius-md, 0.5rem);
+  padding: 0.625rem 1.5rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
   cursor: pointer;
-  font-weight: 500;
+  font-weight: 600;
   font-family: "Inter", sans-serif;
-  transition: all 0.2s ease;
-  font-size: 0.9rem;
+  font-size: 0.875rem;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease-in-out;
 }
 
 .add-button {

@@ -85,6 +85,85 @@
   line-height: 1.5;
 }
 
+/* Standardized Button Styles */
+.btn-standard {
+  background: linear-gradient(135deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 100%);
+  color: white;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
+  font-weight: 600;
+  font-family: "Inter", sans-serif;
+  letter-spacing: 0.025em;
+  cursor: pointer;
+  transition: all 0.2s ease-in-out;
+  text-transform: none;
+  min-width: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.btn-standard:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  background: linear-gradient(135deg, var(--accent-hover, #2563eb) 0%, #1d4ed8 100%);
+}
+
+.btn-standard:active {
+  transform: translateY(0);
+}
+
+.btn-standard:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Secondary button variant */
+.btn-secondary {
+  background: var(--secondary-bg, #334155);
+  color: var(--primary-text, #f8fafc);
+  border: 1px solid var(--border-color, #475569);
+}
+
+.btn-secondary:hover {
+  background: var(--accent-bg, #475569);
+  border-color: var(--accent-color, #3b82f6);
+}
+
+/* Success button variant */
+.btn-success {
+  background: linear-gradient(135deg, var(--success-color, #10b981) 0%, #059669 100%);
+}
+
+.btn-success:hover {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+/* Danger button variant */
+.btn-danger {
+  background: linear-gradient(135deg, var(--error-color, #ef4444) 0%, #dc2626 100%);
+}
+
+.btn-danger:hover {
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+/* Ghost button variant */
+.btn-ghost {
+  background: transparent;
+  color: var(--primary-text, #f8fafc);
+  border: 1px solid var(--border-color, #374151);
+}
+
+.btn-ghost:hover {
+  background: var(--secondary-bg, rgba(255, 255, 255, 0.05));
+  border-color: var(--accent-color, #3b82f6);
+}
+
 /* Enhanced about container */
 .shared-container.about {
   position: relative;

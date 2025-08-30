@@ -3,23 +3,34 @@
   position: fixed;
   top: 2rem;
   left: 2rem;
-  background: transparent;
-  border: none;
+  background: transparent !important;
+  border: none !important;
   cursor: pointer;
-  padding: 0;
+  padding: 4px !important; /* Add padding to prevent clipping */
   z-index: 1001;
-  transition: transform 0.1s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: none !important;
   will-change: transform;
   touch-action: manipulation;
   -webkit-tap-highlight-color: transparent;
+  /* Override global button styles */
+  transform: none !important;
+  box-shadow: none !important;
+  font-weight: normal !important;
+  font-size: inherit !important;
+  letter-spacing: normal !important;
+  border-radius: 0 !important;
 }
 
 .theme-toggle:hover {
-  transform: scale(1.05);
+  /* Remove any inherited hover effects */
+  transform: none !important;
+  box-shadow: none !important;
+  background: transparent !important;
 }
 
 .theme-toggle:active {
-  transform: scale(0.98);
+  /* Remove any inherited active effects */
+  transform: none !important;
 }
 
 .theme-toggle:disabled {
@@ -36,11 +47,11 @@
   border: 2px solid var(--border-color, rgba(255, 255, 255, 0.1));
   border-radius: 20px;
   position: relative;
-  transition: all 0.15s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   backdrop-filter: blur(10px);
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
-  overflow: hidden;
-  will-change: background, border-color, box-shadow, transform;
+  overflow: visible; /* Allow box-shadows to show */
+  will-change: background, border-color, box-shadow;
 }
 
 .theme-toggle.dark .theme-toggle-track {
@@ -68,7 +79,7 @@
   position: absolute;
   top: 2px;
   left: 2px;
-  transition: all 0.12s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,7 +90,7 @@
 }
 
 .theme-toggle.light .theme-toggle-thumb {
-  transform: translateX(28px) rotate(360deg);
+  transform: translateX(28px) scale(1.02);
   background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%);
   box-shadow: 
     0 4px 8px rgba(245, 158, 11, 0.25),
@@ -87,21 +98,11 @@
 }
 
 .theme-toggle.dark .theme-toggle-thumb {
-  transform: translateX(0) rotate(0deg);
+  transform: translateX(0) scale(1.02);
   background: linear-gradient(135deg, #0ea5e9, #06b6d4);
   box-shadow: 
     0 4px 8px rgba(14, 165, 233, 0.25),
     0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Enhanced transitioning state for ultra-smooth animation */
-.theme-toggle.transitioning .theme-toggle-thumb {
-  transform: translateX(14px) scale(1.15) rotate(180deg);
-  transition: all 0.1s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  background: linear-gradient(135deg, #10b981, #059669);
-  box-shadow: 
-    0 6px 12px rgba(16, 185, 129, 0.3),
-    0 0 0 3px rgba(16, 185, 129, 0.1);
 }
 
 /* Theme Icon */
@@ -139,25 +140,32 @@
     0 0 0 4px rgba(14, 165, 233, 0.08);
 }
 
-.theme-toggle:hover .theme-toggle-thumb {
-  transform: translateX(var(--thumb-x, 0)) scale(1.08);
+/* Hover effects for toggle track */
+.theme-toggle:hover .theme-toggle-track {
+  border-color: var(--accent-color, #0ea5e9);
   box-shadow: 
-    0 6px 12px rgba(0, 0, 0, 0.2),
-    0 0 0 2px rgba(255, 255, 255, 0.12);
+    var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1)),
+    0 0 0 2px rgba(14, 165, 233, 0.1);
+}
+
+.theme-toggle.dark:hover .theme-toggle-track {
+  background: linear-gradient(135deg, #334155 0%, #475569 100%);
+}
+
+.theme-toggle.light:hover .theme-toggle-track {
+  background: linear-gradient(135deg, #f1f5f9 0%, #e2e8f0 100%);
+}
+
+.theme-toggle:hover .theme-toggle-thumb {
+  box-shadow: 
+    0 6px 12px rgba(14, 165, 233, 0.2),
+    0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .theme-toggle.light:hover .theme-toggle-thumb {
-  --thumb-x: 28px;
-  transform: translateX(28px) rotate(360deg) scale(1.08);
-}
-
-.theme-toggle.dark:hover .theme-toggle-thumb {
-  --thumb-x: 0;
-  transform: translateX(0) rotate(0deg) scale(1.08);
-}
-
-.theme-toggle:hover .theme-icon {
-  transform: scale(1.1);
+  box-shadow: 
+    0 6px 12px rgba(245, 158, 11, 0.3),
+    0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Responsive Design */

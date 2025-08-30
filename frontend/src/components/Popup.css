@@ -80,12 +80,12 @@
   position: absolute;
   top: 1rem;
   right: 1rem;
-  background: var(--accent-bg, #334155);
+  background: var(--secondary-bg, #334155);
   border: 1px solid var(--border-color, #475569);
   font-size: 1rem;
   cursor: pointer;
   color: var(--secondary-text, #cbd5e1);
-  transition: all 0.2s ease;
+  transition: all 0.2s ease-in-out;
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -96,14 +96,14 @@
 }
 
 .popup-close-btn:hover {
-  color: var(--primary-text, #f8fafc);
+  color: white;
   background: var(--error-color, #ef4444);
   border-color: var(--error-color, #ef4444);
-  transform: scale(1.05);
+  transform: scale(1.02);
 }
 
 .popup-close-btn:active {
-  transform: scale(0.95);
+  transform: scale(0.98);
 }
 
 /* Report Button */
@@ -118,19 +118,24 @@
 .popup-report-btn {
   background: linear-gradient(135deg, var(--error-color, #ef4444) 0%, #dc2626 100%);
   color: white;
-  border: none;
-  border-radius: var(--border-radius-md, 0.5rem);
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.625rem 1rem;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.2s ease;
-  font-weight: 500;
+  transition: all 0.2s ease-in-out;
+  font-weight: 600;
+  letter-spacing: 0.025em;
 }
 
 .popup-report-btn:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
   background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.popup-report-btn:active {
+  transform: translateY(0);
 }
 
 /* Popup Header */
@@ -377,19 +382,25 @@
 .popup-submit-btn {
   background: linear-gradient(135deg, var(--success-color, #10b981) 0%, #059669 100%);
   color: white;
-  border: none;
-  border-radius: var(--border-radius-md, 0.5rem);
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
   cursor: pointer;
   margin-right: 1rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease-in-out;
 }
 
 .popup-submit-btn:hover:not(:disabled) {
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+}
+
+.popup-submit-btn:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 .popup-submit-btn:disabled {
@@ -401,18 +412,24 @@
 .popup-cancel-btn {
   background: linear-gradient(135deg, var(--error-color, #ef4444) 0%, #dc2626 100%);
   color: white;
-  border: none;
-  border-radius: var(--border-radius-md, 0.5rem);
-  padding: 0.75rem 1.5rem;
-  font-size: 1rem;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  padding: 0.625rem 1.5rem;
+  font-size: 0.875rem;
   cursor: pointer;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  font-weight: 600;
+  letter-spacing: 0.025em;
+  transition: all 0.2s ease-in-out;
 }
 
 .popup-cancel-btn:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+}
+
+.popup-cancel-btn:active {
+  transform: translateY(0);
 }
 
 .popup-confirmation {

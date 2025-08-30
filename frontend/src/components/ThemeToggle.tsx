@@ -55,16 +55,16 @@ export default function ThemeToggle() {
       "--shadow-xl": "0 20px 25px -5px rgb(0 0 0 / 0.1)"
     },
     light: {
-      "--bg-primary": "#fafbfc",
-      "--bg-secondary": "#ffffff",
-      "--card-bg": "rgba(255, 255, 255, 0.8)",
-      "--secondary-bg": "#f8fafc",
-      "--accent-bg": "#f1f5f9",
-      "--surface-bg": "#e2e8f0",
+      "--bg-primary": "#ffffff",
+      "--bg-secondary": "#f8fafc",
+      "--card-bg": "rgba(255, 255, 255, 0.95)",
+      "--secondary-bg": "#f1f5f9",
+      "--accent-bg": "#e2e8f0",
+      "--surface-bg": "#cbd5e1",
       "--text-primary": "#0f172a",
       "--primary-text": "#1e293b",
-      "--secondary-text": "#64748b",
-      "--border-color": "rgba(15, 23, 42, 0.12)",
+      "--secondary-text": "#475569",
+      "--border-color": "rgba(15, 23, 42, 0.08)",
       "--accent-color": "#0ea5e9",
       "--accent-hover": "#0284c7",
       "--success-color": "#059669",
@@ -72,10 +72,10 @@ export default function ThemeToggle() {
       "--warning-color": "#d97706",
       "--gradient-primary": "linear-gradient(135deg, #0ea5e9, #06b6d4)",
       "--gradient-hover": "linear-gradient(135deg, #0284c7, #0891b2)",
-      "--shadow-sm": "0 1px 2px 0 rgb(0 0 0 / 0.05)",
-      "--shadow-md": "0 4px 6px -1px rgb(0 0 0 / 0.1)",
-      "--shadow-lg": "0 10px 15px -3px rgb(0 0 0 / 0.1)",
-      "--shadow-xl": "0 20px 25px -5px rgb(0 0 0 / 0.1)"
+      "--shadow-sm": "0 1px 2px 0 rgb(15 23 42 / 0.03)",
+      "--shadow-md": "0 4px 6px -1px rgb(15 23 42 / 0.06)",
+      "--shadow-lg": "0 10px 15px -3px rgb(15 23 42 / 0.08)",
+      "--shadow-xl": "0 20px 25px -5px rgb(15 23 42 / 0.1)"
     }
   }), []);
 
@@ -113,21 +113,21 @@ export default function ThemeToggle() {
     
     const newIsDarkMode = !isDarkMode;
     
-    // Immediately update states and apply theme for instant response
+    // Immediately update states and apply theme for smooth response
     setIsDarkMode(newIsDarkMode);
     setIsTransitioning(true);
     applyTheme(newIsDarkMode);
     localStorage.setItem("theme", newIsDarkMode ? "dark" : "light");
     
-    // Reset transition state after animation completes
+    // Reset transition state after animation completes (match CSS transition duration)
     setTimeout(() => {
       setIsTransitioning(false);
-    }, 180); // Matched to fastest animation duration
+    }, 300); // Matched to CSS transition duration of 0.3s
   }, [isDarkMode, isTransitioning, applyTheme]);
 
   return (
     <button
-      className={`theme-toggle ${isDarkMode ? 'dark' : 'light'} ${isTransitioning ? 'transitioning' : ''}`}
+      className={`theme-toggle ${isDarkMode ? 'dark' : 'light'}`}
       onClick={toggleTheme}
       aria-label="Toggle theme"
       title={`Switch to ${isDarkMode ? 'light' : 'dark'} mode`}

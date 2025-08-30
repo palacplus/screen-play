@@ -113,8 +113,8 @@
   top: 50%;
   transform: translateY(-50%);
   background: linear-gradient(135deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 100%);
-  color: var(--primary-text, #f8fafc);
-  border: 1px solid var(--border-color, #374151);
+  color: white;
+  border: 1px solid transparent;
   border-radius: 50%;
   width: 3rem;
   height: 3rem;
@@ -125,7 +125,7 @@
   align-items: center;
   font-size: 1.25rem;
   font-weight: 600;
-  transition: all 0.2s ease;
+  transition: all 0.2s ease-in-out;
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
   backdrop-filter: blur(10px);
   opacity: 0.9;
@@ -140,14 +140,14 @@
 }
 
 .scroll-button:hover {
-  transform: translateY(-50%) scale(1.1);
+  transform: translateY(-50%) scale(1.05);
   box-shadow: var(--shadow-xl, 0 20px 25px -5px rgb(0 0 0 / 0.1));
   background: linear-gradient(135deg, var(--accent-hover, #2563eb) 0%, #1d4ed8 100%);
   opacity: 1;
 }
 
 .scroll-button:active {
-  transform: translateY(-50%) scale(0.95);
+  transform: translateY(-50%) scale(0.98);
 }
 
 /* Ensure scroll buttons are visible and clickable */

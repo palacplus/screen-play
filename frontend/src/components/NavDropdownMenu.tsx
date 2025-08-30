@@ -15,7 +15,8 @@ export default function NavDropdownMenu() {
   const [dropdownOpen, setDropdownOpen] = useState(false);
 
   const toggle = () => {
-    setDropdownOpen(!dropdownOpen);
+    // TODO: Fix dropdown toggle issue
+    // setDropdownOpen(!dropdownOpen);
   };
 
   const items = [

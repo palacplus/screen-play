@@ -95,30 +95,33 @@ header {
   margin-right: auto;
 }
 
+.btn.nav-btn {
+  border: 0px;
+}
+
 .nav-btn {
   margin-right: 10px;
-  color: var(--primary-text, #f8fafc);
+  color: white;
   background: linear-gradient(135deg, var(--accent-color, #3b82f6) 0%, var(--accent-hover, #2563eb) 100%);
-  padding: 8px 16px;
-  border-radius: var(--border-radius-md, 0.5rem);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.9rem;
   box-shadow: var(--shadow-md, 0 4px 6px -1px rgb(0 0 0 / 0.1));
-  border: none;
-  transition: all 0.2s ease;
 }
 
 .nav-btn:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-lg, 0 10px 15px -3px rgb(0 0 0 / 0.1));
-  color: var(--primary-text, #f8fafc);
+  background: linear-gradient(135deg, var(--accent-hover, #2563eb) 0%, #1d4ed8 100%);
+  color: white;
+  text-decoration: none;
 }
 
 .nav-btn:focus {
-  color: var(--primary-text, #f8fafc);
+  color: white;
   outline: none;
   box-shadow: 0 0 0 3px rgb(59 130 246 / 0.2);
+}
+
+.nav-btn:active {
+  transform: translateY(0);
 }
 
 .search-container {
