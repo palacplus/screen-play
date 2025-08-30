@@ -87,6 +87,8 @@ jobs:
           context: .
           file: Dockerfile.client
           push: true
+          build-args: |
+            COMMIT_HASH=${{ github.sha }}
           tags: ${{ steps.meta-client.outputs.tags }}
           labels: ${{ steps.meta-client.outputs.labels }}
 

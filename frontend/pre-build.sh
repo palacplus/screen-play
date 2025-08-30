@@ -2,7 +2,7 @@
 
 # Generate build information
 BUILD_NUMBER=${GITHUB_RUN_NUMBER:-$(date +%s)}
-COMMIT_HASH=${GITHUB_SHA:-$(node -p "require('./package.json').commitHash" || echo "unknown")}
+COMMIT_HASH=${REACT_APP_COMMIT_HASH:-${GITHUB_SHA:-$(git rev-parse HEAD 2>/dev/null || echo "unknown")}}
 BUILD_DATE=$(date -u +"%Y-%m-%d")
 VERSION=$(node -p "require('./package.json').version")
 

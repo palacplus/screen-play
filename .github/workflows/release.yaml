@@ -82,14 +82,7 @@ jobs:
 
       - name: Update package.json version and commitHash
         run: |
-          cd frontend
-          # Get the current commit hash (short version)
-          COMMIT_HASH=$(git rev-parse HEAD)
-          echo "Current commit hash: $COMMIT_HASH"
-          
-          # Update commitHash in package.json
-          sed -i.bak "s/\"commitHash\": \"[^\"]*\"/\"commitHash\": \"$COMMIT_HASH\"/" package.json
-          
+          cd frontend          
           # Remove 'v' prefix from tag if present
           TAG=${{ needs.tag-release.outputs.tag }}
           VERSION=${TAG#v}
@@ -102,7 +95,7 @@ jobs:
           rm -f package.json.bak
           
           echo "Updated package.json:"
-          cat package.json | grep -E '"version"|"commitHash"'
+          cat package.json | grep -E '"version"'
 
       - name: Update values.yaml
         run: |
@@ -133,7 +126,7 @@ jobs:
           fi
           
           if [ "$CHANGES_MADE" = true ]; then
-            git commit -m "Update package.json version to ${{ needs.tag-release.outputs.tag }} and Chart version"
+            git commit -m "Update version to ${{ needs.tag-release.outputs.tag }}"
             git push
           else
             echo "No changes to commit"
