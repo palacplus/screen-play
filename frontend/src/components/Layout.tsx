@@ -2,6 +2,7 @@ import { Component, ReactNode } from 'react';
 import { Container } from 'reactstrap';
 import NavMenu from './NavMenu';
 import AuthProvider from './AuthProvider';
+import AppInfo from './AppInfo';
 
 interface LayoutProps {
   children: ReactNode;
@@ -18,6 +19,7 @@ export class Layout extends Component<LayoutProps> {
         <Container tag="main" className='main'>
           {this.props.children}
         </Container>
+        <AppInfo />
         </AuthProvider>
       </div>
     );

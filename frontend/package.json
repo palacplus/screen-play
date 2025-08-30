@@ -1,6 +1,7 @@
 {
   "name": "ScreenPlay",
   "version": "0.1.0",
+  "commitHash": "f4b8c3e",
   "private": true,
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
@@ -77,6 +78,7 @@
   "scripts": {
     "prestart": "node aspnetcore-https && node aspnetcore-react",
     "start": "rimraf ./build && react-scripts start",
+    "prebuild": "bash pre-build.sh",
     "build": "react-scripts build",
     "test": "jest",
     "eject": "react-scripts eject",
