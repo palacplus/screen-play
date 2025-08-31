@@ -209,4 +209,21 @@ public class MoviesController : ControllerBase
 
         return Ok(stats);
     }
+
+    [HttpGet("queue")]
+    public async Task<ActionResult<QueueResponse>> GetQueue()
+    {
+        var queueActivity = await _radarrClient.GetQueueActivityAsync();
+        if (queueActivity == null)
+        {
+            return NotFound();
+        }
+
+        var response = new QueueResponse
+        {
+            Items = queueActivity.Records.Select(r => new QueueItem(r)).ToList()
+        };
+
+        return Ok(response);
+    }
 }

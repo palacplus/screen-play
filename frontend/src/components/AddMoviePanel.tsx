@@ -33,6 +33,7 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
 
       if (response.data.Response === "True" && response.data.Type === "movie") {
         setMovie({
+          tmdbId: 0,
           title: response.data.Title,
           year: response.data.Year,
           rated: response.data.Rated,
