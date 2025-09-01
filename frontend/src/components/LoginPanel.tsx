@@ -5,7 +5,7 @@ import LoginForm from "./LoginForm";
 import SignUpForm from "./SignUpForm";
 import { LoginSchema, LoginRequest, AuthContextProps } from "../types/auth";
 import {Path } from "../types/endpoints";
-import { set, ZodFormattedError } from "zod";
+import { ZodFormattedError } from "zod";
 import { useAuth } from "./AuthProvider";
 
 import "./LoginPanel.css";
