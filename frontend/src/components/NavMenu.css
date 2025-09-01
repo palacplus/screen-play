@@ -164,8 +164,7 @@ header {
 
 /* Ensure form control overrides don't interfere */
 .search-container .form-control.search-input {
-  border: none !important;
-  color: var(--primary-text, #f8fafc) !important;
+  color: var(--primary-text, #f8fafc);
 }
 .theme-toggle-nav {
   display: flex;
