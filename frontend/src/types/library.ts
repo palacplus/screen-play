@@ -4,6 +4,15 @@ export type StatsModel = {
     ratingsCount: number;
 };
 
+export type MovieSearchResult = {
+    Title: string;
+    Year: string;
+    imdbID: string;
+    Type: string;
+    Poster: string;
+    alreadyExists: boolean;
+};
+
 export type MoviePartial = {
     title: string;
     year: string | null | undefined;

@@ -50,6 +50,7 @@ export default function LoginForm(props: LoginFormProps) {
                         />
                         <FormErrors errors={props.errors?.password?._errors} />
                         <FormErrors errors={props.authContext.error ? [props.authContext.error] : []} />
+                        {/* TODO: Add password reset functionality */}
                         <a href="#">Forget Your Password?</a>
                         <button onClick={props.onSubmit} type="submit" data-testid="login-button">Sign In</button>
                     </>

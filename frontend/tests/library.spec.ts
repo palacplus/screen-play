@@ -44,8 +44,9 @@ test.describe.serial("Add Movie Panel", () => {
         await addMovieBtn.click();
         const searchInput = page.getByPlaceholder("Search for a movie...");
         await searchInput.fill("Inception");
-        await page.getByRole("button", { name: "Search" }).click();
-        await expect(page.getByRole("heading", { name: "Inception" })).toBeVisible();
+        await page.waitForTimeout(600);
+        await expect(page.getByText("Inception").nth(0)).toBeVisible();
+        await page.getByText("Inception").nth(0).click();
         await page.getByRole("button", { name: "Add" }).click();
         await expect(searchInput).not.toBeVisible();
         await expect(page.getByAltText("Inception")).toBeVisible();
