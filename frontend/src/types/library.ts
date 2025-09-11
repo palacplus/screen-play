@@ -14,6 +14,7 @@ export type MovieSearchResult = {
 };
 
 export type MoviePartial = {
+    tmdbId: number;
     title: string;
     year: string | null | undefined;
     rated: string | null | undefined;
@@ -113,6 +114,7 @@ export type Rating = {
  */
 export function convertMovieToPartial(movie: Movie): MoviePartial {
     return {
+        tmdbId: movie.tmdbId,
         title: movie.title,
         year: movie.year.toString(),
         rated: movie.rated || null,
