@@ -118,7 +118,7 @@ export default function QueuePanel({ refreshInterval = 30000 }: QueuePanelProps)
             <div className="queue-header">
                 <div className="queue-title">
                     <h2>Download Queue</h2>
-                    <span className="queue-count-badge">{queueItems.length}</span>
+                    <span className="queue-count-badge" data-testid="queue-count">{queueItems.length}</span>
                 </div>
                 <div className="queue-controls">
                     <button onClick={fetchQueue} className="refresh-button">
