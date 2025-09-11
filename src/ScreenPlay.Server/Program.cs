@@ -1,13 +1,8 @@
 using System.Text;
-using System.Text.Json;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.AspNetCore.Diagnostics.HealthChecks;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Diagnostics.HealthChecks;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using ScreenPlay.Server.Configuration;
 using ScreenPlay.Server.Data;
@@ -83,6 +78,7 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddHttpClient<IRadarrClient, RadarrClient>();
 builder.Services.AddHostedService<MovieSyncService>();
 builder.Services.AddHostedService<StartupService>();
+builder.Services.AddSingleton<SyncTrigger>();
 
 // Add Health Checks
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();

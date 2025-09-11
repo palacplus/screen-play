@@ -1,0 +1,29 @@
+.queue-page {
+    min-height: 100vh;
+    background: var(--background-primary);
+}
+
+/* Ensure consistent theming */
+.queue-page {
+    --primary-color: #007acc;
+    --primary-color-dark: #005a9e;
+    --accent-color: #0099ff;
+    --text-color: #333;
+    --text-muted: #666;
+    --background-primary: #f5f5f5;
+    --background-secondary: #e0e0e0;
+    --card-background: #ffffff;
+    --border-color: #e0e0e0;
+}
+
+/* Dark mode variables */
+@media (prefers-color-scheme: dark) {
+    .queue-page {
+        --text-color: #ffffff;
+        --text-muted: #cccccc;
+        --background-primary: #1a1a1a;
+        --background-secondary: #2a2a2a;
+        --card-background: #2a2a2a;
+        --border-color: #444444;
+    }
+}

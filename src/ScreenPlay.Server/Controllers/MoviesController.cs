@@ -199,12 +199,11 @@ public class MoviesController : ControllerBase
             return NotFound();
         }
 
-        var movies = await _context.Movies.ToListAsync();
         var stats = new StatsDto
         {
-            MovieCount = _context.Movies.Count(),
-            UserCount = _context.Users.Count(),
-            RatingsCount = _context.Ratings.Count(),
+            MovieCount = await _context.Movies.CountAsync(),
+            UserCount = await _context.Users.CountAsync(),
+            RatingsCount = await _context.Ratings.CountAsync(),
         };
 
         return Ok(stats);
@@ -219,11 +218,24 @@ public class MoviesController : ControllerBase
             return NotFound();
         }
 
+        var movies = await _context.Movies
+            .Where(m => !m.IsDeleted)
+            .Where(m => queueActivity.Records.Any(r => r.Movie.TmdbId == m.TmdbId))
+            .Include(m => m.Ratings)
+            .Include(m => m.Images)
+            .ToListAsync();
+
         var response = new QueueResponse
         {
-            Items = queueActivity.Records.Select(r => new QueueItem(r)).ToList()
+            Items = queueActivity.Records
+                .Select(r =>
+                {
+                    var movie = movies.FirstOrDefault(m => m.TmdbId == r.Movie.TmdbId && !m.IsDeleted);
+                    return movie != null ? new QueueItem(r) { Movie = movie } : null;
+                })
+                .Where(item => item != null)
+                .ToList()
         };
-
         return Ok(response);
     }
 }

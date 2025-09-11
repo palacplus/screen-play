@@ -15,6 +15,7 @@ export enum LibraryEndpoints {
     GET_ALL_MOVIES = "api/movies",
     GET_MOVIE = "api/movies/:id",
     ADD_MOVIE = "api/movies/queue",
+    GET_QUEUE = "api/movies/queue",
     GET_STATS = "api/movies/stats",
 }
 

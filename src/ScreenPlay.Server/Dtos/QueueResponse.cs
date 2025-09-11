@@ -1,5 +1,4 @@
 
-using System.Text.Json.Serialization;
 using ScreenPlay.Server.Models;
 
 namespace ScreenPlay.Server.Dtos;
@@ -13,7 +12,6 @@ public class QueueItem
 {
     public QueueItem(QueueItemDto dto)
     {
-        Movie = dto.Movie.ToMovie();
         Quality = dto.Quality;
         Added = dto.Added;
         Status = dto.Status;
