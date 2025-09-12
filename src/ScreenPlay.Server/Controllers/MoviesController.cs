@@ -220,7 +220,7 @@ public class MoviesController : ControllerBase
 
         var movies = await _context.Movies
             .Where(m => !m.IsDeleted)
-            .Where(m => queueActivity.Records.Any(r => r.Movie.TmdbId == m.TmdbId))
+            .Where(m => queueActivity.Records.Select(r => r.Movie.TmdbId).Contains(m.TmdbId))
             .Include(m => m.Ratings)
             .Include(m => m.Images)
             .ToListAsync();

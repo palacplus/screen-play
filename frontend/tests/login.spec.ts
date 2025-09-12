@@ -81,26 +81,26 @@ test.describe("Registration Form", () => {
     test("should register user successfully", async ({ page }) => {
         await page.evaluate(() => localStorage.clear());
         await register(page, randomEmail, TEST_USER.password, TEST_USER.password);
-        await expect(page.getByText("Dashboard")).toBeVisible();
+        await expect(page.getByText("View Library")).toBeVisible();
         await page.goto(PAGES.home);
-        await expect(page.getByText("Success!").nth(0)).toBeVisible();
+        await expect(page.getByText("Sign Out")).toBeVisible();
 
       });
   
       test("should execute login and logout successfully", async ({page}) => {
         await page.goto(PAGES.home);
         await login(page, randomEmail, TEST_USER.password);
-        await expect(page.getByText("Dashboard")).toBeVisible();
+        await expect(page.getByText("View Library")).toBeVisible();
         await page.goto(PAGES.home);
-        await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
+        await expect(page.getByText("Sign Out")).toBeVisible();
       });
 
       test("should logout on invalid refresh token", async ({ page }) => {
         await page.goto(PAGES.home);
         await login(page, randomEmail, TEST_USER.password);
-        await expect(page.getByText("Dashboard")).toBeVisible();
+        await expect(page.getByText("View Library")).toBeVisible();
         await page.goto(PAGES.home);
-        await expect(page.getByText("Hello, Friend!").nth(0)).toBeVisible();
+        await expect(page.getByText("Sign Out")).toBeVisible();
 
         const apiContext = await adminApiContext(page);
         const response = await apiContext.get(ENDPOINTS.logout, {
