@@ -19,8 +19,8 @@ export default function QueuePanel({ refreshInterval = 30000 }: QueuePanelProps)
 
     const fetchQueue = async () => {
         try {
-            setError(null);
             const response: QueueResponse = await getQueue();
+            setError(null);
             setQueueItems(response.items || []);
             setLastUpdated(new Date());
         } catch (err) {
