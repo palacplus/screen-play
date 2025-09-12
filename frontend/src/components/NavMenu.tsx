@@ -4,7 +4,6 @@ import { Link, useNavigate, useLocation } from "react-router-dom";
 import LogoImage from "./Logo";
 import "./NavMenu.css";
 import "./shared.css";
-import NavDropdownMenu from "./NavDropdownMenu";
 import LoadingOverlay from "./LoadingOverlay";
 import ThemeToggle from "./ThemeToggle";
 import { Path } from "../types/endpoints";
@@ -54,16 +53,6 @@ export default function NavMenu() {
             {auth.currentUser && (
               <>
                 <NavItem className="nav-item-container">
-                  <NavLink
-                    tag={Link}
-                    to={isOnLibraryPage ? Path.DASHBOARD : Path.LIBRARY}
-                    className="btn nav-btn"
-                  >
-                    {isOnLibraryPage ? "Dashboard" : "View Library"}
-                  </NavLink>
-                </NavItem>
-
-                <NavItem className="nav-item-container">
                   <form className="search-container" onSubmit={handleSearchSubmit} aria-label="Search library">
                     <LoadingOverlay isLoading={isLoading} />
                     <input
@@ -75,16 +64,32 @@ export default function NavMenu() {
                     />
                   </form>
                 </NavItem>
+                <NavItem className="nav-item-container">
+                  <NavLink
+                    tag={Link}
+                    to={isOnLibraryPage ? Path.DASHBOARD : Path.LIBRARY}
+                    className="btn nav-btn"
+                  >
+                    {isOnLibraryPage ? "Dashboard" : "View Library"}
+                  </NavLink>
+                </NavItem>
+                <NavItem className="nav-item-container">
+                  <button
+                    onClick={auth.handleLogout}
+                    className="btn nav-btn sign-out-btn"
+                    type="button"
+                    title="Sign Out"
+                  >
+                    Sign Out
+                </button>
+              </NavItem>
               </>
             )}
             
             {/* Theme Toggle */}
             <NavItem className="nav-item-container theme-toggle-nav">
               <ThemeToggle />
-            </NavItem>
-            
-            {/* Dropdown Menu */}
-            <NavDropdownMenu />
+            </NavItem>            
           </ul>
         </Collapse>
       </Navbar>

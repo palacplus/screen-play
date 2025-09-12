@@ -199,14 +199,43 @@ public class MoviesController : ControllerBase
             return NotFound();
         }
 
-        var movies = await _context.Movies.ToListAsync();
         var stats = new StatsDto
         {
-            MovieCount = _context.Movies.Count(),
-            UserCount = _context.Users.Count(),
-            RatingsCount = _context.Ratings.Count(),
+            MovieCount = await _context.Movies.CountAsync(),
+            UserCount = await _context.Users.CountAsync(),
+            RatingsCount = await _context.Ratings.CountAsync(),
         };
 
         return Ok(stats);
+    }
+
+    [HttpGet("queue")]
+    public async Task<ActionResult<QueueResponse>> GetQueue()
+    {
+        var queueActivity = await _radarrClient.GetQueueActivityAsync();
+        if (queueActivity == null)
+        {
+            return NotFound();
+        }
+
+        var movies = await _context.Movies
+            .Where(m => !m.IsDeleted)
+            .Where(m => queueActivity.Records.Select(r => r.Movie.TmdbId).Contains(m.TmdbId))
+            .Include(m => m.Ratings)
+            .Include(m => m.Images)
+            .ToListAsync();
+
+        var response = new QueueResponse
+        {
+            Items = queueActivity.Records
+                .Select(r =>
+                {
+                    var movie = movies.FirstOrDefault(m => m.TmdbId == r.Movie.TmdbId);
+                    return movie != null ? new QueueItem(r) { Movie = movie } : null;
+                })
+                .Where(item => item != null)
+                .ToList()
+        };
+        return Ok(response);
     }
 }

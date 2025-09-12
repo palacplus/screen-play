@@ -51,11 +51,16 @@ describe("AuthProvider", () => {
 
     beforeEach(() => {
         mockAxios.reset();
+        // Clear any persisted state
+        localStorage.clear();
+        sessionStorage.clear();
     });
 
     it("handles login successfully", async () => {
         const mockResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/login").reply(200, mockResponse);
+        // Mock the automatic token refresh that happens after login
+        mockAxios.onPost("/api/auth/refresh-token").reply(200, mockResponse);
 
         renderComponent();
 
@@ -65,7 +70,8 @@ describe("AuthProvider", () => {
             loginButton.click();
         });
 
-        expect(mockAxios.history.post.length).toBe(1);
+        // Expect 2 POST requests: 1 for login, 1 for automatic token refresh
+        expect(mockAxios.history.post.length).toBe(2);
         expect(screen.getByTestId("token").textContent).toBe("mock-token");
         expect(screen.getByTestId("refreshToken").textContent).toBe("mock-refresh-token");
         expect(screen.getByTestId("error").textContent).toBe("");
@@ -82,7 +88,8 @@ describe("AuthProvider", () => {
             loginButton.click();
         });
 
-        expect(mockAxios.history.post.length).toBe(2);
+        // Only 1 POST request since login failed (no token to refresh)
+        expect(mockAxios.history.post.length).toBe(1);
         expect(screen.getByTestId("token").textContent).toBe("");
         expect(screen.getByTestId("refreshToken").textContent).toBe("");
         expect(screen.getByTestId("error").textContent).toBe("Invalid credentials");
@@ -91,6 +98,8 @@ describe("AuthProvider", () => {
     it("handles registration successfully", async () => {
         const mockResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/register").reply(201, mockResponse);
+        // Mock the automatic token refresh that happens after registration
+        mockAxios.onPost("/api/auth/refresh-token").reply(200, mockResponse);
 
         renderComponent();
 
@@ -100,7 +109,8 @@ describe("AuthProvider", () => {
             registerButton.click();
         });
 
-        expect(mockAxios.history.post.length).toBe(1);
+        // Expect 2 POST requests: 1 for register, 1 for automatic token refresh
+        expect(mockAxios.history.post.length).toBe(2);
         expect(screen.getByTestId("token").textContent).toBe("mock-token");
         expect(screen.getByTestId("error").textContent).toBe("");
     });
@@ -136,6 +146,8 @@ describe("AuthProvider", () => {
         const mockJwtToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InVzZXJAZXhhbXBsZS5jb20ifQ.sflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
         const mockResponse = { token: mockJwtToken, refreshToken: "mock-refresh-token", errorMessage: null };
         mockAxios.onPost("/api/auth/external-login").reply(200, mockResponse);
+        // Mock the automatic token refresh that happens after external login
+        mockAxios.onPost("/api/auth/refresh-token").reply(200, mockResponse);
 
         renderComponent();
 
@@ -145,8 +157,8 @@ describe("AuthProvider", () => {
             externalLoginButton.click();
         });
 
-        // Assert: Verify the token and refresh token are set correctly
-        expect(mockAxios.history.post.length).toBe(1);
+        // Assert: Expect 2 POST requests: 1 for external login, 1 for automatic token refresh
+        expect(mockAxios.history.post.length).toBe(2);
         expect(screen.getByTestId("token").textContent).toBe(mockJwtToken);
         expect(screen.getByTestId("refreshToken").textContent).toBe("mock-refresh-token");
         expect(screen.getByTestId("error").textContent).toBe("");
@@ -164,12 +176,15 @@ describe("AuthProvider", () => {
     it("intercepts 403 Forbidden response", async () => {
         // Arrange: Mock login, refresh, a getData responses
         const mockLoginResponse = { token: "mock-token", refreshToken: "mock-refresh-token", errorMessage: null };
-        mockAxios.onPost("/api/auth/login").reply(200, mockLoginResponse);
         const mockRefreshResponse = { token: "new-token", refreshToken: mockLoginResponse.refreshToken, errorMessage: null };
-        mockAxios.onPost("api/auth/refresh-token").reply(200, mockRefreshResponse)
+        
+        mockAxios.onPost("/api/auth/login").reply(200, mockLoginResponse);
+        // Mock the automatic refresh that happens after login
+        mockAxios.onPost("/api/auth/refresh-token").reply(200, mockRefreshResponse);
 
-        mockAxios.onGet("/api/some-data").replyOnce(403);
-        mockAxios.onGet("/api/some-data").replyOnce(200);
+        // Mock 403 then success for the data request
+        mockAxios.onGet("/api/some-data").replyOnce(403).onGet("/api/some-data").replyOnce(200);
+        
         renderComponent();
 
         // Act: Request initial user login and send a get data request with bearer token
@@ -177,7 +192,9 @@ describe("AuthProvider", () => {
         await act(async () => {
             loginButton.click();
         });
-        expect(screen.getByTestId("token").textContent).toBe(mockLoginResponse.token);
+        
+        // After login and auto-refresh, token should be the refreshed token
+        expect(screen.getByTestId("token").textContent).toBe(mockRefreshResponse.token);
         expect(screen.getByTestId("refreshToken").textContent).toBe(mockLoginResponse.refreshToken);
 
         const getDataButton = screen.getByText("Get Data");
@@ -185,9 +202,9 @@ describe("AuthProvider", () => {
             getDataButton.click();
         });
 
-        // Assert: Verify the GET request was made 2 times and the token was refreshed
+        // Assert: Verify the GET request was made 2 times and the token was refreshed again
         expect(mockAxios.history.get.length).toBe(2);
-        expect(mockAxios.history.post.length).toBe(3);
+        expect(mockAxios.history.post.length).toBe(3); // login + auto-refresh + 403-retry-refresh
         expect(screen.getByTestId("token").textContent).toBe(mockRefreshResponse.token);
         expect(screen.getByTestId("refreshToken").textContent).toBe(mockLoginResponse.refreshToken);
         expect(screen.getByTestId("error").textContent).toBe("");

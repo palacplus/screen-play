@@ -15,6 +15,7 @@ public interface IRadarrClient
     Task<IEnumerable<MovieDto>> GetMoviesAsync();
     Task<MovieDto> GetMovieAsync(int tmdbId);
     Task DeleteMovieAsync(int id);
+    Task<QueueActivityDto> GetQueueActivityAsync();
 }
 
 public class RadarrClient : IRadarrClient
@@ -107,8 +108,7 @@ public class RadarrClient : IRadarrClient
                 response.EnsureSuccessStatusCode();
             }
 
-            var movies = await response.Content.ReadFromJsonAsync<IEnumerable<MovieDto>>();
-            return movies;
+            return await response.Content.ReadFromJsonAsync<IEnumerable<MovieDto>>();
         });
     }
 
@@ -149,6 +149,25 @@ public class RadarrClient : IRadarrClient
                 );
             }
             response.EnsureSuccessStatusCode();
+        });
+    }
+
+    public async Task<QueueActivityDto> GetQueueActivityAsync()
+    {
+        return await _retryPolicy.ExecuteAsync(async () =>
+        {
+            var response = await _httpClient.GetAsync("/api/v3/queue?includeMovie=true");
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                _logger.LogError(
+                    "GetQueueActivityAsync failed with status code {StatusCode}: {ErrorContent}",
+                    response.StatusCode,
+                    errorContent
+                );
+                response.EnsureSuccessStatusCode();
+            }
+            return await response.Content.ReadFromJsonAsync<QueueActivityDto>();
         });
     }
 }

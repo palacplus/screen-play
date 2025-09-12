@@ -106,4 +106,85 @@ public class RadarrClientTests
             .ThrowAsync<ArgumentNullException>()
             .WithMessage("Value cannot be null. (Parameter 'payload')");
     }
+
+    [Fact]
+    public async Task GetQueueActivityAsync_ShouldReturnQueueActivityDto_WhenRequestIsSuccessful()
+    {
+        // Arrange
+        var queueActivityResponse = new QueueActivityDto
+        {
+            Page = 1,
+            PageSize = 20,
+            SortKey = "timeleft",
+            TotalRecords = 2,
+            Records = new List<QueueItemDto>
+            {
+                new QueueItemDto
+                {
+                    MovieId = 1,
+                    Quality = new QualityDto
+                    {
+                        Quality = new QualityProfileDto
+                        {
+                            Id = 1,
+                            Name = "HD-1080p",
+                            Source = "bluray"
+                        }
+                    },
+                    Added = DateTime.UtcNow.AddHours(-2),
+                    Size = 5368709120, // 5GB
+                    Status = "downloading",
+                    Sizeleft = 1073741824, // 1GB
+                    EstimatedCompletionTime = DateTime.UtcNow.AddHours(1),
+                    Movie = new MovieDto { Title = "Inception", TmdbId = 12345 }
+                },
+                new QueueItemDto
+                {
+                    MovieId = 2,
+                    Quality = new QualityDto
+                    {
+                        Quality = new QualityProfileDto
+                        {
+                            Id = 2,
+                            Name = "HD-720p",
+                            Source = "web"
+                        }
+                    },
+                    Added = DateTime.UtcNow.AddHours(-1),
+                    Size = 2147483648, // 2GB
+                    Status = "queued",
+                    Sizeleft = 2147483648, // 2GB
+                    EstimatedCompletionTime = DateTime.UtcNow.AddHours(3),
+                    Movie = new MovieDto { Title = "Interstellar", TmdbId = 67890 }
+                }
+            }
+        };
+
+        _httpMessageHandlerMock.SetupResponse(HttpStatusCode.OK, JsonSerializer.Serialize(queueActivityResponse));
+
+        // Act
+        var result = await _radarrClient.GetQueueActivityAsync();
+
+        // Assert
+        result.Should().NotBeNull();
+        result.Page.Should().Be(1);
+        result.PageSize.Should().Be(20);
+        result.SortKey.Should().Be("timeleft");
+        result.TotalRecords.Should().Be(2);
+        result.Records.Should().HaveCount(2);
+        
+        // Verify first record
+        var firstRecord = result.Records[0];
+        firstRecord.MovieId.Should().Be(1);
+        firstRecord.Status.Should().Be("downloading");
+        firstRecord.Movie.Title.Should().Be("Inception");
+        firstRecord.Quality.Quality.Name.Should().Be("HD-1080p");
+        
+        // Verify second record
+        var secondRecord = result.Records[1];
+        secondRecord.MovieId.Should().Be(2);
+        secondRecord.Status.Should().Be("queued");
+        secondRecord.Movie.Title.Should().Be("Interstellar");
+        secondRecord.Quality.Quality.Name.Should().Be("HD-720p");
+    }
 }

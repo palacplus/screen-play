@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { LibraryEndpoints } from "../../types/endpoints";
-import { convertMovieToPartial, StatsModel, Movie, MoviePartial} from "../../types/library";
+import { convertMovieToPartial, StatsModel, Movie, MoviePartial, QueueResponse} from "../../types/library";
 
 export async function getAllMovies(): Promise<MoviePartial[]> {
     const response = await axios.get(LibraryEndpoints.GET_ALL_MOVIES);
@@ -14,6 +14,12 @@ export async function getAllMovies(): Promise<MoviePartial[]> {
 export async function getStats(): Promise<StatsModel> {
     const response = await axios.get(LibraryEndpoints.GET_STATS);
     const data = (await response.data) as StatsModel;
+    return data;
+}
+
+export async function getQueue(): Promise<QueueResponse> {
+    const response = await axios.get(LibraryEndpoints.GET_QUEUE);
+    const data = (await response.data) as QueueResponse;
     return data;
 }
 

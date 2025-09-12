@@ -1,7 +1,4 @@
 .theme-toggle {
-  position: fixed;
-  top: 2rem;
-  left: 2rem;
   background: transparent !important;
   border: none !important;
   cursor: pointer;
