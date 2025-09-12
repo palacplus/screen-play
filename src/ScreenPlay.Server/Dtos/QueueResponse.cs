@@ -5,7 +5,7 @@ namespace ScreenPlay.Server.Dtos;
 
 public class QueueResponse
 {
-    public List<QueueItem> Items { get; set; }
+    public List<QueueItem> Items { get; set; } = new List<QueueItem>();
 }
 
 public class QueueItem
