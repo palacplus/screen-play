@@ -230,7 +230,7 @@ public class MoviesController : ControllerBase
             Items = queueActivity.Records
                 .Select(r =>
                 {
-                    var movie = movies.FirstOrDefault(m => m.TmdbId == r.Movie.TmdbId && !m.IsDeleted);
+                    var movie = movies.FirstOrDefault(m => m.TmdbId == r.Movie.TmdbId);
                     return movie != null ? new QueueItem(r) { Movie = movie } : null;
                 })
                 .Where(item => item != null)
