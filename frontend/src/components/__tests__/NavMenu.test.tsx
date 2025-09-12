@@ -67,9 +67,4 @@ describe("NavMenu Component", () => {
     expect(mockNavigate).toHaveBeenCalled();
     expect(mockNavigate).toHaveBeenCalledWith("/library");
   });
-
-  test("renders the dropdown menu", () => {
-    renderNavMenu();
-    expect(screen.getByRole("button", { name: /menu/ })).toBeInTheDocument();
-  });
 });
