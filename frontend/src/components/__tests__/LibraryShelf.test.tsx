@@ -37,6 +37,7 @@ describe("LibraryShelf Component", () => {
       imdbVotes: "2000000",
       imdbID: "tt1375666",
       boxOffice: "$836,836,967",
+      tmdbId: 0
     },
     {
       poster: "https://example.com/poster2.jpg",
@@ -64,6 +65,7 @@ describe("LibraryShelf Component", () => {
       imdbVotes: "1700000",
       imdbID: "tt0133093",
       boxOffice: "$463,517,383",
+      tmdbId: 0
     },
   ];
 
@@ -102,6 +104,7 @@ describe("LibraryShelf Component", () => {
       imdbVotes: null,
       imdbID: null,
       boxOffice: null,
+      tmdbId: 0
     };
 
     render(<LibraryShelf posters={[incompleteMovie]} isLoading={false} onMovieSelect={mockOnMovieSelect} />);

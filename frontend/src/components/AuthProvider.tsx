@@ -47,7 +47,7 @@ export default function AuthProvider({ children }: AuthProviderProps) {
       }
     }
     refreshTokenOnMount();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [currentUser, nav]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useLayoutEffect(() => {
     const authInterceptor = axios.interceptors.request.use((config) => {

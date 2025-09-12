@@ -78,7 +78,6 @@ builder.Services.AddScoped<ITokenService, TokenService>();
 builder.Services.AddHttpClient<IRadarrClient, RadarrClient>();
 builder.Services.AddHostedService<MovieSyncService>();
 builder.Services.AddHostedService<StartupService>();
-builder.Services.AddSingleton<SyncTrigger>();
 
 // Add Health Checks
 builder.Services.AddHealthChecks().AddDbContextCheck<AppDbContext>();

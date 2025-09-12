@@ -30,6 +30,7 @@ describe("Poster Component", () => {
     imdbVotes: "2000000",
     imdbID: "tt1375666",
     boxOffice: "$836,836,967",
+    tmdbId: 0
   };
 
   test("renders the poster image and title", () => {

@@ -14,37 +14,27 @@ public class MovieSyncService : BackgroundService
     private readonly IRadarrClient _radarrClient;
     private readonly ILogger<MovieSyncService> _logger;
     private readonly HttpClient _httpClient;
-    private readonly SyncTrigger _syncTrigger;
 
     public MovieSyncService(
         IServiceProvider serviceProvider,
         IRadarrClient radarrClient,
         ILogger<MovieSyncService> logger,
-        HttpClient httpClient,
-        SyncTrigger syncTrigger
+        HttpClient httpClient
     )
     {
         _serviceProvider = serviceProvider;
         _radarrClient = radarrClient;
         _logger = logger;
         _httpClient = httpClient;
-        _syncTrigger = syncTrigger;
         _httpClient.BaseAddress = new Uri("https://www.omdbapi.com");
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("MovieSyncService is starting.");
-        var periodicTimer = new PeriodicTimer(TimeSpan.FromMinutes(10));
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            // Wait for either the timer to tick or a sync request to be triggered
-            await Task.WhenAny(
-                periodicTimer.WaitForNextTickAsync(stoppingToken).AsTask(),
-                _syncTrigger.WaitForSyncRequestAsync()
-            );
-            
             try
             {
                 await SyncMoviesAsync(stoppingToken);
@@ -53,12 +43,13 @@ public class MovieSyncService : BackgroundService
             {
                 _logger.LogError(ex, "An error occurred while syncing movies.");
             }
+            await Task.Delay(TimeSpan.FromMinutes(10), stoppingToken);
         }
 
         _logger.LogInformation("MovieSyncService is stopping.");
     }
 
-    public async Task SyncMoviesAsync(CancellationToken cancellationToken)
+    private async Task SyncMoviesAsync(CancellationToken cancellationToken)
     {
         _logger.LogInformation("Starting movie database sync...");
 

@@ -1,5 +1,5 @@
 import "@testing-library/jest-dom";
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import QueuePanel from "../QueuePanel";
 import { getQueue } from "../../services/api/library";
 import { QueueResponse, QueueItem } from "../../types/library";
@@ -97,13 +97,24 @@ const emptyQueueResponse: QueueResponse = {
 };
 
 describe("QueuePanel Component", () => {
+    let consoleErrorSpy: jest.SpyInstance | undefined;
+
     beforeEach(() => {
         jest.clearAllMocks();
         jest.clearAllTimers();
+        consoleErrorSpy = undefined;
     });
 
-    afterEach(() => {
-        jest.runOnlyPendingTimers();
+    afterEach(async () => {
+        // Clean up any spies
+        if (consoleErrorSpy) {
+            consoleErrorSpy.mockRestore();
+            consoleErrorSpy = undefined;
+        }
+        
+        await act(async () => {
+            jest.runOnlyPendingTimers();
+        });
         jest.useRealTimers();
         jest.useFakeTimers();
     });
@@ -285,12 +296,20 @@ describe("QueuePanel Component", () => {
         expect(mockedGetQueue).toHaveBeenCalledTimes(1);
         
         const refreshButton = screen.getByText("Refresh");
-        fireEvent.click(refreshButton);
         
-        expect(mockedGetQueue).toHaveBeenCalledTimes(2);
+        await act(async () => {
+            fireEvent.click(refreshButton);
+        });
+        
+        await waitFor(() => {
+            expect(mockedGetQueue).toHaveBeenCalledTimes(2);
+        });
     });
 
     test("should handle API errors gracefully", async () => {
+        // Suppress console.error for this test since we're intentionally causing an error
+        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        
         mockedGetQueue.mockRejectedValue(new Error("Network error"));
         
         render(<QueuePanel />);
@@ -303,6 +322,9 @@ describe("QueuePanel Component", () => {
     });
 
     test("should retry API call when retry button is clicked after error", async () => {
+        // Suppress console.error for this test since we're intentionally causing an error
+        consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+        
         mockedGetQueue.mockRejectedValueOnce(new Error("Network error"));
         mockedGetQueue.mockResolvedValueOnce(mockQueueResponse);
         
@@ -313,7 +335,10 @@ describe("QueuePanel Component", () => {
         });
         
         const retryButton = screen.getByText("🔄 Retry");
-        fireEvent.click(retryButton);
+        
+        await act(async () => {
+            fireEvent.click(retryButton);
+        });
         
         await waitFor(() => {
             expect(screen.getByText("Download Queue")).toBeInTheDocument();
@@ -331,14 +356,18 @@ describe("QueuePanel Component", () => {
         });
         
         // Fast-forward time by 5 seconds
-        jest.advanceTimersByTime(5000);
+        await act(async () => {
+            jest.advanceTimersByTime(5000);
+        });
         
         await waitFor(() => {
             expect(mockedGetQueue).toHaveBeenCalledTimes(2);
         });
         
         // Fast-forward time by another 5 seconds
-        jest.advanceTimersByTime(5000);
+        await act(async () => {
+            jest.advanceTimersByTime(5000);
+        });
         
         await waitFor(() => {
             expect(mockedGetQueue).toHaveBeenCalledTimes(3);
