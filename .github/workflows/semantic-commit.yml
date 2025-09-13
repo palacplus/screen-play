@@ -11,6 +11,8 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      commit-added: ${{ steps.push-commit.outputs.commit-added }}
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -76,9 +78,12 @@ jobs:
           if git log origin/${{ github.event.pull_request.head.ref }}..HEAD --oneline | grep -q .; then
             git push origin ${{ github.event.pull_request.head.ref }}
             echo "🚀 Pushed semantic commit to PR branch"
+            echo "commit-added=true" >> $GITHUB_OUTPUT
           else
             echo "📋 No new commits to push"
           fi
+        outputs:
+          commit-added: ${{ steps.push-commit.outputs.commit-added }}
 
       - name: Add confirmation comment
         uses: actions/github-script@v6
@@ -119,3 +124,15 @@ jobs:
               repo: context.repo.repo,
               body: message
             });
+  
+  run-pr-workflow:
+    uses: ./.github/workflows/pr.yaml
+    needs: [add-semantic-commit]
+    if: ${{ steps.push-commit.outputs.commit-added == 'true' }}
+    secrets: inherit
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      id-token: write
+      attestations: write
