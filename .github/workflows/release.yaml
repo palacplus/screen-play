@@ -13,7 +13,6 @@ on:
 jobs:
   tag-release:
     runs-on: ubuntu-latest
-    if: always() && (github.event_name != 'pull_request' || needs.check-pr-labels.result == 'success')
     permissions:
       contents: write
     outputs:
