@@ -1,0 +1,121 @@
+name: Add Semantic Commit
+
+on:
+  pull_request:
+    types: [labeled]
+
+jobs:
+  add-semantic-commit:
+    if: contains(github.event.label.name, 'major') || contains(github.event.label.name, 'minor') || contains(github.event.label.name, 'patch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          ref: ${{ github.event.pull_request.head.ref }}
+          fetch-depth: 0
+
+      - name: Configure Git
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+
+      - name: Check existing commits for semantic keywords
+        id: check-commits
+        run: |
+          # Get all commits in this PR
+          git log --oneline origin/main..HEAD > pr_commits.txt
+          
+          # Check if semantic keywords already exist
+          has_breaking=$(grep -i "BREAKING" pr_commits.txt || echo "")
+          has_feature=$(grep -i "feat\|feature" pr_commits.txt || echo "")
+          has_bugfix=$(grep -i "fix\|bugfix" pr_commits.txt || echo "")
+          
+          echo "has_breaking=$([[ -n "$has_breaking" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "has_feature=$([[ -n "$has_feature" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+          echo "has_bugfix=$([[ -n "$has_bugfix" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
+
+      - name: Add semantic commit based on label
+        run: |
+          LABEL="${{ github.event.label.name }}"
+          
+          case "$LABEL" in
+            "major")
+              if [[ "${{ steps.check-commits.outputs.has_breaking }}" == "false" ]]; then
+                git commit --allow-empty -m "BREAKING: Prepare for major release"
+                echo "✅ Added BREAKING commit for major version bump"
+              else
+                echo "⏭️ BREAKING keyword already exists in commit history"
+              fi
+              ;;
+            "minor")
+              if [[ "${{ steps.check-commits.outputs.has_feature }}" == "false" ]]; then
+                git commit --allow-empty -m "feat: Prepare for minor release"
+                echo "✅ Added feat commit for minor version bump"
+              else
+                echo "⏭️ Feature keyword already exists in commit history"
+              fi
+              ;;
+            "patch")
+              if [[ "${{ steps.check-commits.outputs.has_bugfix }}" == "false" ]]; then
+                git commit --allow-empty -m "fix: Prepare for patch release"
+                echo "✅ Added fix commit for patch version bump"
+              else
+                echo "⏭️ Bugfix keyword already exists in commit history"
+              fi
+              ;;
+          esac
+
+      - name: Push semantic commit
+        run: |
+          # Check if we have any new commits to push
+          if git log origin/${{ github.event.pull_request.head.ref }}..HEAD --oneline | grep -q .; then
+            git push origin ${{ github.event.pull_request.head.ref }}
+            echo "🚀 Pushed semantic commit to PR branch"
+          else
+            echo "📋 No new commits to push"
+          fi
+
+      - name: Add confirmation comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const label = '${{ github.event.label.name }}';
+            const keywords = {
+              'major': 'BREAKING',
+              'minor': 'feat', 
+              'patch': 'fix'
+            };
+            
+            const keyword = keywords[label];
+            const hasExisting = {
+              'major': '${{ steps.check-commits.outputs.has_breaking }}',
+              'minor': '${{ steps.check-commits.outputs.has_feature }}',
+              'patch': '${{ steps.check-commits.outputs.has_bugfix }}'
+            }[label];
+            
+            let message;
+            if (hasExisting === 'true') {
+              message = `🏷️ **${label.toUpperCase()} label applied**
+              
+              ✅ Found existing commits with semantic keyword "${keyword}" - no additional commit needed.
+              
+              The semantic versioning action will correctly identify this as a **${label}** version bump.`;
+            } else {
+              message = `🏷️ **${label.toUpperCase()} label applied**
+              
+              🤖 Added empty commit with "${keyword}" keyword to ensure proper version bumping.
+              
+              The semantic versioning action will now correctly identify this as a **${label}** version bump when this PR is merged.`;
+            }
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });

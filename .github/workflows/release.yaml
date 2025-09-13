@@ -10,11 +10,44 @@ on:
       - 'frontend/**'
       - 'src/**'
       - 'Dockerfile.*'
+    paths-ignore:
+      - 'frontend/package.json'
   workflow_dispatch:
 
 jobs:
+  check-pr-labels:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for version label
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const labels = pullRequest.labels.map(label => label.name);
+            const versionLabels = ['major', 'minor', 'patch'];
+            const hasVersionLabel = versionLabels.some(label => labels.includes(label));
+
+            if (!hasVersionLabel) {
+              core.setFailed(`❌ Missing version label! Please add one of the required labels: ${versionLabels.join(', ')}`);
+            } else {
+              const selectedVersionLabels = versionLabels.filter(label => labels.includes(label));
+              if (selectedVersionLabels.length > 1) {
+                core.setFailed(`❌ Multiple version labels detected: ${selectedVersionLabels.join(', ')}. Please select only ONE version label.`);
+              } else {
+                core.info(`✅ Version label '${selectedVersionLabels[0]}' is properly set.`);
+              }
+            }
+
   tag-release:
     runs-on: ubuntu-latest
+    needs: [check-pr-labels]
+    if: always() && (github.event_name != 'pull_request' || needs.check-pr-labels.result == 'success')
     permissions:
       contents: write
     outputs:
@@ -68,10 +101,10 @@ jobs:
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
 
-  helm-chart-version:
+  add-suggestion-commit:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    needs: [tag-release]
+    needs: [check-pr-labels, tag-release]
     permissions:
       contents: write
     steps:
