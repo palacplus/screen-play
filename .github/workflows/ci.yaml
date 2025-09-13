@@ -1,8 +1,8 @@
 name: CI
 
 on:
-  push:
-    branches: [feature/*, bugfix/*, hotfix/*, develop]
+  pull_request:
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
@@ -44,8 +44,8 @@ jobs:
     - run: npm test
       working-directory: ./frontend
 
-  docker-build:
-    uses: ./.github/workflows/docker.yaml
+  build-server-image:
+    uses: ./.github/workflows/image-build.yaml
     needs: [dotnet-test, node-test]
     secrets: inherit
     permissions:
@@ -53,11 +53,27 @@ jobs:
       packages: write
       attestations: write
       id-token: write
+    with:
+      imageName: server
+      dockerfile: Dockerfile.server
+  
+  build-client-image:
+    uses: ./.github/workflows/image-build.yaml
+    needs: [dotnet-test, node-test]
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    with:
+      imageName: ui
+      dockerfile: Dockerfile.client
 
   e2e:
     uses: ./.github/workflows/e2e.yaml
-    needs: docker-build
+    needs: [build-client-image, build-server-image]
     with:
-      clientImageTag: ${{ needs.docker-build.outputs.client-tags }}
-      serverImageTag: ${{ needs.docker-build.outputs.server-tags }}
+      clientImageTag: ${{ needs.build-client-image.outputs.tags }}
+      serverImageTag: ${{ needs.build-server-image.outputs.tags }}
     secrets: inherit

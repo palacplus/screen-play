@@ -5,13 +5,13 @@ on:
 
 jobs:
   delete-images-frontend:
-    uses: ./.github/workflows/delete-images.yaml
+    uses: ./.github/workflows/image-delete.yaml
     with:
       package_name: 'screen-play'
       package_type: 'container'
   
   delete-images-server:
-    uses: ./.github/workflows/delete-images.yaml
+    uses: ./.github/workflows/image-delete.yaml
     with:
       package_name: 'screen-play'
       package_type: 'container'

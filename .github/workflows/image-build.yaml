@@ -1,0 +1,75 @@
+name: Build and Push Docker Image
+
+on:
+  workflow_call:
+    inputs:
+      tagOverride:
+        required: false
+        type: string
+        description: override the tag version
+      imageName:
+        required: true
+        type: string
+        description: image name
+      dockerfile:
+        required: true
+        type: string
+        description: path to Dockerfile (default: Dockerfile)
+    outputs:
+      tags:
+        description: 'Image tag'
+        value: ${{ jobs.build-and-push-image.outputs.tags }}
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    outputs:
+      tags: ${{ steps.metadata.outputs.tags }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Extract metadata for image
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}-${{ inputs.imageName }}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}}
+            type=semver,pattern={{version}},value=${{ inputs.tagOverride }}
+
+      - name: Build and push image
+        id: build
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ inputs.dockerfile }}
+          push: true
+          tags: ${{ steps.metadata.outputs.tags }}
+          labels: ${{ steps.metadata.outputs.labels }}
+
+      # Uncomment following making the repo public
+      # - name: Generate artifact attestation
+      #   uses: actions/attest-build-provenance@v2
+      #   with:
+      #     subject-name: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME}}
+      #     subject-digest: ${{ steps.build.outputs.digest }}
+      #     push-to-registry: true
