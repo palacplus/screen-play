@@ -75,7 +75,7 @@ jobs:
 
   tag-release:
     uses: ./.github/workflows/release.yaml
-    needs: [check-pr-labels, dotnet-test, node-test, build-client-image, build-server-image, e2e]
+    needs: [check-pr-labels, dotnet-test, node-test]
     secrets: inherit
     permissions:
       contents: write
