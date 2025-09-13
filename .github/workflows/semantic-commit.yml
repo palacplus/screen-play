@@ -32,8 +32,8 @@ jobs:
           
           # Check if semantic keywords already exist
           has_breaking=$(grep -i "BREAKING" pr_commits.txt || echo "")
-          has_feature=$(grep -i "feat\|feature" pr_commits.txt || echo "")
-          has_bugfix=$(grep -i "fix\|bugfix" pr_commits.txt || echo "")
+          has_feature=$(grep -i "feature" pr_commits.txt || echo "")
+          has_bugfix=$(grep -i "bugfix" pr_commits.txt || echo "")
           
           echo "has_breaking=$([[ -n "$has_breaking" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
           echo "has_feature=$([[ -n "$has_feature" ]] && echo "true" || echo "false")" >> $GITHUB_OUTPUT
@@ -54,7 +54,7 @@ jobs:
               ;;
             "minor")
               if [[ "${{ steps.check-commits.outputs.has_feature }}" == "false" ]]; then
-                git commit --allow-empty -m "feat: Prepare for minor release"
+                git commit --allow-empty -m "feature: Prepare for minor release"
                 echo "✅ Added feat commit for minor version bump"
               else
                 echo "⏭️ Feature keyword already exists in commit history"
@@ -62,8 +62,8 @@ jobs:
               ;;
             "patch")
               if [[ "${{ steps.check-commits.outputs.has_bugfix }}" == "false" ]]; then
-                git commit --allow-empty -m "fix: Prepare for patch release"
-                echo "✅ Added fix commit for patch version bump"
+                git commit --allow-empty -m "bugfix: Prepare for patch release"
+                echo "✅ Added bugfix commit for patch version bump"
               else
                 echo "⏭️ Bugfix keyword already exists in commit history"
               fi
@@ -87,8 +87,8 @@ jobs:
             const label = '${{ github.event.label.name }}';
             const keywords = {
               'major': 'BREAKING',
-              'minor': 'feat', 
-              'patch': 'fix'
+              'minor': 'feature', 
+              'patch': 'bugfix'
             };
             
             const keyword = keywords[label];
