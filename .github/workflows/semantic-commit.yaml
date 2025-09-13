@@ -8,8 +8,6 @@ jobs:
   add-semantic-commit:
     if: contains(github.event.label.name, 'major') || contains(github.event.label.name, 'minor') || contains(github.event.label.name, 'patch')
     runs-on: ubuntu-latest
-    outputs:
-      commit-added: ${{ steps.push-commit.outputs.commit-added }}
     permissions:
       contents: write
       pull-requests: write
@@ -79,10 +77,8 @@ jobs:
           if git log origin/${{ github.event.pull_request.head.ref }}..HEAD --oneline | grep -q .; then
             git push origin ${{ github.event.pull_request.head.ref }}
             echo "🚀 Pushed semantic commit to PR branch"
-            echo "commit-added=true" >> $GITHUB_OUTPUT
           else
             echo "📋 No new commits to push"
-            echo "commit-added=false" >> $GITHUB_OUTPUT
           fi
 
       - name: Add confirmation comment
@@ -124,15 +120,3 @@ jobs:
               repo: context.repo.repo,
               body: message
             });
-  
-  pr:
-    if: needs.add-semantic-commit.outputs.commit-added == 'true'
-    uses: ./.github/workflows/pr.yaml
-    needs: [add-semantic-commit]
-    secrets: inherit
-    permissions:
-      contents: write
-      packages: write
-      pull-requests: write
-      id-token: write
-      attestations: write
