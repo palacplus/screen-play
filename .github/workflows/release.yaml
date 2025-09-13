@@ -1,7 +1,7 @@
 name: Tag Release
 
 on:
-  workflow_dispatch:
+  workflow_call:
 
 jobs:
   tag-release:
