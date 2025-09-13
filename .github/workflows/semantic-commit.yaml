@@ -8,11 +8,11 @@ jobs:
   add-semantic-commit:
     if: contains(github.event.label.name, 'major') || contains(github.event.label.name, 'minor') || contains(github.event.label.name, 'patch')
     runs-on: ubuntu-latest
+    outputs:
+      commit-added: ${{ steps.push-commit.outputs.commit-added }}
     permissions:
       contents: write
       pull-requests: write
-    outputs:
-      commit-added: ${{ steps.push-commit.outputs.commit-added }}
     steps:
       - name: Checkout PR branch
         uses: actions/checkout@v4
@@ -73,6 +73,7 @@ jobs:
           esac
 
       - name: Push semantic commit
+        id: push-commit
         run: |
           # Check if we have any new commits to push
           if git log origin/${{ github.event.pull_request.head.ref }}..HEAD --oneline | grep -q .; then
@@ -81,9 +82,8 @@ jobs:
             echo "commit-added=true" >> $GITHUB_OUTPUT
           else
             echo "📋 No new commits to push"
+            echo "commit-added=false" >> $GITHUB_OUTPUT
           fi
-        outputs:
-          commit-added: ${{ steps.push-commit.outputs.commit-added }}
 
       - name: Add confirmation comment
         uses: actions/github-script@v6
@@ -125,10 +125,10 @@ jobs:
               body: message
             });
   
-  run-pr-workflow:
+  pr:
+    if: needs.add-semantic-commit.outputs.commit-added == 'true'
     uses: ./.github/workflows/pr.yaml
     needs: [add-semantic-commit]
-    if: ${{ steps.push-commit.outputs.commit-added == 'true' }}
     secrets: inherit
     permissions:
       contents: write
