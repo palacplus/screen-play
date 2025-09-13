@@ -63,7 +63,7 @@ jobs:
   add-version-commit:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
-    needs: [check-pr-labels, tag-release]
+    needs: [tag-release]
     permissions:
       contents: write
     steps:
