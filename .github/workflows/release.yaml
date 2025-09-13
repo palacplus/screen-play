@@ -2,16 +2,11 @@ name: Tag Release
 
 on:
   pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-    paths:
-      - 'deploy/**'
-      - 'frontend/**'
-      - 'src/**'
-      - 'Dockerfile.*'
-    paths-ignore:
-      - 'frontend/package.json'
+    types: [opened, reopened]
+  workflow_run:
+    workflows: ["Semantic Commit"]
+    types:
+      - completed
   workflow_dispatch:
 
 jobs:
