@@ -14,7 +14,7 @@ on:
       dockerfile:
         required: true
         type: string
-        description: path to Dockerfile (default: Dockerfile)
+        description: path to Dockerfile
     outputs:
       tags:
         description: 'Image tag'
