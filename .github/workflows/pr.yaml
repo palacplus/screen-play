@@ -1,20 +1,43 @@
 name: CI
 
 on:
-  push:
-    branches: [feature/*, bugfix/*]
-    paths-ignore:
-      - 'frontend/package.json'
-      - docs/**
-      - README.md
-      - LICENSE.txt
-      - helm/**
+  pull_request:
+    branches: [main]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  check-pr-labels:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for version label
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const labels = pullRequest.labels.map(label => label.name);
+            const versionLabels = ['major', 'minor', 'patch'];
+            const hasVersionLabel = versionLabels.some(label => labels.includes(label));
+
+            if (!hasVersionLabel) {
+              core.setFailed(`❌ Missing version label! Please add one of the required labels: ${versionLabels.join(', ')}`);
+            } else {
+              const selectedVersionLabels = versionLabels.filter(label => labels.includes(label));
+              if (selectedVersionLabels.length > 1) {
+                core.setFailed(`❌ Multiple version labels detected: ${selectedVersionLabels.join(', ')}. Please select only ONE version label.`);
+              } else {
+                core.info(`✅ Version label '${selectedVersionLabels[0]}' is properly set.`);
+              }
+            }
+
   dotnet-test:
     runs-on: ubuntu-latest
     env:
@@ -83,3 +106,14 @@ jobs:
       clientImageTag: ${{ needs.build-client-image.outputs.tags }}
       serverImageTag: ${{ needs.build-server-image.outputs.tags }}
     secrets: inherit
+  
+  tag-release:
+    if: github.event_name == 'pull_request'
+    uses: ./.github/workflows/release.yaml
+    needs: [check-pr-labels, dotnet-test, node-test, build-client-image, build-server-image, e2e]
+    secrets: inherit
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      id-token: write
