@@ -3,13 +3,12 @@ name: CI
 on:
   push:
     branches: [feature/*, bugfix/*]
-    paths:
-      - 'deploy/**'
-      - 'frontend/**'
-      - 'src/**'
-      - 'Dockerfile.*'
     paths-ignore:
       - 'frontend/package.json'
+      - docs/**
+      - README.md
+      - LICENSE.txt
+      - helm/**
 
 env:
   REGISTRY: ghcr.io
