@@ -2,6 +2,13 @@ name: Tag Release
 
 on:
   workflow_call:
+    outputs:
+      clientImageTag:
+        description: client image tag
+        value: ${{ jobs.build-client-image.outputs.tags }}
+      serverImageTag:
+        description: server image tag
+        value: ${{ jobs.build-server-image.outputs.tags }}
 
 jobs:
   tag-release:

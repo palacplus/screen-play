@@ -73,42 +73,7 @@ jobs:
     - run: npm test
       working-directory: ./frontend
 
-  build-server-image:
-    uses: ./.github/workflows/image-build.yaml
-    needs: [dotnet-test, node-test]
-    secrets: inherit
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-    with:
-      imageName: server
-      dockerfile: Dockerfile.server
-  
-  build-client-image:
-    uses: ./.github/workflows/image-build.yaml
-    needs: [dotnet-test, node-test]
-    secrets: inherit
-    permissions:
-      contents: read
-      packages: write
-      attestations: write
-      id-token: write
-    with:
-      imageName: ui
-      dockerfile: Dockerfile.client
-
-  e2e:
-    uses: ./.github/workflows/e2e.yaml
-    needs: [build-client-image, build-server-image]
-    with:
-      clientImageTag: ${{ needs.build-client-image.outputs.tags }}
-      serverImageTag: ${{ needs.build-server-image.outputs.tags }}
-    secrets: inherit
-  
   tag-release:
-    if: github.event_name == 'pull_request'
     uses: ./.github/workflows/release.yaml
     needs: [check-pr-labels, dotnet-test, node-test, build-client-image, build-server-image, e2e]
     secrets: inherit
@@ -118,3 +83,11 @@ jobs:
       pull-requests: write
       id-token: write
       attestations: write
+
+  e2e:
+    uses: ./.github/workflows/e2e.yaml
+    needs: [tag-release]
+    with:
+      clientImageTag: ${{ needs.tag-release.outputs.clientImageTag }}
+      serverImageTag: ${{ needs.tag-release.outputs.serverImageTag }}
+    secrets: inherit
