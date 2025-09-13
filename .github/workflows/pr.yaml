@@ -39,6 +39,7 @@ jobs:
             }
 
   dotnet-test:
+    needs: check-pr-labels
     runs-on: ubuntu-latest
     env:
       TEST_PATH: ./src/ScreenPlay.Server.Tests
@@ -56,6 +57,7 @@ jobs:
       run: dotnet test --no-build --verbosity normal ${{ env.TEST_PATH }}
 
   node-test:
+    needs: check-pr-labels
     runs-on: ubuntu-latest
     strategy:
       matrix:
