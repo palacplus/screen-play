@@ -153,7 +153,7 @@ export default function AddMoviePanel({ onAddMovie }: AddMoviePanelProps) {
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-input"
         />
-        {loading && (
+        {loading && !selectedMovie && (
           <div className="search-loading-indicator">
             <span className="loading-text">Searching...</span>
           </div>
