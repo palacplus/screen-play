@@ -1,9 +1,9 @@
-name: CI
+name: "CI/CD"
 
 on:
   pull_request:
     branches: [main]
-    types: [labeled, unlabeled, opened, synchronize, reopened]
+    types: [opened, synchronize, reopened]
 
 env:
   REGISTRY: ghcr.io

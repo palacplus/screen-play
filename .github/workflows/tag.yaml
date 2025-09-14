@@ -1,0 +1,139 @@
+name: Create Tag
+
+on:
+  pull_request:
+    types:
+      - labeled
+
+jobs:
+  create-tag:
+    if: contains(github.event.label.name, 'major') || contains(github.event.label.name, 'minor') || contains(github.event.label.name, 'patch')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    outputs:
+      newTag: ${{ steps.semver.outputs.next }}
+    steps:
+      - name: Checkout PR branch
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PERSONAL_ACCESS_TOKEN }}
+
+      - name: Determine commit message based on label
+        id: commit-message
+        run: |
+          LABEL="${{ github.event.label.name }}"
+          case "$LABEL" in
+            "major")
+              echo message="BREAKING: Prepare for major release" >> $GITHUB_OUTPUT
+              echo "✅ Added BREAKING commit for major version bump"
+              ;;
+            "minor")
+              echo message="feature: Prepare for minor release" >> $GITHUB_OUTPUT
+              echo "✅ Added feat commit for minor version bump"
+              ;;
+            "patch")
+              echo message="bugfix: Prepare for patch release" >> $GITHUB_OUTPUT
+              echo "✅ Added bugfix commit for patch version bump"
+              ;;
+          esac
+
+      - name: Commit and push empty commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          
+          # Stage the empty commit but don't push yet
+          git commit --allow-empty -m "${{ steps.commit-message.outputs.message }}"
+          echo "📝 Created semantic commit (not pushed yet)"
+        
+      - name: Get Next Version
+        id: semver
+        uses: ietf-tools/semver-action@v1
+        with:
+          token: ${{ github.token }}
+          branch: ${{ github.event.pull_request.head.ref }}
+          fallbackTag: 0.0.0
+          patchAll: true
+          majorList: 'BREAKING'
+          noVersionBumpBehavior: patch
+
+      - name: Update version files
+        run: |
+          # Update frontend/package.json
+          cd frontend          
+          TAG=${{ steps.semver.outputs.next }}
+          VERSION=${TAG#v}
+          echo "Setting package.json version to: $VERSION"
+          sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" package.json
+          rm -f package.json.bak
+          cd ..
+          
+          # Update helm/screen-play/Chart.yaml  
+          cd helm/screen-play
+          echo "Setting Chart appVersion to: $VERSION"
+          sed -i "s/^appVersion: .*/appVersion: $VERSION/" Chart.yaml
+          cd ../..
+          
+          echo "✅ Updated version files"
+
+      - name: Commit version updates and push all changes
+        run: |
+          CHANGES_MADE=false
+          
+          # Check for version file changes
+          if git status --porcelain | grep frontend/package.json; then
+            git add frontend/package.json
+            CHANGES_MADE=true
+            echo "📦 Added package.json changes"
+          fi
+          
+          if git status --porcelain | grep helm/screen-play/Chart.yaml; then
+            git add helm/screen-play/Chart.yaml
+            CHANGES_MADE=true
+            echo "⛵ Added Chart.yaml changes"
+          fi
+          
+          # If we have version changes, create a commit for them
+          if [ "$CHANGES_MADE" = true ]; then
+            git commit -m "Update version to ${{ steps.semver.outputs.next }}"
+            echo "📝 Created version update commit"
+          fi
+          
+          # Push all commits at once (semantic commit + version commit if any)
+          git push
+          echo "🚀 Pushed all commits together"
+
+      - name: Add confirmation comment
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const label = '${{ github.event.label.name }}';
+            const newVersion = '${{ steps.semver.outputs.next }}';
+            const keywords = {
+              'major': 'BREAKING',
+              'minor': 'feature', 
+              'patch': 'bugfix'
+            };
+            
+            const keyword = keywords[label];            
+            let message = `🏷️ **${label.toUpperCase()} label applied**
+            
+            🤖 **Automated commits added:**
+            - ✅ Semantic commit with "${keyword}" keyword for version detection
+            - 📦 Version update commit setting version to \`${newVersion}\`
+            
+            **Files updated:**
+            - \`frontend/package.json\` → version: "${newVersion.replace('v', '')}"
+            - \`helm/screen-play/Chart.yaml\` → appVersion: "${newVersion.replace('v', '')}"
+            
+            The semantic versioning system will correctly identify this as a **${label}** version bump (\`${newVersion}\`) when this PR is merged.`;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: message
+            });
+  
