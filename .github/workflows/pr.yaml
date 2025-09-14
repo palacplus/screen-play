@@ -41,6 +41,7 @@ jobs:
   
   dotnet-test:
     runs-on: ubuntu-latest
+    needs: [check-pr-labels]
     env:
       TEST_PATH: ./src/ScreenPlay.Server.Tests
     steps:
@@ -58,6 +59,7 @@ jobs:
 
   node-test:
     runs-on: ubuntu-latest
+    needs: [check-pr-labels]
     strategy:
       matrix:
         node-version: [18.x, 20.x, 22.x]
