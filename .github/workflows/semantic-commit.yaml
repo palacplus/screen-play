@@ -1,7 +1,9 @@
 name: Semantic Commit
 
 on:
-  workflow_call:
+  pull_request:
+    types:
+      - labeled
 
 jobs:
   add-semantic-commit:
@@ -37,11 +39,12 @@ jobs:
               ;;
           esac
 
-      - name: Commit and push changes
-        uses: stefanzweifel/git-auto-commit-action@v4
-        with:
-          commit_message: "${{ steps.commit-message.outputs.message }}"
-          token: ${{ secrets.PAT_FOR_WORKFLOW }}
+      - name: Commit and push empty commit
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit --allow-empty -m "${{ steps.commit-message.outputs.message }}"
+          git push
 
       - name: Add confirmation comment
         uses: actions/github-script@v6

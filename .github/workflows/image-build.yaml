@@ -16,9 +16,9 @@ on:
         type: string
         description: path to Dockerfile
     outputs:
-      tags:
-        description: 'Image tag'
-        value: ${{ jobs.build-and-push-image.outputs.tags }}
+      imageTag:
+        description: image tag
+        value: ${{ jobs.build-and-push-image.outputs.imageTag }}
 
 env:
   REGISTRY: ghcr.io
@@ -33,7 +33,7 @@ jobs:
       attestations: write
       id-token: write
     outputs:
-      tags: ${{ steps.metadata.outputs.tags }}
+      imageTag: ${{ steps.first-tag.outputs.tag }}
 
     steps:
       - name: Checkout repository
@@ -55,6 +55,14 @@ jobs:
             type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{version}},value=${{ inputs.tagOverride }}
+
+      - name: Extract first tag
+        id: first-tag
+        run: |
+          # Get all tags and extract the first one
+          FIRST_TAG=$(echo "${{ steps.metadata.outputs.tags }}" | head -n1)
+          echo "tag=$FIRST_TAG" >> $GITHUB_OUTPUT
+          echo "tag: $FIRST_TAG"
 
       - name: Build and push image
         id: build

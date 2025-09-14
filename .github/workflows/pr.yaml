@@ -38,14 +38,6 @@ jobs:
                 core.info(`✅ Version label '${selectedVersionLabels[0]}' is properly set.`);
               }
             }
-
-  semantic-commit-message:
-    uses: ./.github/workflows/semantic-commit.yaml
-    needs: [check-pr-labels]
-    secrets: inherit
-    permissions:
-      contents: write
-      pull-requests: write
   
   dotnet-test:
     runs-on: ubuntu-latest
@@ -86,7 +78,6 @@ jobs:
     uses: ./.github/workflows/release.yaml
     needs: 
       - check-pr-labels
-      - semantic-commit-message
       - dotnet-test
       - node-test
     secrets: inherit

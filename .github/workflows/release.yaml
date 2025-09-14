@@ -5,10 +5,10 @@ on:
     outputs:
       clientImageTag:
         description: client image tag
-        value: ${{ jobs.build-client-image.outputs.tags }}
+        value: ${{ jobs.build-client-image.outputs.imageTag }}
       serverImageTag:
         description: server image tag
-        value: ${{ jobs.build-server-image.outputs.tags }}
+        value: ${{ jobs.build-server-image.outputs.imageTag }}
 
 jobs:
   tag-release:
