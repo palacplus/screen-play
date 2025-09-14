@@ -59,6 +59,7 @@ jobs:
           patchAll: true
           majorList: 'BREAKING'
           noVersionBumpBehavior: patch
+          additionalCommits: ${{ steps.commit-message.outputs.message }}
 
       - name: Update version files
         run: |
