@@ -4,7 +4,7 @@ on:
   pull_request:
     types:
       - labeled
-
+      
 jobs:
   create-tag:
     if: contains(github.event.label.name, 'major') || contains(github.event.label.name, 'minor') || contains(github.event.label.name, 'patch')
@@ -137,4 +137,35 @@ jobs:
               repo: context.repo.repo,
               body: message
             });
+
+      - name: Remove label on failure
+        if: failure()
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const label = '${{ github.event.label.name }}';
+            
+            try {
+              await github.rest.issues.removeLabel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                name: label
+              });
+              
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `🚨 **Workflow failed - Label removed**
+                
+                The \`${label}\` label has been removed because the tagging workflow encountered an error.
+                
+                Please check the workflow logs, fix any issues, and re-apply the label when ready to retry.`
+              });
+              
+              console.log(`✅ Removed label '${label}' due to workflow failure`);
+            } catch (error) {
+              console.log(`❌ Failed to remove label '${label}': ${error.message}`);
+            }
   
