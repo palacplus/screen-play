@@ -1,0 +1,99 @@
+name: build
+
+on:
+  pull_request:
+    branches: [main]
+    types: [opened, synchronize, reopened]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  check-pr-labels:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check for version label
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { data: pullRequest } = await github.rest.pulls.get({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.issue.number
+            });
+
+            const labels = pullRequest.labels.map(label => label.name);
+            const versionLabels = ['major', 'minor', 'patch'];
+            const hasVersionLabel = versionLabels.some(label => labels.includes(label));
+
+            if (!hasVersionLabel) {
+              core.setFailed(`❌ Missing version label! Please add one of the required labels: ${versionLabels.join(', ')}`);
+            } else {
+              const selectedVersionLabels = versionLabels.filter(label => labels.includes(label));
+              if (selectedVersionLabels.length > 1) {
+                core.setFailed(`❌ Multiple version labels detected: ${selectedVersionLabels.join(', ')}. Please select only ONE version label.`);
+              } else {
+                core.info(`✅ Version label '${selectedVersionLabels[0]}' is properly set.`);
+              }
+            }
+  
+  dotnet-test:
+    runs-on: ubuntu-latest
+    needs: [check-pr-labels]
+    env:
+      TEST_PATH: ./src/ScreenPlay.Server.Tests
+    steps:
+    - uses: actions/checkout@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 9.0.x
+    - name: Restore dependencies
+      run: dotnet restore ${{ env.TEST_PATH }}
+    - name: Build
+      run: dotnet build --no-restore ${{ env.TEST_PATH }}
+    - name: Test
+      run: dotnet test --no-build --verbosity normal ${{ env.TEST_PATH }}
+
+  node-test:
+    runs-on: ubuntu-latest
+    needs: [check-pr-labels]
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x, 22.x]
+    steps:
+    - uses: actions/checkout@v4
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: ./frontend/package-lock.json
+    - run: npm ci
+      working-directory: ./frontend
+    - run: npm test
+      working-directory: ./frontend
+
+  tag-release:
+    uses: ./.github/workflows/release.yaml
+    needs: 
+      - check-pr-labels
+      - dotnet-test
+      - node-test
+    secrets: inherit
+    permissions:
+      contents: write
+      packages: write
+      pull-requests: write
+      id-token: write
+      attestations: write
+
+  e2e:
+    uses: ./.github/workflows/e2e.yaml
+    needs: [tag-release]
+    with:
+      clientImageTag: ${{ needs.tag-release.outputs.clientImageTag }}
+      serverImageTag: ${{ needs.tag-release.outputs.serverImageTag }}
+    secrets: inherit

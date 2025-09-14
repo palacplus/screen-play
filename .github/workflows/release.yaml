@@ -1,16 +1,14 @@
-name: Tag Release
+name: Create Release
 
 on:
-  pull_request:
-    branches: [main]
-  push:
-    branches: [main]
-    paths:
-      - 'deploy/**'
-      - 'frontend/**'
-      - 'src/**'
-      - 'Dockerfile.*'
-  workflow_dispatch:
+  workflow_call:
+    outputs:
+      clientImageTag:
+        description: client image tag
+        value: ${{ jobs.build-client-image.outputs.imageTag }}
+      serverImageTag:
+        description: server image tag
+        value: ${{ jobs.build-server-image.outputs.imageTag }}
 
 jobs:
   tag-release:
@@ -68,75 +66,8 @@ jobs:
           body: ${{ steps.changelog.outputs.changes }}
           token: ${{ github.token }}
 
-  helm-chart-version:
-    if: github.event_name == 'pull_request'
-    runs-on: ubuntu-latest
-    needs: [tag-release]
-    permissions:
-      contents: write
-    steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
-        with:
-          ref: ${{ github.event.pull_request.head.ref }}
-
-      - name: Update package.json version and commitHash
-        run: |
-          cd frontend          
-          # Remove 'v' prefix from tag if present
-          TAG=${{ needs.tag-release.outputs.tag }}
-          VERSION=${TAG#v}
-          echo "Setting package.json version to: $VERSION"
-          
-          # Update version in package.json
-          sed -i.bak "s/\"version\": \"[^\"]*\"/\"version\": \"$VERSION\"/" package.json
-          
-          # Clean up backup file
-          rm -f package.json.bak
-          
-          echo "Updated package.json:"
-          cat package.json | grep -E '"version"'
-
-      - name: Update values.yaml
-        run: |
-          cd helm/screen-play
-          TAG=${{ needs.tag-release.outputs.tag }}
-          VERSION=${TAG#v}
-          echo "Setting new Chart version: $VERSION"
-          sed -i "s/^appVersion: .*/appVersion: $VERSION/" Chart.yaml
-          cat Chart.yaml
-      
-      - name: Commit and Push Changes
-        run: |
-          git config --global user.name 'GitHub Actions'
-          git config --global user.email 'actions@github.com'
-
-          CHANGES_MADE=false
-          
-          if git status --porcelain | grep frontend/package.json; then
-            git add frontend/package.json
-            CHANGES_MADE=true
-            echo "Added package.json changes"
-          fi
-          
-          if git status --porcelain | grep Chart.yaml; then
-            git add helm/screen-play/Chart.yaml
-            CHANGES_MADE=true
-            echo "Added Chart.yaml changes"
-          fi
-          
-          if [ "$CHANGES_MADE" = true ]; then
-            git commit -m "Update version to ${{ needs.tag-release.outputs.tag }}"
-            git push
-          else
-            echo "No changes to commit"
-          fi
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  docker-build:
-    if: github.event_name == 'push'
-    uses: ./.github/workflows/docker.yaml
+  build-server-image:
+    uses: ./.github/workflows/image-build.yaml
     needs: [tag-release]
     secrets: inherit
     permissions:
@@ -145,4 +76,20 @@ jobs:
       attestations: write
       id-token: write
     with:
-      tagOverride: ${{ needs.tag-release.outputs.tag }} 
+      imageName: server
+      dockerfile: Dockerfile.server
+      tagOverride: ${{ needs.tag-release.outputs.tag }}
+  
+  build-client-image:
+    uses: ./.github/workflows/image-build.yaml
+    needs: [tag-release]
+    secrets: inherit
+    permissions:
+      contents: read
+      packages: write
+      attestations: write
+      id-token: write
+    with:
+      imageName: ui
+      dockerfile: Dockerfile.client
+      tagOverride: ${{ needs.tag-release.outputs.tag }}

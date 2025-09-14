@@ -49,7 +49,7 @@
   position: relative;
 }
 
-.search-input {
+.new-search-container .search-input {
   flex: 1;
   border: 1px solid var(--border-color, #374151);
   border-radius: var(--border-radius-md, 0.5rem);
@@ -60,13 +60,13 @@
   transition: all 0.2s ease;
 }
 
-.search-input:focus {
+.new-search-container .search-input:focus {
   outline: none;
   border-color: var(--accent-color, #3b82f6);
   box-shadow: 0 0 0 3px rgb(59 130 246 / 0.1);
 }
 
-.search-input::placeholder {
+.new-search-container .search-input::placeholder {
   color: var(--secondary-text, #cbd5e1);
 }
 
