@@ -1,6 +1,6 @@
 {
   "name": "ScreenPlay",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "private": true,
   "dependencies": {
     "@react-oauth/google": "^0.12.1",
