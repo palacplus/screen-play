@@ -1,6 +1,8 @@
 name: Create Release
 
 on:
+  push:
+    branches: [main]
   workflow_call:
     outputs:
       clientImageTag:
@@ -54,6 +56,7 @@ jobs:
           writeToFile: false
           includeInvalidCommits: true
 
+      # Finalize Release. This step will only run on pushes to main, not on PRs.
       - name: Create Release
         if: github.event_name == 'push'
         uses: ncipollo/release-action@v1.12.0
