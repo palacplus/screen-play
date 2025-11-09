@@ -1,12 +1,13 @@
 # Default values for screen-play.
-postgresql:
+postgres:
   enabled: true
   fullnameOverride: postgres
   image:
-    tag: latest
+    repository: docker.io/library/postgres
+    tag: 17.4-bookworm
     debug: true
   containerPorts:
-    postgresql: 5432
+    postgres: 5432
   auth:
     database: ScreenPlay
     username: admin

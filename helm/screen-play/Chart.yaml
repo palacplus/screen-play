@@ -4,7 +4,6 @@ description: A Helm chart for deploying ScreenPlay
 version: 0.1.0
 appVersion: 2.0.0
 dependencies:
-  - name: postgresql
+  - name: postgres
     version: 16.6.6
-    repository: oci://registry-1.docker.io/bitnamicharts
     condition: postgres.enabled
