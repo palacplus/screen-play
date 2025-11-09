@@ -1,4 +1,8 @@
 # Default values for screen-play.
+global:
+  security:
+    allowInsecureImages: true
+
 postgresql:
   enabled: true
   fullnameOverride: postgres
