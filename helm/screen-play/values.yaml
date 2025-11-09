@@ -3,7 +3,8 @@ postgresql:
   enabled: true
   fullnameOverride: postgres
   image:
-    tag: 17.4-bookworm
+    tag: 17.4.0-debian-12-r17
+    repository: bitnamilegacy/postgresql
     debug: true
   containerPorts:
     postgresql: 5432
