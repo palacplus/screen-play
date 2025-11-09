@@ -1,5 +1,5 @@
 # Default values for screen-play.
-postgres:
+postgresql:
   enabled: true
   fullnameOverride: postgres
   image:
@@ -7,7 +7,7 @@ postgres:
     tag: 17.4-bookworm
     debug: true
   containerPorts:
-    postgres: 5432
+    postgresql: 5432
   auth:
     database: ScreenPlay
     username: admin
