@@ -3,7 +3,6 @@ postgresql:
   enabled: true
   fullnameOverride: postgres
   image:
-    repository: docker.io/library/postgres
     tag: 17.4-bookworm
     debug: true
   containerPorts:
