@@ -28,9 +28,9 @@ postgresql:
       existingClaim: plex-pvc
       subPath: postgres
   backup:
-    enabled: true
+    enabled: false
     cronjob:
-      enabled: true
+      enabled: false
       podSecurityContext:
         fsGroup: 65534
         fsGroupChangePolicy: OnRootMismatch
