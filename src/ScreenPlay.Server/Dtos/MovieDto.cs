@@ -51,7 +51,6 @@ public class MovieDto
     public string RootFolderPath { get; set; }
     public string Certification { get; set; }
     public List<string> Genres { get; set; }
-    public List<string> Tags { get; set; }
     public DateTime Added { get; set; }
     public AddOptions AddOptions { get; set; }
     public RatingsDto Ratings { get; set; }
@@ -88,7 +87,7 @@ public class MovieDto
             RootFolderPath = this.RootFolderPath,
             Rated = this.Certification,
             Genres = this.Genres ?? new List<string>(),
-            Tags = this.Tags ?? new List<string>(),
+            Tags = new List<string>(),
             Added = this.Added,
             Ratings = new List<Rating> {
                 new Rating
